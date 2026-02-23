@@ -5,30 +5,37 @@ import LoginPage from '../features/login';
 import TransferPage from '../features/transfer';
 import HistoryPage from '../features/history';
 import SettingsPage from '../features/settings';
+import AppLayout from '../shared/layouts/AppLayout';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" />,
-  },
-  {
-    path: '/dashboard',
-    element: <DashboardPage />,
+    element: <AppLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" />,
+      },
+      {
+        path: 'dashboard',
+        element: <DashboardPage />,
+      },
+      {
+        path: 'transfer',
+        element: <TransferPage />,
+      },
+      {
+        path: 'history',
+        element: <HistoryPage />,
+      },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
+      },
+    ],
   },
   {
     path: '/login',
     element: <LoginPage />,
-  },
-  {
-    path: '/transfer',
-    element: <TransferPage />,
-  },
-  {
-    path: '/history',
-    element: <HistoryPage />,
-  },
-  {
-    path: '/settings',
-    element: <SettingsPage />,
   },
 ]);
