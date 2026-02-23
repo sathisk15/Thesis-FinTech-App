@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "user@fintech.test",
+      "password": "password123"
+    }
+  ],
+  "dashboard": {
+    "balance": 12500,
+    "income": 4200,
+    "expenses": 3100
+  },
+  "charts": [
+    { "month": "Jan", "value": 1000 },
+    { "month": "Feb", "value": 1200 },
+    { "month": "Mar", "value": 900 }
+  ],
+  "transactions": [
+    { "id": 1, "amount": -50, "label": "Coffee" },
+    { "id": 2, "amount": -200, "label": "Groceries" }
+  ],
+  "securitySettings": {
+    "cspEnabled": false,
+    "mfaEnabled": false
+  }
+}
