@@ -125,3 +125,97 @@ export const getCurrentUser = (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const updateProfile = (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { firstname, lastname, contact, country, currency } = req.body;
+
+    // Update only allowed fields
+    db.prepare(
+      `
+      UPDATE tbluser
+      SET 
+        firstname = COALESCE(?, firstname),
+        lastname = COALESCE(?, lastname),
+        contact = COALESCE(?, contact),
+        country = COALESCE(?, country),
+        currency = COALESCE(?, currency),
+        updatedat = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+    ).run(firstname, lastname, contact, country, currency, userId);
+
+    const updatedUser = db
+      .prepare(
+        `
+      SELECT 
+        id,
+        email,
+        firstname,
+        lastname,
+        contact,
+        provider,
+        country,
+        currency,
+        createdat,
+        updatedat
+      FROM tbluser
+      WHERE id = ?
+    `,
+      )
+      .get(userId);
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Missing password fields' });
+    }
+
+    // Get user with password
+    const user = db
+      .prepare('SELECT password FROM tbluser WHERE id = ?')
+      .get(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Compare current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    db.prepare(
+      `
+      UPDATE tbluser
+      SET password = ?, updatedat = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+    ).run(hashedPassword, userId);
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
