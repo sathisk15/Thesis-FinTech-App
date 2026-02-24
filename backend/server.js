@@ -1,7 +1,7 @@
-const app = require('./app');
+import './config/init_db.js';
+// import './config/seed.js';
+import app from './app.js';
 
-const PORT = 4000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(4000, () => {
+  console.log('🚀 Backend running on port 4000');
 });
