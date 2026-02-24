@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../../api/axios';
 
 const Transfer = ({
@@ -10,6 +10,42 @@ const Transfer = ({
 }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isDescriptionEdited, setIsDescriptionEdited] = useState(false);
+
+  // Find selected TO account
+  const toAccount = accounts.find(
+    (acc) => acc.id === Number(transferData.toAccountId),
+  );
+
+  // Dynamic Description
+  useEffect(() => {
+    if (
+      transferFrom &&
+      toAccount &&
+      transferData.amount &&
+      !isDescriptionEdited
+    ) {
+      const refinedDescription = `Internal transfer of ${
+        transferFrom.currency
+      } ${Number(transferData.amount).toFixed(2)} from ${
+        transferFrom.account_type
+      } Account •••• ${transferFrom.account_number?.slice(
+        -4,
+      )} to ${toAccount.account_type} Account •••• ${toAccount.account_number?.slice(
+        -4,
+      )}.`;
+
+      setTransferData((prev) => ({
+        ...prev,
+        description: refinedDescription,
+      }));
+    }
+  }, [
+    transferFrom,
+    transferData.amount,
+    transferData.toAccountId,
+    isDescriptionEdited,
+  ]);
 
   const handleTransfer = async () => {
     setError('');
@@ -17,7 +53,7 @@ const Transfer = ({
     if (!transferData.toAccountId)
       return setError('Please select destination account.');
 
-    if (transferData.toAccountId === transferFrom.id)
+    if (Number(transferData.toAccountId) === transferFrom.id)
       return setError('Cannot transfer to same account.');
 
     if (!transferData.amount || Number(transferData.amount) <= 0)
@@ -31,7 +67,7 @@ const Transfer = ({
     try {
       await api.post('/accounts/transfer', {
         fromAccountId: transferFrom.id,
-        toAccountId: transferData.toAccountId,
+        toAccountId: Number(transferData.toAccountId),
         amount: Number(transferData.amount),
         description: transferData.description,
       });
@@ -67,7 +103,9 @@ const Transfer = ({
             <label className="text-sm text-text/60">From Account</label>
             <input
               disabled
-              value={`${transferFrom.account_type} •••• ${transferFrom.account_number?.slice(-4)}`}
+              value={`${transferFrom.account_type} •••• ${transferFrom.account_number?.slice(
+                -4,
+              )}`}
               className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
             />
           </div>
@@ -80,7 +118,7 @@ const Transfer = ({
               onChange={(e) =>
                 setTransferData({
                   ...transferData,
-                  toAccountId: e.target.value,
+                  toAccountId: Number(e.target.value),
                 })
               }
               className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
@@ -117,12 +155,13 @@ const Transfer = ({
             <label className="text-sm text-text/60">Description</label>
             <input
               value={transferData.description}
-              onChange={(e) =>
+              onChange={(e) => {
                 setTransferData({
                   ...transferData,
                   description: e.target.value,
-                })
-              }
+                });
+                setIsDescriptionEdited(true);
+              }}
               className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -148,4 +187,5 @@ const Transfer = ({
     </div>
   );
 };
+
 export default Transfer;

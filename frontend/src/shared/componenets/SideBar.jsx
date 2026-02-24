@@ -1,17 +1,21 @@
 import { NavLink } from 'react-router-dom';
 import {
   RiDashboardLine,
-  RiExchangeDollarLine,
+  RiExchangeFundsLine,
   RiBankLine,
+  RiSendPlaneLine,
   RiSettings3Line,
+  RiWallet3Line,
 } from 'react-icons/ri';
+import {} from 'react-icons/hi2';
 import { TbCoinEuroFilled } from 'react-icons/tb';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: RiDashboardLine },
   { name: 'Accounts', path: '/account', icon: RiBankLine },
-  { name: 'Transactions', path: '/transactions', icon: RiExchangeDollarLine },
-  { name: 'Transfer', path: '/transfer', icon: RiBankLine },
+  { name: 'Transactions', path: '/transactions', icon: RiExchangeFundsLine },
+  { name: 'Transfer', path: '/transfer', icon: RiSendPlaneLine },
+  { name: 'Pay', path: '/pay', icon: RiWallet3Line },
   { name: 'Settings', path: '/settings', icon: RiSettings3Line },
 ];
 

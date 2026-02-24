@@ -213,7 +213,10 @@ const TransactionPage = () => {
                         }`}
                       >
                         {isIncoming ? '+' : '-'}
-                        {tx.amount.toFixed(2)}
+                        {new Intl.NumberFormat('en-IE', {
+                          style: 'currency',
+                          currency: tx.currency || 'EUR',
+                        }).format(tx.amount)}
                       </td>
                     </tr>
                   );
