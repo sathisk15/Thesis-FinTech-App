@@ -21,6 +21,12 @@ export const useAuthStore = create(
           token: null,
           isAuthenticated: false,
         }),
+
+      setUser: (user) =>
+        set((state) => ({
+          ...state,
+          user,
+        })),
     }),
     {
       name: 'token', // key in localStorage

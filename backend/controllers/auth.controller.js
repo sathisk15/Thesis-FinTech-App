@@ -87,3 +87,41 @@ export const login = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const getCurrentUser = (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = db
+      .prepare(
+        `
+    SELECT 
+      id,
+      email,
+      firstname,
+      lastname,
+      contact,
+      provider,
+      country,
+      currency,
+      createdat,
+      updatedat
+    FROM tbluser
+    WHERE id = ?
+  `,
+      )
+      .get(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      message: 'User fetched successfully',
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
