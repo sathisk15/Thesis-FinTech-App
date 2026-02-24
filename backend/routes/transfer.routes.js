@@ -5,4 +5,4 @@ const { preview, confirm } = require('../controllers/transfer.controller');
 router.post('/preview', preview);
 router.post('/confirm', confirm);
 
-module.exports = router;
+export default router;

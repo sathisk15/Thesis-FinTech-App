@@ -4,4 +4,4 @@ const { list } = require('../controllers/history.controller.js');
 
 router.get('/', list);
 
-module.exports = router;
+export default router;

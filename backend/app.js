@@ -1,5 +1,5 @@
 import express from 'express';
-
+import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 // import dashboardRoutes from './routes/dashboard.routes';
 // import transferRoutes from './routes/transfer.routes';
@@ -8,8 +8,12 @@ import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
-// Load mock DB into memory
-// app.locals.db = loadDb();
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 

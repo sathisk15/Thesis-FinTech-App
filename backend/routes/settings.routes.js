@@ -8,4 +8,4 @@ const {
 router.get('/security', getSettings);
 router.post('/security', updateSettings);
 
-module.exports = router;
+export default router;

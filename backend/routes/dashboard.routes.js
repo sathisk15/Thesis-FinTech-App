@@ -5,4 +5,4 @@ const { summary, charts } = require('../controllers/dashboard.controller.js');
 router.get('/summary', summary);
 router.get('/charts', charts);
 
-module.exports = router;
+export default router;
