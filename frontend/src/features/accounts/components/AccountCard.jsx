@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiSend } from 'react-icons/fi';
+import {} from 'react-icons/fi';
 
-const AccountCard = ({ account }) => {
+const AccountCard = ({ account, setTransferFrom, setShowTransferModal }) => {
   const [showNumber, setShowNumber] = useState(false);
 
-  const maskedNumber = '••••••' + account.account_number?.slice(-2);
+  const maskedNumber = '••••' + account.account_number?.slice(-4);
 
   return (
     <div className="bg-card border border-border rounded-lg p-4 flex gap-4">
@@ -13,9 +14,22 @@ const AccountCard = ({ account }) => {
       </div>
 
       <div className="flex-1 space-y-2">
-        <p className="text-xl font-semibold text-text">
-          {account.account_type} Account
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xl font-semibold text-text">
+            {account.account_type} Account
+          </p>
+
+          <button
+            onClick={() => {
+              setTransferFrom(account);
+              setShowTransferModal(true);
+            }}
+            className="text-primary hover:opacity-80 cursor-pointer"
+            title="Transfer Money"
+          >
+            <FiSend size={18} />
+          </button>
+        </div>
 
         {/* Account Number + Eye */}
         <div className="flex items-center justify-between">
@@ -25,7 +39,7 @@ const AccountCard = ({ account }) => {
 
           <button
             onClick={() => setShowNumber((prev) => !prev)}
-            className="text-text/60 hover:text-text"
+            className="text-text/60 hover:text-text cursor-pointer"
           >
             {showNumber ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
@@ -36,7 +50,7 @@ const AccountCard = ({ account }) => {
         </p>
 
         <p className="text-lg font-medium text-text">
-          {account.currency} {account.account_balance?.toFixed(2)}
+          € {account.currency} {account.account_balance?.toFixed(2)}
         </p>
       </div>
     </div>

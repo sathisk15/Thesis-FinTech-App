@@ -143,7 +143,7 @@ const AddAccount = ({
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowModal(false)}
-            className="h-10 px-6 rounded-md border border-border text-text"
+            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
             disabled={loading}
           >
             Cancel
@@ -152,7 +152,7 @@ const AddAccount = ({
             <button
               onClick={handleCreate}
               disabled={loading || availableTypes.length === 0}
-              className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50"
+              className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Creating...' : 'Create Account'}
             </button>

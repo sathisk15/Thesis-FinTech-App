@@ -77,7 +77,7 @@ const DepositMoney = ({
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
                 {acc.account_type} ••••
-                {acc.account_number.slice(-2)}
+                {acc.account_number.slice(-4)}
               </option>
             ))}
           </select>
@@ -121,7 +121,7 @@ const DepositMoney = ({
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowDepositModal(false)}
-            className="h-10 px-6 rounded-md border border-border text-text"
+            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
             disabled={loading}
           >
             Cancel
@@ -130,7 +130,7 @@ const DepositMoney = ({
           <button
             onClick={handleDeposit}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50"
+            className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : 'Deposit'}
           </button>

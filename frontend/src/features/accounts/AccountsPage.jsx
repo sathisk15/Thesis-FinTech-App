@@ -4,6 +4,7 @@ import { useAccountStore } from '../../store/useAccountStore';
 import AddAccount from './components/AddAccount';
 import AccountCard from './components/AccountCard';
 import DepositMoney from './components/DepositMoney';
+import Transfer from './components/Transfer';
 
 const AccountsPage = () => {
   const { accounts, fetchAccounts, loading } = useAccountStore();
@@ -29,6 +30,15 @@ const AccountsPage = () => {
     amount: 0,
     description: '',
   });
+
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferFrom, setTransferFrom] = useState(null);
+
+  const [transferData, setTransferData] = useState({
+    toAccountId: '',
+    amount: '',
+    description: '',
+  });
   return (
     <>
       <div className="w-full py-10">
@@ -41,13 +51,13 @@ const AccountsPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowModal(true)}
-              className="h-10 px-4 rounded-md bg-primary text-white"
+              className="h-10 px-4 rounded-md bg-primary text-white cursor-pointer"
             >
               Create Account
             </button>
             <button
               onClick={() => setShowDepositModal(true)}
-              className="h-10 px-4 rounded-md border border-border text-text"
+              className="h-10 px-4 rounded-md border border-border text-text cursor-pointer"
             >
               Deposit
             </button>
@@ -59,7 +69,12 @@ const AccountsPage = () => {
           {loading && <p>Loading accounts...</p>}
           {console.log(accounts)}
           {accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
+            <AccountCard
+              key={account.id}
+              account={account}
+              setTransferFrom={setTransferFrom}
+              setShowTransferModal={setShowTransferModal}
+            />
           ))}
         </div>
       </div>
@@ -79,6 +94,15 @@ const AccountsPage = () => {
           setDepositData={setDepositData}
           depositMoney={depositMoney}
           setShowDepositModal={setShowDepositModal}
+        />
+      )}
+      {showTransferModal && transferFrom && (
+        <Transfer
+          accounts={accounts}
+          transferFrom={transferFrom}
+          transferData={transferData}
+          setTransferData={setTransferData}
+          setShowTransferModal={setShowTransferModal}
         />
       )}
     </>

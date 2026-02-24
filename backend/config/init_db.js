@@ -49,24 +49,32 @@ const init = db.transaction(() => {
   // TRANSACTIONS TABLE
   // ======================
   db.exec(`
-    CREATE TABLE IF NOT EXISTS tbltransaction (
+      CREATE TABLE IF NOT EXISTS tbltransaction (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       account_id INTEGER NOT NULL,
+
       description TEXT NOT NULL,
       reference TEXT,
+
       amount REAL NOT NULL CHECK (amount > 0),
-      type TEXT NOT NULL
-        CHECK (type IN ('credit','debit')),
+      type TEXT NOT NULL CHECK (type IN ('credit','debit')),
+
+      balance_before REAL NOT NULL,
+      balance_after REAL NOT NULL,
+
       status TEXT NOT NULL DEFAULT 'Completed'
         CHECK (status IN ('Pending','Completed','Failed')),
+
       category TEXT,
+
       createdat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updatedat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
       FOREIGN KEY (user_id) REFERENCES tbluser(id) ON DELETE CASCADE,
       FOREIGN KEY (account_id) REFERENCES tblaccount(id) ON DELETE CASCADE
     );
-  `);
+ `);
 
   // ======================
   // INDEXES
