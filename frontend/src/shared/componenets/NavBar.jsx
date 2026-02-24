@@ -11,7 +11,7 @@ const Navbar = () => {
     logout();
     navigate('/login');
   };
-  console.log(user);
+
   return (
     <header className="w-full bg-card border-b border-border px-6 py-4 flex items-center justify-between">
       <span className="text-xl font-bold text-text">Banking App</span>
@@ -19,9 +19,9 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         <div className="text-right hidden md:block">
           <p className="text-sm font-medium text-text">
-            {user?.firstname + ' ' + user?.lastname}
+            {user?.firstname + ' ' + (user?.lastname ?? '')}
           </p>
-          <p className="text-xs text-text/60">{user.email}</p>
+          <p className="text-xs text-text/60">{user?.email}</p>
         </div>
 
         <img
