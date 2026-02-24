@@ -24,11 +24,16 @@ const DepositMoney = ({
     setLoading(true);
 
     try {
-      await depositMoney(depositData.accountId, depositData.amount);
+      await depositMoney(
+        depositData.accountId,
+        depositData.amount,
+        depositData.description,
+      );
 
       setDepositData({
         accountId: '',
         amount: 0,
+        description: '',
       });
 
       setShowDepositModal(false);
@@ -89,6 +94,23 @@ const DepositMoney = ({
               setDepositData({
                 ...depositData,
                 amount: Number(e.target.value),
+              })
+            }
+            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-1">
+          <label className="text-sm text-text/60">Description (Optional)</label>
+          <input
+            type="text"
+            placeholder="Enter deposit note"
+            value={depositData.description}
+            onChange={(e) =>
+              setDepositData({
+                ...depositData,
+                description: e.target.value,
               })
             }
             className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"

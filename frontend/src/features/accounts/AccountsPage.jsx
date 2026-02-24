@@ -27,6 +27,7 @@ const AccountsPage = () => {
   const [depositData, setDepositData] = useState({
     accountId: '',
     amount: 0,
+    description: '',
   });
   return (
     <>

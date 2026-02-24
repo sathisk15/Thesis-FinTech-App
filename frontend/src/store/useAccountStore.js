@@ -29,10 +29,11 @@ export const useAccountStore = create((set) => ({
     }
   },
 
-  depositMoney: async (accountId, amount) => {
+  depositMoney: async (accountId, amount, description) => {
     try {
       const response = await api.post(`/accounts/${accountId}/deposit`, {
         amount,
+        description,
       });
 
       const updatedAccount = response.data.account;
@@ -43,7 +44,6 @@ export const useAccountStore = create((set) => ({
         ),
       }));
     } catch (error) {
-      console.error(error);
       throw error;
     }
   },
