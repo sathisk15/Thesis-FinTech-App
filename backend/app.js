@@ -6,7 +6,6 @@ import accountRoutes from './routes/account.routes.js';
 // import dashboardRoutes from './routes/dashboard.routes';
 // import transferRoutes from './routes/transfer.routes';
 // import historyRoutes from './routes/history.routes';
-// import settingsRoutes from './routes/settings.routes';
 
 const app = express();
 
@@ -24,7 +23,6 @@ app.use('/api/accounts', accountRoutes);
 // app.use('/api/dashboard', dashboardRoutes);
 // app.use('/api/transfer', transferRoutes);
 // app.use('/api/history', historyRoutes);
-// app.use('/api/settings', settingsRoutes);
 
 app.get('/api/healthCheck', (req, res) => res.json({ health: 'ok' }));
 
