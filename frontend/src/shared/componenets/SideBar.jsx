@@ -9,8 +9,9 @@ import { TbCoinEuroFilled } from 'react-icons/tb';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: RiDashboardLine },
-  { name: 'History', path: '/history', icon: RiExchangeDollarLine },
-  { name: 'transfer', path: '/transfer', icon: RiBankLine },
+  { name: 'Accounts', path: '/account', icon: RiBankLine },
+  { name: 'Transactions', path: '/transactions', icon: RiExchangeDollarLine },
+  { name: 'Transfer', path: '/transfer', icon: RiBankLine },
   { name: 'Settings', path: '/settings', icon: RiSettings3Line },
 ];
 
