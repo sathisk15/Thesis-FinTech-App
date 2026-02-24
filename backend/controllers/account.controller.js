@@ -255,6 +255,7 @@ export const getTransactionsByAccount = (req, res) => {
         `
       SELECT
         id,
+        account_id,
         description,
         reference,
         amount,

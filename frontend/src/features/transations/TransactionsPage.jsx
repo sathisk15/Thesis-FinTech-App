@@ -81,7 +81,7 @@ const TransactionPage = () => {
                 <option value="">All Accounts</option>
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.type} •••• {acc.account_number?.slice(-4)}
+                    {acc.account_type} •••• {acc.account_number?.slice(-4)}
                   </option>
                 ))}
               </select>
@@ -158,6 +158,9 @@ const TransactionPage = () => {
                     Date
                   </th>
                   <th className="text-left px-4 py-3 text-sm text-text/60">
+                    Account
+                  </th>
+                  <th className="text-left px-4 py-3 text-sm text-text/60">
                     Description
                   </th>
                   <th className="text-left px-4 py-3 text-sm text-text/60">
@@ -174,13 +177,26 @@ const TransactionPage = () => {
                   const isIncoming =
                     tx.type === 'deposit' || tx.type === 'credit';
 
+                  const account = accounts.find(
+                    (acc) =>
+                      acc.id === tx.accountId || acc.id === tx.account_id,
+                  );
+
                   return (
                     <tr
                       key={tx.id}
                       className="border-b border-border hover:bg-background/50"
                     >
                       <td className="px-4 py-3 text-sm text-text">
-                        {new Date(tx.createdat).toLocaleDateString()}
+                        {new Date(
+                          tx.createdAt || tx.createdat,
+                        ).toLocaleDateString()}
+                      </td>
+
+                      <td className="px-4 py-3 text-sm text-text">
+                        {account
+                          ? `${account.account_type} •••• ${account.account_number?.slice(-4)}`
+                          : '—'}
                       </td>
 
                       <td className="px-4 py-3 text-sm text-text">
