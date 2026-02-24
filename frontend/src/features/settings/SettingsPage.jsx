@@ -145,6 +145,7 @@ const SettingsPage = () => {
                   name="email"
                   value={profileData.email}
                   onChange={handleProfileChange}
+                  disabled
                 />
               </div>
               {/*  Contact */}
@@ -179,7 +180,10 @@ const SettingsPage = () => {
                 <label className="text-sm font-medium text-text/60">
                   Currency
                 </label>
-                <select className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary">
+                <select
+                  className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+                  disabled
+                >
                   <option>{profileData.currency}</option>
                 </select>
               </div>

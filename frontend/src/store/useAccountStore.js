@@ -35,13 +35,16 @@ export const useAccountStore = create((set) => ({
         amount,
       });
 
+      const updatedAccount = response.data.account;
+
       set((state) => ({
         accounts: state.accounts.map((acc) =>
-          acc.id === accountId ? response.data.account : acc,
+          String(acc.id) === String(accountId) ? updatedAccount : acc,
         ),
       }));
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
 }));
