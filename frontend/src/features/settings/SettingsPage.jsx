@@ -8,7 +8,7 @@ const SettingsPage = () => {
 
   const [profileData, setProfileData] = useState({
     firstname: user?.firstname || '',
-    lastName: user?.lastName || '',
+    lastname: user?.lastname || '',
     email: user?.email || '',
     contact: user?.contact || '',
     country: user?.country || '',
