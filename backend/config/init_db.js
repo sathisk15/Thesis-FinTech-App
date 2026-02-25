@@ -64,7 +64,7 @@ const init = db.transaction(() => {
       balance_after REAL NOT NULL,
 
       status TEXT NOT NULL DEFAULT 'Completed'
-        CHECK (status IN ('Pending','Completed','Failed')),
+      CHECK (status IN ('Pending','Completed','Failed')),
 
       category TEXT,
 

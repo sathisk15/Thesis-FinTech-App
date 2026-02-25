@@ -9,6 +9,7 @@ import AccountsPage from '../features/accounts';
 import SignInPage from '../features/auth/SignInPage';
 import SignUpPage from '../features/auth/SignUpPage';
 import ProtectedRoute from '../shared/routes/ProtectedRoute';
+import PayPage from '../features/pay';
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
           {
             path: 'transactions',
             element: <TransactionsPage />,
+          },
+          {
+            path: 'pay',
+            element: <PayPage />,
           },
           {
             path: 'settings',
