@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import DashboardPage from '../features/dashboard';
-import TransferPage from '../features/transfer';
 import TransactionsPage from '../features/transations';
 import SettingsPage from '../features/settings';
 import AppLayout from '../shared/layouts/AppLayout';
@@ -30,10 +29,6 @@ export const router = createBrowserRouter([
           {
             path: 'account',
             element: <AccountsPage />,
-          },
-          {
-            path: 'transfer',
-            element: <TransferPage />,
           },
           {
             path: 'transactions',

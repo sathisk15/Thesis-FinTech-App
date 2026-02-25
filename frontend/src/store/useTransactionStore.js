@@ -29,38 +29,38 @@ export const useTransactionStore = create((set) => ({
   },
 }));
 
-export const getAllTransactions = (req, res) => {
-  try {
-    const userId = req.user.id;
+// export const getAllTransactions = (req, res) => {
+//   try {
+//     const userId = req.user.id;
 
-    const transactions = db
-      .prepare(
-        `
-      SELECT
-        id,
-        account_id,
-        description,
-        reference,
-        amount,
-        type,
-        balance_before,
-        balance_after,
-        status,
-        category,
-        createdat
-      FROM tbltransaction
-      WHERE user_id = ?
-      ORDER BY createdat DESC
-    `,
-      )
-      .all(userId);
+//     const transactions = db
+//       .prepare(
+//         `
+//       SELECT
+//         id,
+//         account_id,
+//         description,
+//         reference,
+//         amount,
+//         type,
+//         balance_before,
+//         balance_after,
+//         status,
+//         category,
+//         createdat
+//       FROM tbltransaction
+//       WHERE user_id = ?
+//       ORDER BY createdat DESC
+//     `,
+//       )
+//       .all(userId);
 
-    res.json({
-      message: 'All transactions fetched successfully',
-      transactions,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+//     res.json({
+//       message: 'All transactions fetched successfully',
+//       transactions,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
