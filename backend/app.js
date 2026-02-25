@@ -6,8 +6,6 @@ import transactionRoutes from './routes/transaction.routes.js';
 import paymentsRoutes from './routes/payments.routes.js';
 
 // import dashboardRoutes from './routes/dashboard.routes';
-// import transferRoutes from './routes/transfer.routes';
-// import historyRoutes from './routes/history.routes';
 
 const app = express();
 
@@ -26,8 +24,6 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/payments', paymentsRoutes);
 
 // app.use('/api/dashboard', dashboardRoutes);
-// app.use('/api/transfer', transferRoutes);
-// app.use('/api/history', historyRoutes);
 
 app.get('/api/healthCheck', (req, res) => res.json({ health: 'ok' }));
 
