@@ -154,15 +154,12 @@ const DashboardPage = () => {
     ...(othersTotal > 0 ? [{ name: 'Others', value: othersTotal }] : []),
   ];
 
-  const latestTransactions = [...transactions]
-    .sort((a, b) => new Date(b.createdat) - new Date(a.createdat))
-    .slice(0, 5);
-  const totalPieCharBalance = accounts.reduce(
+  const totalPieChartBalance = accounts.reduce(
     (sum, acc) => sum + Number(acc.account_balance || 0),
     0,
   );
 
-  const totalPieCharIncome = filteredPieChartTransactions
+  const totalPieChartIncome = filteredPieChartTransactions
     .filter((tx) => tx.type === 'deposit' || tx.type === 'credit')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
@@ -170,9 +167,9 @@ const DashboardPage = () => {
     .filter((tx) => tx.type === 'debit' || tx.type === 'withdrawal')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
   const pieData = [
-    { name: 'Income', value: totalPieCharIncome },
+    { name: 'Income', value: totalPieChartIncome },
     { name: 'Expense', value: totalPieCharExpense },
-    { name: 'Balance', value: totalPieCharBalance },
+    { name: 'Balance', value: totalPieChartBalance },
   ];
 
   // Health Cards
@@ -234,6 +231,20 @@ const DashboardPage = () => {
       (tx.type === 'debit' || tx.type === 'withdrawal') &&
       isPreviousMonth(tx.createdat),
   );
+
+  // Transactins Activity
+  const [selectedTransActiviyAccountId, setSelectedTransActiviyAccountId] =
+    useState('all');
+  const filteredTransActiviyTransactions =
+    selectedTransActiviyAccountId === 'all'
+      ? transactions
+      : transactions.filter(
+          (tx) => tx.account_id === Number(selectedTransActiviyAccountId),
+        );
+
+  const latestTransactions = [...filteredTransActiviyTransactions]
+    .sort((a, b) => new Date(b.createdat) - new Date(a.createdat))
+    .slice(0, 5);
   /* ================= UI RENDERING ================= */
   return (
     <div className="w-full px-4 md:px-6 py-8 space-y-10">
@@ -302,9 +313,7 @@ const DashboardPage = () => {
         <div className="grid grid-cols-4 gap-6">
           <div className="col-span-4 flex justify-between items-center">
             <h2 className="text-lg font-semibold">
-              <h2 className="text-lg font-semibold">
-                Financial Health & Performance
-              </h2>
+              Financial Health & Performance
             </h2>
             <AccountFilterDropdown
               accounts={accounts}
@@ -339,8 +348,21 @@ const DashboardPage = () => {
 
       {/* Transactions and Account */}
       <section className="grid grid-cols-3 gap-6">
-        <LatestTransactions transactions={latestTransactions} />
-        <AccountsList accounts={accounts} />
+        <div className="col-span-2">
+          <div className="flex justify-between">
+            <h2 className="text-lg font-semibold mb-5">Recent Activity's</h2>
+            <AccountFilterDropdown
+              accounts={accounts}
+              selectedAccountId={selectedTransActiviyAccountId}
+              onChange={setSelectedTransActiviyAccountId}
+            />
+          </div>
+          <LatestTransactions transactions={latestTransactions} />
+        </div>
+        <div className="col-span-1">
+          <h2 className="text-lg font-semibold mb-5">Account Info's</h2>
+          <AccountsList accounts={accounts} />
+        </div>
       </section>
     </div>
   );
