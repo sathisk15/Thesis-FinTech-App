@@ -1,11 +1,4 @@
-import {
-  BsCurrencyDollar,
-  BsCashCoin,
-  BsArrowUpRight,
-  BsArrowDownRight,
-  BsGraphUp,
-  BsGraphDown,
-} from 'react-icons/bs';
+import { BsArrowUpRight, BsArrowDownRight, BsGraphUp } from 'react-icons/bs';
 import {
   GiExpense,
   GiPayMoney,

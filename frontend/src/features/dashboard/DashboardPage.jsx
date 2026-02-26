@@ -78,12 +78,6 @@ const DashboardPage = () => {
     );
   };
 
-  const calculatePercentage = (current, previous) => {
-    if (previous === 0 && current > 0) return 100;
-    if (previous === 0 && current === 0) return 0;
-    return ((current - previous) / previous) * 100;
-  };
-
   /* ================= FINANCIAL CALCULATIONS ================= */
 
   // 1. Totals (Global)
@@ -128,71 +122,6 @@ const DashboardPage = () => {
       isPreviousMonth(tx.createdat),
   );
 
-  // 3. Performance Changes
-  const incomeChange = calculatePercentage(currentIncome, previousIncome);
-  const expenseChange = calculatePercentage(currentExpense, previousExpense);
-  const balanceChange = incomeChange - expenseChange;
-
-  // 4. Net Savings & Cash Flow
-  const netSavings = totalIncome - totalExpense;
-  const netSavingsChange = calculatePercentage(
-    currentIncome - currentExpense,
-    previousIncome - previousExpense,
-  );
-
-  const cashFlow = totalIncome - totalExpense;
-  const currentCashFlow = currentIncome - currentExpense;
-  const previousCashFlow = previousIncome - previousExpense;
-  const cashFlowChange = calculatePercentage(currentCashFlow, previousCashFlow);
-
-  // 5. Ratios & Averages
-  const expenseIncomeRatio =
-    totalIncome === 0 ? 0 : (totalExpense / totalIncome) * 100;
-  const currentRatio =
-    currentIncome === 0 ? 0 : (currentExpense / currentIncome) * 100;
-  const previousRatio =
-    previousIncome === 0 ? 0 : (previousExpense / previousIncome) * 100;
-  const expenseIncomeRatioChange = calculatePercentage(
-    currentRatio,
-    previousRatio,
-  );
-
-  const expenseDaysSet = new Set(
-    transactions
-      .filter(
-        (tx) =>
-          (tx.type === 'debit' || tx.type === 'withdrawal') &&
-          isSameMonth(tx.createdat),
-      )
-      .map((tx) => new Date(tx.createdat).toDateString()),
-  );
-  const activeExpenseDays = expenseDaysSet.size || 1;
-  const averageDailySpend = currentExpense / activeExpenseDays;
-  const monthlyBurnRate = currentExpense;
-  const burnRateChange = calculatePercentage(currentExpense, previousExpense);
-
-  // 6. Moving Averages (3-Month)
-  const getLastNMonthsTotals = (n, type) => {
-    const totals = {};
-    transactions.forEach((tx) => {
-      const date = new Date(tx.createdat);
-      const key = `${date.getFullYear()}-${date.getMonth()}`;
-      if (!totals[key]) totals[key] = { income: 0, expense: 0 };
-      if (tx.type === 'credit' || tx.type === 'deposit') {
-        totals[key].income += Number(tx.amount);
-      } else {
-        totals[key].expense += Number(tx.amount);
-      }
-    });
-    const values = Object.values(totals).slice(-n);
-    return values.length === 0
-      ? 0
-      : values.reduce((sum, m) => sum + m[type], 0) / n;
-  };
-
-  const avgIncome3M = getLastNMonthsTotals(3, 'income');
-  const avgExpense3M = getLastNMonthsTotals(3, 'expense');
-
   // 7. Category Analysis
   const expenseByCategory = transactions.reduce((acc, tx) => {
     if (!(tx.type === 'debit' || tx.type === 'withdrawal')) return acc;
@@ -200,13 +129,6 @@ const DashboardPage = () => {
     acc[category] = (acc[category] || 0) + Number(tx.amount);
     return acc;
   }, {});
-
-  const topSpendingEntry = Object.entries(expenseByCategory).sort(
-    (a, b) => b[1] - a[1],
-  )[0];
-  const topSpendingCategory = topSpendingEntry
-    ? { name: topSpendingEntry[0], amount: topSpendingEntry[1] }
-    : null;
 
   const totalExpenseAmount = Object.values(expenseByCategory).reduce(
     (sum, val) => sum + val,
@@ -219,18 +141,6 @@ const DashboardPage = () => {
         totalExpenseAmount === 0 ? 0 : (amount / totalExpenseAmount) * 100,
     }),
   );
-
-  const largestExpenseTx = transactions
-    .filter((tx) => tx.type === 'debit' || tx.type === 'withdrawal')
-    .sort((a, b) => Number(b.amount) - Number(a.amount))[0];
-
-  const largestExpense = largestExpenseTx
-    ? {
-        amount: Number(largestExpenseTx.amount),
-        category: largestExpenseTx.description || 'Others',
-        date: largestExpenseTx.createdat,
-      }
-    : null;
 
   /* ================= CHART DATA PREPARATION ================= */
 
@@ -300,29 +210,7 @@ const DashboardPage = () => {
 
       {/* KPI Grid */}
       <section className="space-y-4">
-        <KpiGrid
-          transactions={selectedAccountTxs}
-          totalBalance={totalBalance}
-          totalIncome={totalIncome}
-          totalExpense={totalExpense}
-          netSavings={netSavings}
-          expenseIncomeRatio={expenseIncomeRatio}
-          cashFlow={cashFlow}
-          averageDailySpend={averageDailySpend}
-          monthlyBurnRate={monthlyBurnRate}
-          avgIncome3M={avgIncome3M}
-          avgExpense3M={avgExpense3M}
-          topSpendingCategory={topSpendingCategory}
-          largestExpense={largestExpense}
-          balanceChange={balanceChange}
-          incomeChange={incomeChange}
-          expenseChange={expenseChange}
-          netSavingsChange={netSavingsChange}
-          expenseIncomeRatioChange={expenseIncomeRatioChange}
-          cashFlowChange={cashFlowChange}
-          burnRateChange={burnRateChange}
-          formatCurrency={formatCurrency}
-        />
+        <KpiGrid transactions={selectedAccountTxs} />
       </section>
 
       {/* Charts  */}
