@@ -33,8 +33,7 @@ const init = db.transaction(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     account_name TEXT NOT NULL,
-    account_type TEXT NOT NULL
-    CHECK (account_type IN ('Savings','Current','Business')),
+    account_type TEXT NOT NULL,
     account_number TEXT NOT NULL UNIQUE,
     currency TEXT NOT NULL DEFAULT 'EUR',
     account_balance REAL NOT NULL DEFAULT 0,
@@ -42,7 +41,7 @@ const init = db.transaction(() => {
     createdat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES tbluser(id) ON DELETE CASCADE,
-    UNIQUE(user_id, account_type)
+    UNIQUE(user_id, account_name)
   );
   `);
 

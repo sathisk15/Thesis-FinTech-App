@@ -21,7 +21,7 @@ const AddAccount = ({
     }
 
     const accountExists = accounts.some(
-      (acc) => acc.account_type === accountData.account_type,
+      (acc) => acc.account_name === accountData.account_name,
     );
 
     if (accountExists) {
@@ -74,6 +74,21 @@ const AddAccount = ({
 
         {/* Form Fields */}
         <div className="space-y-4">
+          {/* Account Name */}
+          <div className="space-y-1">
+            <label className="text-sm text-text/60">Account Name</label>
+            <input
+              value={accountData.account_name}
+              onChange={(e) =>
+                setAccountData({
+                  ...accountData,
+                  account_name: e.target.value,
+                })
+              }
+              placeholder="Business Operations"
+              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
           {/* Account Type */}
           <div className="space-y-1">
             <label className="text-sm text-text/60">Account Type</label>
@@ -95,6 +110,22 @@ const AddAccount = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Account Number */}
+          <div className="space-y-1">
+            <label className="text-sm text-text/60">Account Number</label>
+            <input
+              value={accountData.account_number}
+              onChange={(e) =>
+                setAccountData({
+                  ...accountData,
+                  account_number: e.target.value,
+                })
+              }
+              placeholder="DE38947874"
+              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
 
           {/* Currency */}
@@ -147,7 +178,7 @@ const AddAccount = ({
             disabled={loading}
             className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
           >
-            {loading ? 'Creating...' : 'Create Account'}
+            {loading ? 'Linking...' : 'Link Account'}
           </button>
         </div>
       </div>

@@ -20,6 +20,8 @@ const AccountsPage = () => {
     account_type: '',
     currency: 'EUR',
     initialBalance: 100,
+    account_name: '',
+    account_number: '',
   });
 
   const depositMoney = useAccountStore((state) => state.depositMoney);

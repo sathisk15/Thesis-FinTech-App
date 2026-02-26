@@ -1308,9 +1308,9 @@ function createAccounts(db, userId) {
   console.log('🏦 STEP 3: Creating accounts');
 
   const ACCOUNTS = [
-    { name: 'Business Operations Account', type: 'Business', balance: 500000 },
-    { name: 'Long-Term Savings Account', type: 'Savings', balance: 1000000 },
-    { name: 'Personal Spending Account', type: 'Current', balance: 300000 },
+    { name: 'Business Operations', type: 'Business', balance: 500000 },
+    { name: 'Long-Term Savings', type: 'Savings', balance: 1000000 },
+    { name: 'Personal Spending', type: 'Current', balance: 300000 },
   ];
 
   const stmt = db.prepare(`

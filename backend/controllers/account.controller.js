@@ -36,10 +36,20 @@ export const getAccounts = (req, res) => {
 export const createAccount = (req, res) => {
   try {
     const userId = req.user.id;
-    const { account_name, account_type, currency, initialBalance } = req.body;
+    const {
+      account_name,
+      account_number,
+      account_type,
+      currency,
+      initialBalance,
+    } = req.body;
 
     if (!account_type) {
       return res.status(400).json({ message: 'Account type is required' });
+    }
+
+    if (!account_number) {
+      return res.status(400).json({ message: 'Account number is required' });
     }
 
     if (!initialBalance || initialBalance < 100) {
@@ -47,9 +57,6 @@ export const createAccount = (req, res) => {
         message: `Minimum deposit 100 ${currency || 'EUR'} required`,
       });
     }
-
-    const accountNumber =
-      'AC' + Math.floor(10000000 + Math.random() * 90000000);
 
     const createAccountTx = db.transaction(() => {
       // 1️⃣ Create account with zero balance first
@@ -65,7 +72,7 @@ export const createAccount = (req, res) => {
           userId,
           account_name,
           account_type,
-          accountNumber,
+          account_number,
           currency || 'EUR',
         );
 
@@ -138,7 +145,7 @@ export const createAccount = (req, res) => {
 
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return res.status(400).json({
-        message: 'Account type already exists for this user',
+        message: 'Account type already exists for this user' + error,
       });
     }
 
