@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/axios'; // your axios instance
+import api from '../../api/axios';
 import { useAuthStore } from '../../store/useAuthStore';
 
 const SignInPage = () => {
@@ -29,12 +29,9 @@ const SignInPage = () => {
 
     try {
       const response = await api.post('/auth/login', formData);
-
       const { user, token } = response.data;
 
-      // Save to Zustand (persisted automatically)
       login({ user, token });
-
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
@@ -44,54 +41,94 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-lg p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-semibold text-text">Welcome Back</h1>
-          <p className="text-text/60">Sign in to your account</p>
+    <div
+      className="min-h-screen flex items-center justify-center
+                 bg-background px-4"
+    >
+      <div
+        className="w-full max-w-md
+                   bg-card border border-border
+                   rounded-xl shadow-lg
+                   p-8 space-y-6"
+      >
+        {/* Header */}
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-text">
+            Welcome back
+          </h1>
+          <p className="text-sm text-text/60">
+            Sign in to continue to your wallet
+          </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* Form */}
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Email */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Email</label>
+            <label className="text-xs font-medium text-text/60">
+              Email address
+            </label>
             <input
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              placeholder="you@example.com"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-sm text-text
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
+          {/* Password */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Password</label>
+            <label className="text-xs font-medium text-text/60">Password</label>
             <input
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              placeholder="••••••••"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-sm text-text
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {/* Error */}
+          {error && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+              {error}
+            </div>
+          )}
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-10 rounded-md bg-primary text-white font-medium disabled:opacity-50"
+            className="w-full h-10 rounded-lg
+                       bg-primary text-white
+                       text-sm font-medium
+                       hover:bg-primary/90
+                       disabled:opacity-50
+                       transition"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
+        {/* Footer */}
         <p className="text-center text-sm text-text/60">
           Don’t have an account?{' '}
           <span
             onClick={() => navigate('/register')}
-            className="text-primary cursor-pointer"
+            className="text-primary font-medium cursor-pointer hover:underline"
           >
             Sign up
           </span>
