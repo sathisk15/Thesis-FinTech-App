@@ -353,6 +353,7 @@ function getSavingsRate(transactions) {
 }
 
 const KpiGrid = ({ transactions }) => {
+  console.log(transactions[0]);
   const initialTotalBalance = getInitialTotalBalance(transactions);
 
   const topSpendingCategory = getTopSpendingCategory(transactions);

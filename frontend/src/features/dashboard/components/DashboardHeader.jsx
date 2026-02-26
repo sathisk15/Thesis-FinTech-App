@@ -15,7 +15,7 @@ const DashboardHeader = ({
         </p>
       </div>
       {/* Filter */}
-      <div className="flex gap-2 pt-3">
+      {/* <div className="flex gap-2 pt-3">
         <button
           onClick={() => setSelectedAccountId(null)}
           className={`px-4 py-1.5 rounded-full text-sm border transition cursor-pointer
@@ -44,7 +44,7 @@ const DashboardHeader = ({
             </button>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 };
