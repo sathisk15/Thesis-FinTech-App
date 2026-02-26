@@ -28,10 +28,10 @@ const Transfer = ({
       const refinedDescription = `Internal transfer of ${
         transferFrom.currency
       } ${Number(transferData.amount).toFixed(2)} from ${
-        transferFrom.account_type
+        transferFrom.account_name
       } Account •••• ${transferFrom.account_number?.slice(
         -4,
-      )} to ${toAccount.account_type} Account •••• ${toAccount.account_number?.slice(
+      )} to ${toAccount.account_name} Account •••• ${toAccount.account_number?.slice(
         -4,
       )}.`;
 
@@ -87,7 +87,7 @@ const Transfer = ({
         <div>
           <h2 className="text-xl font-semibold text-text">Transfer Money</h2>
           <p className="text-sm text-text/60">
-            From {transferFrom.account_type} Account
+            From {transferFrom.account_name} Account
           </p>
         </div>
 
@@ -103,7 +103,7 @@ const Transfer = ({
             <label className="text-sm text-text/60">From Account</label>
             <input
               disabled
-              value={`${transferFrom.account_type} •••• ${transferFrom.account_number?.slice(
+              value={`${transferFrom.account_name} •••• ${transferFrom.account_number?.slice(
                 -4,
               )}`}
               className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
@@ -128,7 +128,7 @@ const Transfer = ({
                 .filter((acc) => acc.id !== transferFrom.id)
                 .map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.account_type} •••• {acc.account_number?.slice(-4)}
+                    {acc.account_name} •••• {acc.account_number?.slice(-4)}
                   </option>
                 ))}
             </select>

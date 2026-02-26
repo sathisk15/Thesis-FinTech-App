@@ -76,7 +76,7 @@ const DepositMoney = ({
             <option value="">Choose account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.account_type} ••••
+                {acc.account_name} ••••
                 {acc.account_number.slice(-4)}
               </option>
             ))}

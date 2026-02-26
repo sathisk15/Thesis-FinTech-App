@@ -379,7 +379,7 @@ const DashboardPage = () => {
                         {/* 🔥 Source column now mapped correctly */}
                         <td className="py-3 px-4">
                           {account
-                            ? `${account.account_type} •••• ${account.account_number?.slice(-4)}`
+                            ? `${account.account_name} •••• ${account.account_number?.slice(-4)}`
                             : '—'}
                         </td>
 
@@ -418,15 +418,15 @@ const DashboardPage = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${getAccountColor(
-                        acc.account_type,
+                        acc.account_name,
                       )}`}
                     >
-                      {acc.account_type?.slice(0, 2).toUpperCase()}
+                      {acc.account_name?.slice(0, 2).toUpperCase()}
                     </div>
 
                     <div>
                       <p className="text-text font-medium">
-                        {acc.account_type} Account
+                        {acc.account_name} Account
                       </p>
                       <p className="text-text/60 text-xs font-mono">
                         •••• {acc.account_number?.slice(-4)}

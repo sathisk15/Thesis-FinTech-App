@@ -109,7 +109,7 @@ const PayPage = () => {
             <option value="">Select account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
+                {acc.account_name} •••• {acc.account_number?.slice(-4)} (
                 {formatCurrency(acc.account_balance, acc.currency)})
               </option>
             ))}
@@ -188,7 +188,7 @@ const PayPage = () => {
             <span>From</span>
             <span>
               {fromAccount
-                ? `${fromAccount.account_type} •••• ${fromAccount.account_number?.slice(
+                ? `${fromAccount.account_name} •••• ${fromAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}

@@ -17,7 +17,7 @@ const AccountsPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [accountData, setAccountData] = useState({
-    account_type: '',
+    account_name: '',
     currency: 'EUR',
     initialBalance: 100,
   });

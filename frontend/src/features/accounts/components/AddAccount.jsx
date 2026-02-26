@@ -9,7 +9,7 @@ const AddAccount = ({
 }) => {
   const allTypes = ['Savings', 'Current', 'Business'];
 
-  const existingTypes = accounts.map((acc) => acc.account_type);
+  const existingTypes = accounts.map((acc) => acc.account_name);
 
   const availableTypes = allTypes.filter(
     (type) => !existingTypes.includes(type),
@@ -22,7 +22,7 @@ const AddAccount = ({
     setError('');
 
     // Validation
-    if (!accountData.account_type) {
+    if (!accountData.account_name) {
       return setError('Please select an account type.');
     }
 
@@ -37,7 +37,7 @@ const AddAccount = ({
 
       // Reset form
       setAccountData({
-        account_type: '',
+        account_name: '',
         currency: 'EUR',
         initialBalance: 100,
       });
@@ -80,11 +80,11 @@ const AddAccount = ({
               <div className="space-y-1">
                 <label className="text-sm text-text/60">Account Type</label>
                 <select
-                  value={accountData.account_type}
+                  value={accountData.account_name}
                   onChange={(e) =>
                     setAccountData({
                       ...accountData,
-                      account_type: e.target.value,
+                      account_name: e.target.value,
                     })
                   }
                   className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"

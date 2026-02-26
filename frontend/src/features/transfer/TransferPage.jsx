@@ -39,9 +39,9 @@ const TransferPage = () => {
       const newDescription = `Internal transfer of ${
         fromAccount.currency
       } ${Number(amount).toFixed(2)} from ${
-        fromAccount.account_type
+        fromAccount.account_name
       } Account ${fromAccount.account_number?.slice(-4)} to ${
-        toAccount.account_type
+        toAccount.account_name
       } Account ${toAccount.account_number?.slice(-4)}.`;
 
       setDescription(newDescription);
@@ -115,7 +115,7 @@ const TransferPage = () => {
             <option value="">Select account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
+                {acc.account_name} •••• {acc.account_number?.slice(-4)} (
                 {acc.currency} {acc.balance})
               </option>
             ))}
@@ -138,7 +138,7 @@ const TransferPage = () => {
               .filter((acc) => acc.id !== fromAccountId)
               .map((acc) => (
                 <option key={acc.id} value={acc.id}>
-                  {acc.account_type} •••• {acc.account_number?.slice(-4)}
+                  {acc.account_name} •••• {acc.account_number?.slice(-4)}
                 </option>
               ))}
           </select>
@@ -179,7 +179,7 @@ const TransferPage = () => {
             <span>From</span>
             <span>
               {fromAccount
-                ? `${fromAccount.account_type} Account ${fromAccount.account_number?.slice(
+                ? `${fromAccount.account_name} Account ${fromAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
@@ -190,7 +190,7 @@ const TransferPage = () => {
             <span>To</span>
             <span>
               {toAccount
-                ? `${toAccount.account_type} Account ${toAccount.account_number?.slice(
+                ? `${toAccount.account_name} Account ${toAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}

@@ -1315,7 +1315,7 @@ function createAccounts(db, userId) {
 
   const stmt = db.prepare(`
     INSERT INTO tblaccount
-    (user_id, account_type, account_number, currency, account_balance)
+    (user_id, account_name, account_number, currency, account_balance)
     VALUES (?, ?, ?, ?, ?)
   `);
 
