@@ -4,6 +4,7 @@ import AddAccount from './components/AddAccount';
 import AccountCard from './components/AccountCard';
 import DepositMoney from './components/DepositMoney';
 import Transfer from './components/Transfer';
+import Pay from './components/Pay';
 
 const AccountsPage = () => {
   const { accounts, fetchAccounts, loading } = useAccountStore();
@@ -16,9 +17,6 @@ const AccountsPage = () => {
   const depositMoney = useAccountStore((state) => state.depositMoney);
 
   const [showModal, setShowModal] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showTransferModal, setShowTransferModal] = useState(false);
-
   const [accountData, setAccountData] = useState({
     account_type: '',
     currency: 'EUR',
@@ -27,17 +25,29 @@ const AccountsPage = () => {
     account_number: '',
   });
 
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositData, setDepositData] = useState({
     accountId: '',
     amount: 0,
     description: '',
   });
 
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [transferFrom, setTransferFrom] = useState(null);
   const [transferData, setTransferData] = useState({
     toAccountId: '',
     amount: '',
     description: '',
+  });
+
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [payForm, setPayForm] = useState({
+    fromAccountId: '',
+    amount: '',
+    description: '',
+    recipientName: '',
+    externalAccountNumber: '',
+    externalBankName: '',
   });
 
   return (
@@ -104,6 +114,8 @@ const AccountsPage = () => {
                 account={account}
                 setTransferFrom={setTransferFrom}
                 setShowTransferModal={setShowTransferModal}
+                setPayForm={setPayForm}
+                setShowPayModal={setShowPayModal}
               />
             ))}
           </div>
@@ -138,6 +150,15 @@ const AccountsPage = () => {
           transferData={transferData}
           setTransferData={setTransferData}
           setShowTransferModal={setShowTransferModal}
+        />
+      )}
+
+      {showPayModal && payForm && (
+        <Pay
+          accounts={accounts}
+          payForm={payForm}
+          setPayForm={setPayForm}
+          setShowPayModal={setShowPayModal}
         />
       )}
     </>
