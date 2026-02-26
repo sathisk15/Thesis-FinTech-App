@@ -46,7 +46,6 @@ const ExpenseCategoryPie = ({ data, colors }) => {
           </Pie>
 
           <Tooltip formatter={(v) => formatCurrency(v)} />
-          <Legend />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
 import {
@@ -26,22 +26,33 @@ import KpiGrid from './components/KpiGrid';
 import ExpenseBreakdown from './components/ExpenseBreakdown';
 import ExpenseCategoryPie from './components/ExpenseCategoryPie';
 import TransactionActivityHeader from './components/TransactionActivityHeader';
+import DashboardHeader from './components/DashboardHeader';
 
 const DashboardPage = () => {
-  /* ================= STATE & DATA FETCHING ================= */
   const accounts = useAccountStore((state) => state.accounts);
-  const fetchAccounts = useAccountStore((state) => state.fetchAccounts);
   const transactions = useTransactionStore((state) => state.transactions);
+  const fetchAccounts = useAccountStore((state) => state.fetchAccounts);
   const fetchTransactions = useTransactionStore(
     (state) => state.fetchTransactions,
   );
 
-  const [timeFilter, setTimeFilter] = useState('monthly');
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [selectedAccountTxs, setSelectedAccountTxs] = useState([]);
+
+  useEffect(() => {
+    setSelectedAccountTxs(
+      selectedAccountId
+        ? transactions.filter((tx) => tx.account_id === selectedAccountId)
+        : transactions,
+    );
+  }, [selectedAccountId, transactions]);
 
   useEffect(() => {
     fetchAccounts();
     fetchTransactions();
   }, [fetchAccounts, fetchTransactions]);
+
+  const [timeFilter, setTimeFilter] = useState('monthly');
 
   /* ================= UTILITY FUNCTIONS ================= */
   const now = new Date();
@@ -279,100 +290,84 @@ const DashboardPage = () => {
 
   /* ================= UI RENDERING ================= */
   return (
-    <div className="w-full py-10 space-y-12">
+    <div className="w-full px-4 md:px-6 py-8 space-y-10">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text">
-          Dashboard
-        </h1>
-        <p className="text-sm text-text/60 mt-1">
-          Overview of your financial activity
-        </p>
-      </div>
-
-      {/* KPI Grid Section */}
-      <KpiGrid
-        totalBalance={totalBalance}
-        totalIncome={totalIncome}
-        totalExpense={totalExpense}
-        netSavings={netSavings}
-        expenseIncomeRatio={expenseIncomeRatio}
-        cashFlow={cashFlow}
-        averageDailySpend={averageDailySpend}
-        monthlyBurnRate={monthlyBurnRate}
-        avgIncome3M={avgIncome3M}
-        avgExpense3M={avgExpense3M}
-        topSpendingCategory={topSpendingCategory}
-        largestExpense={largestExpense}
-        balanceChange={balanceChange}
-        incomeChange={incomeChange}
-        expenseChange={expenseChange}
-        netSavingsChange={netSavingsChange}
-        expenseIncomeRatioChange={expenseIncomeRatioChange}
-        cashFlowChange={cashFlowChange}
-        burnRateChange={burnRateChange}
-        formatCurrency={formatCurrency}
+      <DashboardHeader
+        accounts={accounts}
+        selectedAccountId={selectedAccountId}
+        setSelectedAccountId={setSelectedAccountId}
       />
 
-      {/* Expense Breakdown Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExpenseBreakdown
-          expenseCategoryPercentages={expenseCategoryPercentages}
+      {/* KPI Grid */}
+      <section className="space-y-4">
+        <KpiGrid
+          transactions={selectedAccountTxs}
+          totalBalance={totalBalance}
+          totalIncome={totalIncome}
+          totalExpense={totalExpense}
+          netSavings={netSavings}
+          expenseIncomeRatio={expenseIncomeRatio}
+          cashFlow={cashFlow}
+          averageDailySpend={averageDailySpend}
+          monthlyBurnRate={monthlyBurnRate}
+          avgIncome3M={avgIncome3M}
+          avgExpense3M={avgExpense3M}
+          topSpendingCategory={topSpendingCategory}
+          largestExpense={largestExpense}
+          balanceChange={balanceChange}
+          incomeChange={incomeChange}
+          expenseChange={expenseChange}
+          netSavingsChange={netSavingsChange}
+          expenseIncomeRatioChange={expenseIncomeRatioChange}
+          cashFlowChange={cashFlowChange}
+          burnRateChange={burnRateChange}
+          formatCurrency={formatCurrency}
         />
-        <ExpenseCategoryPie data={expenseCategoryPieData} colors={COLORS} />
-      </div>
+      </section>
 
-      {/* Charts & Health Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Line Chart */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-4 h-[420px]">
+      {/* Charts  */}
+      <section className="grid grid-cols-1 gap-6">
+        {/* Line Chart */}
+        <div className=" bg-card border border-border rounded-xl p-4 h-[420px] flex flex-col">
           <TransactionActivityHeader
             timeFilter={timeFilter}
             onChange={setTimeFilter}
           />
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="income"
-                stroke="#16a34a"
-                strokeWidth={3}
-              />
-              <Line
-                type="monotone"
-                dataKey="expense"
-                stroke="#dc2626"
-                strokeWidth={3}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="income"
+                  stroke="#16a34a"
+                  strokeWidth={3}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="expense"
+                  stroke="#dc2626"
+                  strokeWidth={3}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
+      </section>
 
-        {/* Health Scores */}
-        <FinancialHealthScore
-          totalIncome={totalIncome}
-          totalExpense={totalExpense}
-          currentIncome={currentIncome}
-          currentExpense={currentExpense}
-          previousIncome={previousIncome}
-          previousExpense={previousExpense}
+      {/* Expense Breakdown */}
+      <section className="grid grid-cols-3 gap-6">
+        <ExpenseBreakdown
+          expenseCategoryPercentages={expenseCategoryPercentages}
         />
-        <MonthlyComparison
-          currentIncome={currentIncome}
-          previousIncome={previousIncome}
-          currentExpense={currentExpense}
-          previousExpense={previousExpense}
-        />
-        <BudgetHealth totalIncome={totalIncome} totalExpense={totalExpense} />
-        <SavingsRate totalIncome={totalIncome} totalExpense={totalExpense} />
+        <ExpenseCategoryPie data={expenseCategoryPieData} colors={COLORS} />
 
         {/* Summary Pie Chart */}
-        <div className="bg-card border border-border rounded-xl p-4 h-[420px]">
+        <div className="col-span-1 bg-card border border-border rounded-xl p-4 h-[420px]">
           <p className="text-sm font-medium text-text/60 mb-4">Summary</p>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -382,17 +377,39 @@ const DashboardPage = () => {
                 ))}
               </Pie>
               <Tooltip formatter={(v) => formatCurrency(v)} />
-              <Legend />
+              {/* <Legend /> */}
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </section>
 
-      {/* Bottom Section: Transactions and Accounts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Health Cards */}
+      <section>
+        <div className="grid grid-cols-4 gap-6">
+          <FinancialHealthScore
+            totalIncome={totalIncome}
+            totalExpense={totalExpense}
+            currentIncome={currentIncome}
+            currentExpense={currentExpense}
+            previousIncome={previousIncome}
+            previousExpense={previousExpense}
+          />
+          <MonthlyComparison
+            currentIncome={currentIncome}
+            previousIncome={previousIncome}
+            currentExpense={currentExpense}
+            previousExpense={previousExpense}
+          />
+          <BudgetHealth totalIncome={totalIncome} totalExpense={totalExpense} />
+          <SavingsRate totalIncome={totalIncome} totalExpense={totalExpense} />
+        </div>
+      </section>
+
+      {/* Transactions and Account */}
+      <section className="grid grid-cols-3 gap-6">
         <LatestTransactions transactions={latestTransactions} />
         <AccountsList accounts={accounts} />
-      </div>
+      </section>
     </div>
   );
 };
