@@ -1,662 +1,1283 @@
-import db from '../db/db.js';
-import bcrypt from 'bcrypt';
-
-console.log('🌱 Starting database seed...');
+/**
+ * ======================================
+ * SEED SCRIPT – SINGLE FILE OUTLINE
+ * ======================================
+ */
 
 /**
- * =========================
- * CONFIG (ALL HARDCODED VALUES)
- * =========================
+ * Helpers
  */
-const CONFIG = {
-  USER: {
-    EMAIL: 'richuser@test.com',
-    FIRSTNAME: 'Rich',
-    LASTNAME: 'Owner',
-    CONTACT: '999999999',
-    PASSWORD: '123',
-    PROVIDER: 'local',
-    COUNTRY: 'Poland',
-    CURRENCY: 'EUR',
+
+const transactionPlan = {
+  daily: {
+    business: {
+      income: [
+        {
+          note: 'Order placed',
+          minCount: 10,
+          maxCount: 120,
+          minAmount: 10,
+          maxAmount: 300,
+        },
+      ],
+      expense: [
+        {
+          note: 'Advertisement expense',
+          minCount: 2,
+          maxCount: 5,
+          minAmount: 20,
+          maxAmount: 200,
+        },
+        {
+          note: 'Courier and shipping charges',
+          minCount: 5,
+          maxCount: 20,
+          minAmount: 5,
+          maxAmount: 40,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Order refund',
+            minCount: 0,
+            maxCount: 3,
+            minAmount: 10,
+            maxAmount: 300,
+          },
+          {
+            note: 'Extra advertisement spend',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 50,
+            maxAmount: 500,
+          },
+          {
+            note: 'Additional logistics charges',
+            minCount: 0,
+            maxCount: 2,
+            minAmount: 10,
+            maxAmount: 100,
+          },
+        ],
+      },
+    },
+
+    current: {
+      income: [],
+      expense: [
+        {
+          note: 'Food and meals',
+          minCount: 2,
+          maxCount: 3,
+          minAmount: 3,
+          maxAmount: 20,
+        },
+        {
+          note: 'Transportation expense',
+          minCount: 1,
+          maxCount: 2,
+          minAmount: 2,
+          maxAmount: 15,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Dining outside',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 10,
+            maxAmount: 40,
+          },
+          {
+            note: 'Online shopping',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 15,
+            maxAmount: 150,
+          },
+          {
+            note: 'Minor repair expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 20,
+            maxAmount: 80,
+          },
+        ],
+      },
+    },
+
+    savings: {
+      income: [],
+      expense: [],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Emergency withdrawal',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 200,
+            maxAmount: 2000,
+          },
+        ],
+      },
+    },
   },
 
-  INITIAL_BALANCES: {
-    BUSINESS: 120000000,
-    SAVINGS: 100000000,
-    CURRENT: 30000000,
+  monthly: {
+    business: {
+      income: [],
+      expense: [
+        {
+          note: 'Employee salary',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 800,
+          maxAmount: 3000,
+        },
+        {
+          note: 'SaaS and platform charges',
+          minCount: 1,
+          maxCount: 3,
+          minAmount: 50,
+          maxAmount: 400,
+        },
+        {
+          note: 'Office rent',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 300,
+          maxAmount: 1500,
+        },
+        {
+          note: 'Owner salary transfer',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 10000,
+          maxAmount: 15000,
+        },
+        {
+          note: 'Tax reserve allocation',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 200,
+          maxAmount: 2000,
+        },
+        {
+          note: 'Payment gateway fees',
+          minCount: 10,
+          maxCount: 120,
+          minAmount: 30,
+          maxAmount: 150,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Platform penalty',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 50,
+            maxAmount: 500,
+          },
+          {
+            note: 'Bulk order refunds',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 100,
+            maxAmount: 2000,
+          },
+          {
+            note: 'Infrastructure upgrade',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 300,
+            maxAmount: 5000,
+          },
+        ],
+      },
+    },
+
+    current: {
+      income: [
+        {
+          note: 'Salary received',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 1000,
+          maxAmount: 4000,
+        },
+      ],
+      expense: [
+        {
+          note: 'House rent',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 300,
+          maxAmount: 1200,
+        },
+        {
+          note: 'Utility bills',
+          minCount: 2,
+          maxCount: 4,
+          minAmount: 50,
+          maxAmount: 300,
+        },
+        {
+          note: 'Subscription services',
+          minCount: 3,
+          maxCount: 6,
+          minAmount: 10,
+          maxAmount: 100,
+        },
+        {
+          note: 'Insurance premium',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 50,
+          maxAmount: 300,
+        },
+        {
+          note: 'Savings deposit',
+          minCount: 1,
+          maxCount: 2,
+          minAmount: 100,
+          maxAmount: 1000,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Medical expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 50,
+            maxAmount: 800,
+          },
+          {
+            note: 'Family event expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 100,
+            maxAmount: 1500,
+          },
+          {
+            note: 'Device repair',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 50,
+            maxAmount: 500,
+          },
+        ],
+      },
+    },
+
+    savings: {
+      income: [
+        {
+          note: 'Profit transferred to savings',
+          minCount: 1,
+          maxCount: 2,
+          minAmount: 30000,
+          maxAmount: 50000,
+        },
+        {
+          note: 'Interest credited',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 5,
+          maxAmount: 80,
+        },
+      ],
+      expense: [],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Large withdrawal',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 500,
+            maxAmount: 5000,
+          },
+          {
+            note: 'One-time investment',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 500,
+            maxAmount: 10000,
+          },
+        ],
+      },
+    },
   },
 
-  ACCOUNT_TYPES: {
-    BUSINESS: 'Business',
-    SAVINGS: 'Savings',
-    CURRENT: 'Current',
-  },
+  yearly: {
+    business: {
+      income: [],
+      expense: [
+        {
+          note: 'Annual business tax',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 2000,
+          maxAmount: 20000,
+        },
+        {
+          note: 'Audit and accounting fees',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 300,
+          maxAmount: 3000,
+        },
+        {
+          note: 'License renewal',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 100,
+          maxAmount: 1000,
+        },
+        {
+          note: 'Employee bonus',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 500,
+          maxAmount: 8000,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Legal expenses',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 500,
+            maxAmount: 10000,
+          },
+          {
+            note: 'System migration',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 1000,
+            maxAmount: 20000,
+          },
+          {
+            note: 'Fraud-related loss',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 100,
+            maxAmount: 5000,
+          },
+        ],
+      },
+    },
 
-  SIMULATION: {
-    START_YEAR: 2021,
-    START_MONTH: 3,
-    MONTHS: 60,
-    BASE_REVENUE: 1_000_000,
-  },
+    current: {
+      income: [],
+      expense: [
+        {
+          note: 'Vacation expenses',
+          minCount: 1,
+          maxCount: 2,
+          minAmount: 500,
+          maxAmount: 5000,
+        },
+        {
+          note: 'Personal device purchase',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 600,
+          maxAmount: 3000,
+        },
+        {
+          note: 'Insurance renewal',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 200,
+          maxAmount: 1500,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Major medical expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 1000,
+            maxAmount: 20000,
+          },
+          {
+            note: 'Wedding or family event',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 2000,
+            maxAmount: 25000,
+          },
+          {
+            note: 'Vehicle expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 500,
+            maxAmount: 8000,
+          },
+        ],
+      },
+    },
 
-  CAPITAL: {
-    DESCRIPTION: 'Initial Capital Deposit',
-    REFERENCE: 'CAPITAL-2021',
-    DATE: '2021-03-01 09:00:00',
-    CATEGORY: 'Capital',
-    STATUS: 'Completed',
-  },
-
-  TRANSACTION: {
-    STATUS: 'Completed',
-    CURRENCY: 'EUR',
-  },
-
-  COSTS: {
-    FEES_RATE: 0.025,
-    MARKETING_RATE: 0.1,
-    BASE_PAYROLL: 150000,
-    PAYROLL_INCREMENT: 20000,
-    BASE_OPERATIONS: 30000,
-    OPERATIONS_INCREMENT: 5000,
-    SAVINGS_TRANSFER_RATE: 0.2,
-    CURRENT_TRANSFER_RATE: 0.1,
-  },
-
-  REFUND_RATES: {
-    JAN_MIN: 0.05,
-    JAN_MAX: 0.09,
-    OTHER_MIN: 0.02,
-    OTHER_MAX: 0.06,
-  },
-
-  RANDOMNESS: {
-    DAILY_MIN: 0.85,
-    DAILY_MAX: 1.15,
-    MONTHLY_MIN: 0.97,
-    MONTHLY_MAX: 1.03,
-  },
-
-  SEASONAL_MULTIPLIER: {
-    JAN: 0.9,
-    SUMMER: 1.05,
-    NOV: 1.3,
-    DEC: 1.25,
-  },
-
-  CRISIS: {
-    YEAR: 2023,
-    START_MONTH: 6,
-    END_MONTH: 11,
-    IMPACT: 0.82,
+    savings: {
+      income: [
+        {
+          note: 'Annual tax refund',
+          minCount: 0,
+          maxCount: 1,
+          minAmount: 200,
+          maxAmount: 3000,
+        },
+      ],
+      expense: [
+        {
+          note: 'Annual tax payment',
+          minCount: 1,
+          maxCount: 1,
+          minAmount: 1000,
+          maxAmount: 15000,
+        },
+        {
+          note: 'Long-term investment',
+          minCount: 1,
+          maxCount: 2,
+          minAmount: 1000,
+          maxAmount: 20000,
+        },
+      ],
+      unexpected: {
+        income: [],
+        expense: [
+          {
+            note: 'Business support transfer',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 1000,
+            maxAmount: 15000,
+          },
+          {
+            note: 'Large emergency expense',
+            minCount: 0,
+            maxCount: 1,
+            minAmount: 2000,
+            maxAmount: 30000,
+          },
+        ],
+      },
+    },
   },
 };
 
-const channelByProduct = [
-  {
-    channel: 'Website – Organic',
-    products: [
-      'Smartphones',
-      'Laptops',
-      'Tablets',
-      'Smartwatches',
+const transactionTypesMap = {
+  'Order placed': [
+    'Electronics',
+    'Fashion',
+    'Home appliances',
+    'Books',
+    'Beauty products',
+    'Sports equipment',
+  ],
+
+  'Advertisement expense': [
+    'Google Ads',
+    'Meta Ads',
+    'Instagram promotions',
+    'Influencer marketing',
+    'Affiliate campaigns',
+  ],
+
+  'Courier and shipping charges': [
+    'Standard delivery',
+    'Express delivery',
+    'International shipping',
+    'Return shipping',
+  ],
+
+  'Order refund': [
+    'Customer cancellation',
+    'Damaged product',
+    'Delivery delay',
+    'Incorrect item delivered',
+  ],
+
+  'Extra advertisement spend': [
+    'Flash sale boost',
+    'Festival campaign',
+    'Low conversion recovery',
+    'Competitor campaign response',
+  ],
+
+  'Additional logistics charges': [
+    'Return pickup',
+    'Re-shipping',
+    'Warehouse handling',
+    'Customs clearance',
+  ],
+
+  'Food and meals': [
+    'Breakfast',
+    'Lunch',
+    'Dinner',
+    'Snacks',
+    'Fine dining restaurant',
+    'Michelin-star restaurant',
+    'Private chef experience',
+    'Luxury wine & gourmet tasting',
+  ],
+
+  'Transportation expense': [
+    'Luxury car rental',
+    'Chauffeur-driven car',
+    'Business class flight',
+    'First class flight',
+  ],
+
+  'Dining outside': [
+    'Restaurant',
+    'Cafe',
+    'Food delivery',
+    'Takeaway',
+    'Rooftop luxury restaurant',
+    'Private dining lounge',
+    'Sea-view fine dining',
+  ],
+
+  'Online shopping': [
+    'Clothing',
+    'Electronics',
+    'Accessories',
+    'Home items',
+    'Designer clothing',
+    'Luxury watches',
+    'Premium gadgets',
+    'High-end home décor',
+  ],
+
+  'Minor repair expense': [
+    'Plumbing',
+    'Electrical',
+    'Appliance repair',
+    'Furniture repair',
+  ],
+
+  'Emergency withdrawal': [
+    'Medical emergency',
+    'Family emergency',
+    'Urgent travel',
+  ],
+
+  'Employee salary': [
+    'Full-time staff',
+    'Part-time staff',
+    'Contractor payment',
+  ],
+
+  'SaaS and platform charges': [
+    'Hosting services',
+    'E-commerce platform',
+    'Analytics tools',
+    'Email marketing tools',
+  ],
+
+  'Office rent': ['Office space', 'Warehouse rent', 'Co-working space'],
+
+  'Owner salary transfer': ['Monthly salary', 'Performance-based payout'],
+
+  'Tax reserve allocation': [
+    'Income tax reserve',
+    'VAT reserve',
+    'Corporate tax reserve',
+  ],
+
+  'Payment gateway fees': ['Stripe', 'Adyen', 'PayPal', 'Mollie'],
+
+  'Platform penalty': [
+    'Policy violation',
+    'Late shipment penalty',
+    'Quality issue penalty',
+  ],
+
+  'Bulk order refunds': [
+    'Product recall',
+    'Supplier defect',
+    'Campaign failure',
+  ],
+
+  'Infrastructure upgrade': [
+    'Server scaling',
+    'Database upgrade',
+    'Security enhancement',
+  ],
+
+  'Salary received': ['Monthly salary', 'Bonus payout'],
+
+  'House rent': ['Apartment rent', 'Maintenance charges'],
+
+  'Utility bills': ['Electricity', 'Water', 'Internet', 'Gas'],
+
+  'Subscription services': [
+    'Streaming services',
+    'Cloud storage',
+    'Productivity tools',
+  ],
+
+  'Insurance premium': [
+    'Health insurance',
+    'Life insurance',
+    'Vehicle insurance',
+  ],
+
+  'Savings deposit': ['Monthly savings', 'Surplus transfer'],
+
+  'Medical expense': [
+    'Doctor consultation',
+    'Medicines',
+    'Lab tests',
+    'Dental treatment',
+  ],
+
+  'Family event expense': [
+    'Birthday celebration',
+    'Religious ceremony',
+    'Family gathering',
+  ],
+
+  'Device repair': ['Mobile repair', 'Laptop repair', 'Accessory replacement'],
+
+  'Profit transferred to savings': [
+    'Monthly profit allocation',
+    'Quarterly profit allocation',
+  ],
+
+  'Interest credited': ['Savings account interest', 'Fixed deposit interest'],
+
+  'Large withdrawal': [
+    'Emergency expense',
+    'Investment funding',
+    'Major purchase',
+  ],
+
+  'One-time investment': [
+    'Stocks',
+    'Mutual funds',
+    'Crypto assets',
+    'Fixed deposits',
+  ],
+
+  'Annual business tax': ['Corporate income tax', 'VAT settlement'],
+
+  'Audit and accounting fees': [
+    'Annual audit',
+    'Tax filing',
+    'Compliance review',
+  ],
+
+  'License renewal': ['Business license', 'Trade license', 'Software license'],
+
+  'Employee bonus': ['Performance bonus', 'Year-end bonus'],
+
+  'Legal expenses': [
+    'Contract dispute',
+    'Compliance issue',
+    'Legal consultation',
+  ],
+
+  'System migration': [
+    'Cloud migration',
+    'Platform re-architecture',
+    'Payment system migration',
+  ],
+
+  'Fraud-related loss': [
+    'Chargeback fraud',
+    'Account compromise',
+    'Payment fraud',
+  ],
+
+  'Vacation expenses': [
+    'Flights',
+    'Hotels',
+    'Local travel',
+    'Leisure activities',
+  ],
+
+  'Personal device purchase': [
+    'Mobile phone',
+    'Laptop',
+    'Tablet',
+    'Accessories',
+  ],
+
+  'Insurance renewal': [
+    'Health insurance',
+    'Life insurance',
+    'Vehicle insurance',
+  ],
+
+  'Major medical expense': [
+    'Surgery',
+    'Hospitalization',
+    'Accident treatment',
+    'Chronic illness care',
+  ],
+
+  'Wedding or family event': [
+    'Wedding ceremony',
+    'Reception',
+    'Cultural event',
+  ],
+
+  'Vehicle expense': [
+    'Major repair',
+    'Vehicle replacement',
+    'Insurance claim excess',
+  ],
+
+  'Annual tax refund': ['Income tax refund', 'VAT refund'],
+
+  'Annual tax payment': ['Personal income tax', 'Capital gains tax'],
+
+  'Long-term investment': ['Fixed deposits', 'Real estate', 'Retirement fund'],
+
+  'Business support transfer': ['Cash flow support', 'Emergency funding'],
+
+  'Large emergency expense': [
+    'Medical emergency',
+    'Legal emergency',
+    'Disaster recovery',
+  ],
+};
+
+const yearOverYearGrowthMap = {
+  business: {
+    income: {
+      'Order placed': {
+        countGrowth: 0.15, // +15% orders per year
+        amountGrowth: 0.05, // +5% AOV per year
+      },
+    },
+
+    expense: {
+      'Advertisement expense': {
+        countGrowth: 0.1,
+        amountGrowth: 0.08,
+      },
+      'Courier and shipping charges': {
+        countGrowth: 0.12,
+        amountGrowth: 0.04,
+      },
+      'Payment gateway fees': {
+        countGrowth: 0.12,
+        amountGrowth: 0.03,
+      },
+      'Employee salary': {
+        countGrowth: 0.0, // headcount stable
+        amountGrowth: 0.07, // annual raises
+      },
+      'Office rent': {
+        countGrowth: 0.0,
+        amountGrowth: 0.04,
+      },
+      'SaaS and platform charges': {
+        countGrowth: 0.05,
+        amountGrowth: 0.06,
+      },
+      'Tax reserve allocation': {
+        countGrowth: 0.0,
+        amountGrowth: 0.1,
+      },
+    },
+
+    unexpected: {
+      'Order refund': {
+        probabilityGrowth: 0.02, // refunds slightly more likely
+        amountGrowth: 0.05,
+      },
+      'Bulk order refunds': {
+        probabilityGrowth: 0.01,
+        amountGrowth: 0.08,
+      },
+    },
+  },
+
+  current: {
+    income: {
+      'Salary received': {
+        countGrowth: 0.0,
+        amountGrowth: 0.08,
+      },
+    },
+
+    expense: {
+      'Food and meals': {
+        countGrowth: 0.0,
+        amountGrowth: 0.05,
+      },
+      'Transportation expense': {
+        countGrowth: 0.0,
+        amountGrowth: 0.04,
+      },
+      'House rent': {
+        countGrowth: 0.0,
+        amountGrowth: 0.06,
+      },
+      'Utility bills': {
+        countGrowth: 0.0,
+        amountGrowth: 0.05,
+      },
+      'Subscription services': {
+        countGrowth: 0.03,
+        amountGrowth: 0.05,
+      },
+      'Insurance premium': {
+        countGrowth: 0.0,
+        amountGrowth: 0.06,
+      },
+    },
+
+    unexpected: {
+      'Medical expense': {
+        probabilityGrowth: 0.02,
+        amountGrowth: 0.06,
+      },
+      'Family event expense': {
+        probabilityGrowth: 0.01,
+        amountGrowth: 0.05,
+      },
+    },
+  },
+
+  savings: {
+    income: {
+      'Profit transferred to savings': {
+        countGrowth: 0.05,
+        amountGrowth: 0.15,
+      },
+      'Interest credited': {
+        countGrowth: 0.0,
+        amountGrowth: 0.1,
+      },
+    },
+
+    expense: {
+      'Long-term investment': {
+        countGrowth: 0.05,
+        amountGrowth: 0.12,
+      },
+    },
+
+    unexpected: {
+      'Large withdrawal': {
+        probabilityGrowth: 0.01,
+        amountGrowth: 0.08,
+      },
+    },
+  },
+};
+
+const monthlyOrderAdjustment = {
+  Jan: -0.12,
+  Feb: -0.08,
+  Mar: 0.0,
+  Apr: 0.05,
+  May: 0.08,
+  Jun: 0.12,
+  Jul: 0.1,
+  Aug: -0.05,
+  Sep: 0.06,
+  Oct: 0.15,
+  Nov: 0.35,
+  Dec: 0.5,
+};
+
+const transactionPrimaryHourMap = {
+  // ---------- DAILY · BUSINESS ----------
+  'Order placed': [9, 23],
+  'Advertisement expense': [6, 10],
+  'Courier and shipping charges': [9, 17],
+  'Order refund': [11, 17],
+  'Extra advertisement spend': [18, 22],
+  'Additional logistics charges': [10, 18],
+
+  // ---------- DAILY · CURRENT ----------
+  'Food and meals': [12, 14],
+  'Transportation expense': [8, 10],
+  'Dining outside': [19, 23],
+  'Online shopping': [20, 23],
+  'Minor repair expense': [10, 18],
+
+  // ---------- DAILY · SAVINGS ----------
+  'Emergency withdrawal': [9, 17],
+
+  // ---------- MONTHLY · BUSINESS ----------
+  'Employee salary': [1, 4],
+  'SaaS and platform charges': [2, 6],
+  'Office rent': [8, 11],
+  'Owner salary transfer': [1, 5],
+  'Tax reserve allocation': [9, 16],
+  'Payment gateway fees': [1, 5],
+  'Platform penalty': [10, 16],
+  'Bulk order refunds': [11, 17],
+  'Infrastructure upgrade': [10, 18],
+
+  // ---------- MONTHLY · CURRENT ----------
+  'Salary received': [0, 3],
+  'House rent': [8, 11],
+  'Utility bills': [1, 6],
+  'Subscription services': [1, 5],
+  'Insurance premium': [2, 6],
+  'Savings deposit': [1, 5],
+  'Medical expense': [10, 20],
+  'Family event expense': [10, 18],
+  'Device repair': [10, 18],
+
+  // ---------- MONTHLY · SAVINGS ----------
+  'Profit transferred to savings': [1, 5],
+  'Interest credited': [2, 6],
+  'Large withdrawal': [9, 17],
+  'One-time investment': [10, 16],
+
+  // ---------- YEARLY · BUSINESS ----------
+  'Annual business tax': [9, 15],
+  'Audit and accounting fees': [10, 16],
+  'License renewal': [9, 14],
+  'Employee bonus': [1, 5],
+  'Legal expenses': [10, 16],
+  'System migration': [22, 4], // overnight window
+  'Fraud-related loss': [0, 23],
+
+  // ---------- YEARLY · CURRENT ----------
+  'Vacation expenses': [9, 21],
+  'Personal device purchase': [11, 20],
+  'Insurance renewal': [2, 6],
+  'Major medical expense': [0, 23],
+  'Wedding or family event': [10, 22],
+  'Vehicle expense': [9, 18],
+
+  // ---------- YEARLY · SAVINGS ----------
+  'Annual tax refund': [1, 5],
+  'Annual tax payment': [9, 15],
+  'Long-term investment': [10, 16],
+  'Business support transfer': [9, 17],
+  'Large emergency expense': [0, 23],
+};
+
+const orderItemCatalog = {
+  Electronics: {
+    weight: 0.22,
+    price: { min: 120, max: 1200 },
+    items: [
+      'Smartphone',
+      'Laptop',
       'Wireless Earbuds',
-      'Bluetooth Headphones',
-      'Mechanical Keyboards',
-      'Wireless Mouse',
-      'Backpacks',
-      'Desk Accessories',
-      'Online Courses',
-      'E-Books',
-      'MacBook Pro',
-      'Ultrabook Laptop',
-      '4K Monitor',
-      'Noise Cancelling Headphones',
-      'Premium Mechanical Keyboard',
-      'Ergonomic Office Chair',
+      'Smart Watch',
+      'Bluetooth Speaker',
+      'Tablet',
+      'Gaming Console',
+      'Power Bank',
     ],
   },
-  {
-    channel: 'Website – Paid Ads',
-    products: [
-      'Phone Cases',
-      'Screen Protectors',
-      'Fast Chargers',
-      'Power Banks',
-      'LED Strip Lights',
-      'Ring Lights',
-      'Mini Projectors',
-      'Posture Correctors',
-      'Massage Guns',
-      'MagSafe Power Bank',
-      'Designer Phone Case',
-      '4K Smart Projector',
-      'Professional Ring Light',
-    ],
-  },
-  {
-    channel: 'Mobile App – Android',
-    products: [
-      'Smartphones',
-      'Wireless Earbuds',
-      'Bluetooth Speakers',
-      'Fitness Trackers',
-      'Gaming Controllers',
-      'Phone Mounts',
-      'Phone Stands',
-      'Car Chargers',
-      'Flagship Android Phone',
-      'ANC Wireless Earbuds',
-      'Smart Fitness Watch',
-      'Premium Bluetooth Speaker',
-    ],
-  },
-  {
-    channel: 'Mobile App – iOS',
-    products: [
-      'Smartphones',
-      'Smartwatches',
-      'Wireless Earbuds',
-      'Bluetooth Headphones',
-      'Charging Cables',
-      'Fast Chargers',
-      'iPhone Pro Series',
-      'Apple Watch Ultra',
-      'AirPods Pro',
-      'MagSafe Fast Charger',
-    ],
-  },
-  {
-    channel: 'Amazon Marketplace',
-    products: [
-      'Air Fryers',
-      'Vacuum Cleaners',
-      'Mixer Grinders',
-      'Electric Kettles',
-      'Storage Containers',
-      'Water Bottles',
-      'Bedsheets',
-      'Pillows',
-      'Smart Air Fryer',
-      'Robot Vacuum Cleaner',
-      'Premium Coffee Maker',
-      'Luxury Bedsheets',
-    ],
-  },
-  {
-    channel: 'eBay Marketplace',
-    products: [
-      'External Hard Drives',
-      'SSDs',
-      'WiFi Routers',
-      'Webcams',
-      'USB Hubs',
-      'Printers',
-      'Printer Ink',
-      'NVMe SSD',
-      'WiFi 6 Router',
-      '4K Webcam',
-      'All-in-One Printer',
-    ],
-  },
-  {
-    channel: 'Etsy Marketplace',
-    products: [
-      'Handbags',
-      'Wallets',
-      'Belts',
-      'Home Decor Items',
-      'Wall Clocks',
-      'Reusable Bags',
-      'Eco Friendly Bottles',
-      'Handcrafted Leather Handbag',
-      'Designer Home Decor Item',
-      'Luxury Wooden Wall Clock',
-    ],
-  },
-  {
-    channel: 'Allegro Marketplace',
-    products: [
-      'Office Chairs',
-      'Study Tables',
-      'Desk Organizers',
-      'Whiteboards',
-      'Calculators',
-      'Notebooks',
-      'Markers',
-      'Ergonomic Executive Chair',
-      'Solid Wood Study Table',
-      'Premium Desk Organizer',
-    ],
-  },
-  {
-    channel: 'Flipkart Marketplace',
-    products: [
-      'Men T-Shirts',
-      'Women Dresses',
+
+  Fashion: {
+    weight: 0.28,
+    price: { min: 15, max: 180 },
+    items: [
+      'T-Shirt',
       'Jeans',
-      'Hoodies',
-      'Shoes',
-      'Sandals',
-      'Watches',
+      'Sneakers',
+      'Jacket',
+      'Dress',
+      'Handbag',
       'Sunglasses',
-      'Branded Sneakers',
-      'Luxury Wrist Watch',
-      'Designer Sunglasses',
-      'Premium Winter Jacket',
+      'Watch',
     ],
   },
-  {
-    channel: 'Facebook Ads',
-    products: [
-      'Women Tops',
-      'Makeup Kits',
-      'Lipsticks',
-      'Foundation',
-      'Serums',
-      'Moisturizers',
-      'Sunscreen',
-      'Luxury Skincare Kit',
-      'Anti-Aging Serum',
-      'Premium Makeup Palette',
+
+  HomeAppliances: {
+    weight: 0.14,
+    price: { min: 40, max: 600 },
+    items: [
+      'Microwave Oven',
+      'Vacuum Cleaner',
+      'Mixer Grinder',
+      'Air Fryer',
+      'Coffee Maker',
+      'Electric Kettle',
     ],
   },
-  {
-    channel: 'Instagram Ads',
-    products: [
+
+  Books: {
+    weight: 0.12,
+    price: { min: 8, max: 45 },
+    items: [
+      'Programming Book',
+      'Self-help Book',
+      'Novel',
+      'Business Book',
+      'Exam Guide',
+      'Biography',
+    ],
+  },
+
+  BeautyProducts: {
+    weight: 0.16,
+    price: { min: 10, max: 120 },
+    items: [
+      'Perfume',
+      'Face Cream',
+      'Serum',
+      'Shampoo',
+      'Makeup Kit',
       'Hair Dryer',
-      'Hair Straightener',
-      'Trimmers',
-      'Yoga Mats',
+    ],
+  },
+
+  SportsEquipment: {
+    weight: 0.08,
+    price: { min: 30, max: 350 },
+    items: [
+      'Football',
+      'Cricket Bat',
+      'Yoga Mat',
       'Dumbbells',
-      'Fitness Trackers',
-      'Professional Hair Styler',
-      'Smart Fitness Band',
-      'Premium Yoga Mat',
+      'Running Shoes',
+      'Tennis Racket',
     ],
   },
-  {
-    channel: 'Google Search Ads',
-    products: [
-      'Laptops',
-      'Monitors',
-      'Mechanical Keyboards',
-      'Gaming Mouse',
-      'Gaming Keyboard',
-      'Gaming Laptop',
-      '4K Curved Monitor',
-      'Premium Gaming Keyboard',
-    ],
-  },
-  {
-    channel: 'Google Shopping Ads',
-    products: [
-      'Bluetooth Speakers',
-      'Smart Home Devices',
-      'LED Strip Lights',
-      'Mini Projectors',
-      'Smart Home Hub',
-      'Dolby Atmos Speaker',
-      '4K Home Projector',
-    ],
-  },
-  {
-    channel: 'YouTube Ads',
-    products: [
-      'Gaming Consoles',
-      'Video Games',
-      'Gaming Chairs',
-      'VR Headsets',
-      'Action Figures',
-      'Next-Gen Gaming Console',
-      'Premium Gaming Chair',
-      'Advanced VR Headset',
-    ],
-  },
-  {
-    channel: 'TikTok Ads',
-    products: [
-      'Ring Lights',
-      'Phone Stands',
-      'Massage Guns',
-      'Posture Correctors',
-      'Desk Accessories',
-      'Professional Massage Gun',
-      'Luxury Desk Setup Kit',
-    ],
-  },
-  {
-    channel: 'Affiliate – Tech Bloggers',
-    products: [
-      'SSDs',
-      'External Hard Drives',
-      'WiFi Routers',
-      'Mechanical Keyboards',
-      'Webcams',
-      'High-Speed NVMe SSD',
-      'Enterprise WiFi Router',
-    ],
-  },
-  {
-    channel: 'Affiliate – Influencers',
-    products: [
-      'Smartwatches',
-      'Wireless Earbuds',
-      'Bluetooth Speakers',
-      'Fitness Trackers',
-      'Luxury Smartwatch',
-      'Studio-Grade Speaker',
-    ],
-  },
-  {
-    channel: 'Affiliate – Coupon Sites',
-    products: [
-      'Phone Cases',
-      'Charging Cables',
-      'Fast Chargers',
-      'Power Banks',
-      'Premium Braided Charging Cable',
-    ],
-  },
-  {
-    channel: 'Affiliate – Cashback Platforms',
-    products: [
-      'Laptops',
-      'Smartphones',
-      'Tablets',
-      'Flagship Smartphone',
-      'High-End Tablet',
-    ],
-  },
-  {
-    channel: 'Wholesale Orders',
-    products: [
-      'Office Chairs',
-      'Study Tables',
-      'Printers',
-      'Desk Organizers',
-      'Whiteboards',
-      'Bulk Ergonomic Chairs',
-      'Enterprise Printers',
-    ],
-  },
-  {
-    channel: 'Corporate Sales',
-    products: [
-      'Laptops',
-      'Monitors',
-      'Keyboards',
-      'Mouse',
-      'Printers',
-      'Office Chairs',
-      'Business Laptop',
-      'UltraWide Monitor',
-    ],
-  },
-  {
-    channel: 'Distributor Network',
-    products: [
-      'Smart Home Devices',
-      'LED Strip Lights',
-      'Mini Projectors',
-      'Bluetooth Speakers',
-      'Smart Security System',
-      'Premium Home Theater Projector',
-    ],
-  },
-  {
-    channel: 'Email Marketing Campaign',
-    products: [
-      'Online Courses',
-      'E-Books',
-      'Notebooks',
-      'Diaries',
-      'Professional Certification Course',
-    ],
-  },
-  {
-    channel: 'Push Notifications',
-    products: [
-      'Water Bottles',
-      'Lunch Boxes',
-      'Storage Containers',
-      'Eco Friendly Bottles',
-      'Smart Insulated Bottle',
-    ],
-  },
-  {
-    channel: 'SMS Campaign',
-    products: [
-      'Phone Cases',
-      'Screen Protectors',
-      'Charging Cables',
-      'Premium Glass Screen Protector',
-    ],
-  },
-  {
-    channel: 'Retail Store POS',
-    products: [
-      'Shoes',
-      'Sandals',
-      'Slippers',
-      'Backpacks',
-      'Wallets',
-      'Belts',
-      'Leather Backpack',
-      'Luxury Leather Wallet',
-    ],
-  },
-  {
-    channel: 'Pop-up Store',
-    products: [
-      'Soft Toys',
-      'Kids Learning Toys',
-      'Drawing Books',
-      'Art Supplies',
-      'Educational STEM Toy Set',
-    ],
-  },
-  {
-    channel: 'Trade Fair / Expo',
-    products: [
-      'Smart Home Devices',
-      'Gaming Consoles',
-      'VR Headsets',
-      'Musical Instruments',
-      'Smart Home Automation Kit',
-      'Professional Digital Piano',
-    ],
-  },
-  {
-    channel: 'Cross-border EU Sales',
-    products: [
-      'Smartphones',
-      'Smartwatches',
-      'Laptops',
-      'Air Fryers',
-      'Vacuum Cleaners',
-      'Premium Smartphone',
-      'Robot Vacuum Cleaner',
-    ],
-  },
-  {
-    channel: 'International Dropshipping',
-    products: [
-      'LED Strip Lights',
-      'Phone Stands',
-      'Ring Lights',
-      'Mini Projectors',
-      'Smart LED Lighting System',
-    ],
-  },
-];
+};
 
-const products = [
-  'Smartphones',
-  'Phone Cases',
-  'Screen Protectors',
-  'Power Banks',
-  'Wireless Earbuds',
-  'Bluetooth Headphones',
-  'Smartwatches',
-  'Fitness Trackers',
-  'Charging Cables',
-  'Fast Chargers',
-  'Bluetooth Speakers',
-  'Laptops',
-  'Tablets',
-  'Monitors',
-  'Mechanical Keyboards',
-  'Wireless Mouse',
-  'Gaming Mouse',
-  'Gaming Keyboard',
-  'Webcams',
-  'USB Hubs',
-  'External Hard Drives',
-  'SSDs',
-  'WiFi Routers',
-  'Men T-Shirts',
-  'Men Shirts',
-  'Women Tops',
-  'Women Dresses',
-  'Jeans',
-  'Trousers',
-  'Hoodies',
-  'Jackets',
-  'Skirts',
-  'Leggings',
-  'Ethnic Wear',
-  'Shoes',
-  'Sandals',
-  'Slippers',
-  'Watches',
-  'Sunglasses',
-  'Belts',
-  'Wallets',
-  'Handbags',
-  'Backpacks',
-  'Cookware Sets',
-  'Non-Stick Pans',
-  'Pressure Cookers',
-  'Air Fryers',
-  'Mixer Grinders',
-  'Electric Kettles',
-  'Coffee Makers',
-  'Storage Containers',
-  'Lunch Boxes',
-  'Water Bottles',
-  'Bedsheets',
-  'Pillows',
-  'Curtains',
-  'Wall Clocks',
-  'Home Decor Items',
-  'Indoor Plants',
-  'Vacuum Cleaners',
-  'Cleaning Mops',
-  'Laundry Baskets',
-  'Shoe Racks',
-  'Face Wash',
-  'Moisturizers',
-  'Sunscreen',
-  'Serums',
-  'Lipsticks',
-  'Foundation',
-  'Makeup Kits',
-  'Shampoo',
-  'Conditioner',
-  'Hair Oil',
-  'Hair Dryer',
-  'Hair Straightener',
-  'Trimmers',
-  'Electric Shavers',
-  'Electric Toothbrush',
-  'Weighing Machine',
-  'BP Monitor',
-  'Yoga Mats',
-  'Dumbbells',
-  'Gaming Consoles',
-  'Video Games',
-  'Gaming Controllers',
-  'Gaming Chairs',
-  'VR Headsets',
-  'Board Games',
-  'Puzzles',
-  'Action Figures',
-  'RC Cars',
-  'Soft Toys',
-  'Kids Learning Toys',
-  'Drawing Books',
-  'Art Supplies',
-  'Musical Instruments',
-  'Guitar Accessories',
-  'Fiction Books',
-  'Non-Fiction Books',
-  'Academic Textbooks',
-  'Competitive Exam Books',
-  'Notebooks',
-  'Diaries',
-  'Pens',
-  'Markers',
-  'Office Chairs',
-  'Study Tables',
-  'Desk Organizers',
-  'Printers',
-  'Printer Ink',
-  'Calculators',
-  'Whiteboards',
-  'Online Courses',
-  'E-Books',
-  'Car Seat Covers',
-  'Car Chargers',
-  'Dash Cameras',
-  'Car Vacuum Cleaners',
-  'Bike Helmets',
-  'Bike Gloves',
-  'Phone Mounts',
-  'Travel Backpacks',
-  'Suitcases',
-  'Cabin Bags',
-  'Travel Organizers',
-  'Neck Pillows',
-  'Camping Tents',
-  'Sleeping Bags',
-  'Flashlights',
-  'Dog Food',
-  'Cat Food',
-  'Pet Treats',
-  'Pet Feeding Bowls',
-  'Pet Beds',
-  'Dog Collars',
-  'Leashes',
-  'Cat Litter',
-  'Pet Grooming Brushes',
-  'Pet Shampoo',
-  'Pet Toys',
-  'Aquariums',
-  'Smart Home Devices',
-  'LED Strip Lights',
-  'Phone Stands',
-  'Ring Lights',
-  'Mini Projectors',
-  'Eco Friendly Bottles',
-  'Reusable Bags',
-  'Posture Correctors',
-  'Massage Guns',
-  'Desk Accessories',
-];
+function convertCentsToEuro(cents) {
+  return cents / 100;
+}
 
-const channels = ['Website', 'Mobile App', 'Marketplace Partner', 'Affiliate'];
+function convertEuroToCents(euro) {
+  return Math.round(euro * 100);
+}
 
+function getDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomFloat(min, max) {
+  return +(Math.random() * (max - min) + min).toFixed(2);
+}
+
+function pickWeightedCategory(catalog) {
+  const entries = Object.entries(catalog);
+  const totalWeight = entries.reduce((s, [, v]) => s + v.weight, 0);
+
+  let r = Math.random() * totalWeight;
+
+  for (const [key, value] of entries) {
+    if (r < value.weight) return { key, value };
+    r -= value.weight;
+  }
+}
+
+function generateAndInsertTransactions({
+  rule,
+  flowType,
+  accountKey,
+  accountId,
+  db,
+  state,
+  userId,
+  dateParts,
+}) {
+  const count = getRandomInt(rule.minCount, rule.maxCount);
+  const [startHour, endHour] = transactionPrimaryHourMap[rule.note] || [9, 17];
+  const subTypes = transactionTypesMap[rule.note] || [];
+
+  for (let i = 0; i < count; i++) {
+    const hour = getRandomInt(startHour, endHour);
+    const minute = getRandomInt(0, 59);
+
+    const date = `${dateParts.year}-${String(dateParts.month).padStart(
+      2,
+      '0',
+    )}-${String(dateParts.day).padStart(
+      2,
+      '0',
+    )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+
+    const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+
+    const subType =
+      subTypes.length > 0
+        ? subTypes[getRandomInt(0, subTypes.length - 1)]
+        : null;
+
+    addTransaction({
+      db,
+      state,
+      userId,
+      accountId,
+      amountCents: convertEuroToCents(amountEuro),
+      type: flowType === 'income' ? 'credit' : 'debit',
+      category: `${accountKey}-${flowType}`,
+      description: subType ? `${rule.note} · ${subType}` : rule.note,
+      date,
+    });
+  }
+}
+
+function runMonthlyRules({
+  rules,
+  flowType,
+  accountId,
+  accountKey,
+  db,
+  state,
+  userId,
+  year,
+  month,
+}) {
+  for (const rule of rules) {
+    const count = getRandomInt(rule.minCount, rule.maxCount);
+    const [startHour, endHour] = transactionPrimaryHourMap[rule.note] || [
+      9, 17,
+    ];
+
+    const subTypes = transactionTypesMap[rule.note] || [];
+
+    for (let i = 0; i < count; i++) {
+      const day = getRandomInt(1, 5); // early-month realism
+      const hour = getRandomInt(startHour, endHour);
+      const minute = getRandomInt(0, 59);
+
+      const date = `${year}-${String(month).padStart(
+        2,
+        '0',
+      )}-${String(day).padStart(2, '0')} ${String(hour).padStart(
+        2,
+        '0',
+      )}:${String(minute).padStart(2, '0')}:00`;
+
+      const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+
+      const subType =
+        subTypes.length > 0
+          ? subTypes[getRandomInt(0, subTypes.length - 1)]
+          : null;
+
+      addTransaction({
+        db,
+        state,
+        userId,
+        accountId,
+        amountCents: convertEuroToCents(amountEuro),
+        type: flowType === 'income' ? 'credit' : 'debit',
+        category: `${accountKey}-${flowType}-monthly`,
+        description: subType ? `${rule.note} · ${subType}` : rule.note,
+        date,
+      });
+    }
+  }
+}
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function applyYearlyGrowth(basePlan, growthMap) {
+  const plan = deepClone(basePlan);
+
+  for (const accountKey of Object.keys(growthMap)) {
+    const accountGrowth = growthMap[accountKey];
+
+    for (const period of ['daily', 'monthly', 'yearly']) {
+      const periodPlan = plan[period]?.[accountKey];
+      if (!periodPlan) continue;
+
+      for (const section of ['income', 'expense']) {
+        const rules = periodPlan[section] || [];
+        const growthRules = accountGrowth[section] || {};
+
+        for (const rule of rules) {
+          const growth = growthRules[rule.note];
+          if (!growth) continue;
+
+          if (growth.countGrowth) {
+            rule.minCount = Math.round(
+              rule.minCount * (1 + growth.countGrowth),
+            );
+            rule.maxCount = Math.round(
+              rule.maxCount * (1 + growth.countGrowth),
+            );
+          }
+
+          if (growth.amountGrowth) {
+            rule.minAmount = +(
+              rule.minAmount *
+              (1 + growth.amountGrowth)
+            ).toFixed(2);
+            rule.maxAmount = +(
+              rule.maxAmount *
+              (1 + growth.amountGrowth)
+            ).toFixed(2);
+          }
+        }
+      }
+    }
+  }
+
+  return plan;
+}
+/**
+ * Imports & setup
+ */
+import db from '../db/db.js';
+import bcrypt from 'bcrypt';
+
+/**
+ * Reset database
+ */
 function resetDatabase(db) {
+  console.log('Resetting database');
+
   db.exec(`
     DELETE FROM tbltransaction;
     DELETE FROM tblaccount;
     DELETE FROM tbluser;
   `);
-}
 
+  console.log('completed');
+}
+/**
+ * Create user
+ */
 function createUser(db) {
-  const hashedPassword = bcrypt.hashSync(CONFIG.USER.PASSWORD, 10);
+  console.log('👤 STEP 2: Creating user');
+
+  const USER = {
+    email: 'sathis@gmail.com',
+    firstname: 'Sathiskumar',
+    lastname: 'Ravichandran',
+    contact: '+48 989876972',
+    password: '123',
+    provider: 'local',
+    country: 'Poland',
+    currency: 'EUR',
+  };
+
+  const hashedPassword = bcrypt.hashSync(USER.password, 10);
 
   const stmt = db.prepare(`
     INSERT INTO tbluser
@@ -665,396 +1286,468 @@ function createUser(db) {
   `);
 
   const result = stmt.run(
-    CONFIG.USER.EMAIL,
-    CONFIG.USER.FIRSTNAME,
-    CONFIG.USER.LASTNAME,
-    CONFIG.USER.CONTACT,
+    USER.email,
+    USER.firstname,
+    USER.lastname,
+    USER.contact,
     hashedPassword,
-    CONFIG.USER.PROVIDER,
-    CONFIG.USER.COUNTRY,
-    CONFIG.USER.CURRENCY,
+    USER.provider,
+    USER.country,
+    USER.currency,
   );
+
+  console.log('✅ STEP 2 completed. User ID:', result.lastInsertRowid);
 
   return result.lastInsertRowid;
 }
 
-function prepareStatements(db) {
-  return {
-    insertAccount: db.prepare(`
-      INSERT INTO tblaccount
-      (user_id, account_type, account_number, currency, account_balance)
-      VALUES (?, ?, ?, ?, ?)
-    `),
-    insertTransaction: db.prepare(`
-      INSERT INTO tbltransaction
-      (user_id, account_id, description, reference, amount, type,
-       balance_before, balance_after, status, category, createdat)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `),
-    updateBalance: db.prepare(`
-      UPDATE tblaccount SET account_balance = ? WHERE id = ?
-    `),
-  };
-}
+/**
+ * Create accounts
+ */
+function createAccounts(db, userId) {
+  console.log('🏦 STEP 3: Creating accounts');
 
-function generateAccountNumber() {
-  return 'AC' + Math.floor(10000000 + Math.random() * 90000000);
-}
+  const ACCOUNTS = [
+    { type: 'Business', balance: 500000 },
+    { type: 'Savings', balance: 1000000 },
+    { type: 'Current', balance: 300000 },
+  ];
 
-function createAccount({
-  userId,
-  type,
-  balance,
-  insertAccount,
-  insertTransaction,
-}) {
-  const acc = insertAccount.run(
-    userId,
-    type,
-    generateAccountNumber(),
-    CONFIG.TRANSACTION.CURRENCY,
-    balance,
-  );
+  const stmt = db.prepare(`
+    INSERT INTO tblaccount
+    (user_id, account_type, account_number, currency, account_balance)
+    VALUES (?, ?, ?, ?, ?)
+  `);
 
-  const accountId = acc.lastInsertRowid;
+  const generateAccountNumber = () =>
+    'AC' + Math.floor(10000000 + Math.random() * 90000000);
 
-  insertTransaction.run(
-    userId,
-    accountId,
-    CONFIG.CAPITAL.DESCRIPTION,
-    CONFIG.CAPITAL.REFERENCE,
-    balance,
-    'credit',
-    0,
-    balance,
-    CONFIG.CAPITAL.STATUS,
-    CONFIG.CAPITAL.CATEGORY,
-    CONFIG.CAPITAL.DATE,
-  );
+  const result = {};
 
-  return accountId;
-}
-
-function toCents(eur) {
-  return Math.round(eur * 100);
-}
-
-function fromCents(cents) {
-  return cents / 100;
-}
-
-function randomBetween(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-function seasonalMultiplier(month) {
-  if (month === 1) return CONFIG.SEASONAL_MULTIPLIER.JAN;
-  if (month >= 6 && month <= 8) return CONFIG.SEASONAL_MULTIPLIER.SUMMER;
-  if (month === 11) return CONFIG.SEASONAL_MULTIPLIER.NOV;
-  if (month === 12) return CONFIG.SEASONAL_MULTIPLIER.DEC;
-  return 1;
-}
-
-function crisisImpact(year, month) {
-  return (
-    year === CONFIG.CRISIS.YEAR &&
-    month >= CONFIG.CRISIS.START_MONTH &&
-    month <= CONFIG.CRISIS.END_MONTH
-  );
-}
-
-function createTransactionAdder(state, insertTransaction, userId) {
-  return function (accountId, amountCents, type, category, desc, date) {
-    if (!amountCents || amountCents <= 0) return;
-
-    const before = state[accountId];
-    state[accountId] += type === 'credit' ? amountCents : -amountCents;
-    const after = state[accountId];
-
-    insertTransaction.run(
+  for (const acc of ACCOUNTS) {
+    const res = stmt.run(
       userId,
-      accountId,
-      desc,
-      `${category}-${Math.random()}`,
-      fromCents(amountCents),
-      type,
-      fromCents(before),
-      fromCents(after),
-      CONFIG.TRANSACTION.STATUS,
-      category,
-      date,
-    );
-  };
-}
-
-function runMonthlySimulation({
-  startYear,
-  startMonth,
-  months,
-  baseRevenue,
-  accounts,
-  addTransaction,
-}) {
-  let year = startYear;
-  let month = startMonth;
-
-  for (let i = 0; i < months; i++) {
-    const yearsPassed = year - startYear;
-
-    let revenue =
-      baseRevenue * Math.pow(1.2, yearsPassed) * seasonalMultiplier(month);
-
-    if (crisisImpact(year, month)) {
-      revenue *= CONFIG.CRISIS.IMPACT;
-    }
-
-    revenue *= randomBetween(
-      CONFIG.RANDOMNESS.MONTHLY_MIN,
-      CONFIG.RANDOMNESS.MONTHLY_MAX,
+      acc.type,
+      generateAccountNumber(),
+      'EUR',
+      acc.balance,
     );
 
-    const monthlyCents = toCents(revenue);
-    const days = new Date(year, month, 0).getDate();
-    let accumulated = 0;
-
-    for (let day = 1; day <= days; day++) {
-      const daily =
-        day === days
-          ? monthlyCents - accumulated
-          : Math.floor(
-              (monthlyCents / days) *
-                randomBetween(
-                  CONFIG.RANDOMNESS.DAILY_MIN,
-                  CONFIG.RANDOMNESS.DAILY_MAX,
-                ),
-            );
-
-      accumulated += daily;
-
-      const getDescription = (data = channelByProduct) => {
-        const dataObj =
-          data[Math.floor(Math.random() * channelByProduct.length)];
-
-        const channel = dataObj.channel;
-
-        const getRandomProducts = (products) => {
-          if (!Array.isArray(products) || products.length === 0) return [];
-
-          const max = Math.min(10, products.length);
-          const count = Math.floor(Math.random() * max) + 1; // 1 → max
-
-          const shuffled = [...products].sort(() => 0.5 - Math.random());
-          return shuffled.slice(0, count);
-        };
-        const getRandomQty = () => Math.floor(Math.random() * 3) + 1;
-        const products = getRandomProducts(dataObj.products).reduce(
-          (str, product) => {
-            return `${str}, ${getRandomQty()} + ${product}`;
-          },
-          '',
-        );
-
-        return `${channel}: ${products.slice(1)}.`;
-      };
-
-      addTransaction(
-        accounts.business,
-        daily,
-        'credit',
-        'Revenue',
-        // `${channel} - ${getRandomQty()}x ${getRandomProduct()}`,
-        getDescription(),
-        `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 10:00:00`,
-      );
-    }
-
-    const refundRate =
-      month === 1
-        ? randomBetween(
-            CONFIG.REFUND_RATES.JAN_MIN,
-            CONFIG.REFUND_RATES.JAN_MAX,
-          )
-        : randomBetween(
-            CONFIG.REFUND_RATES.OTHER_MIN,
-            CONFIG.REFUND_RATES.OTHER_MAX,
-          );
-
-    const refundTotal = Math.floor(monthlyCents * refundRate);
-
-    addTransaction(
-      accounts.business,
-      refundTotal,
-      'debit',
-      'Revenue Adjustment',
-      'Customer Refund',
-      `${year}-${String(month).padStart(2, '0')}-15 16:00:00`,
-    );
-
-    const fees = Math.floor(monthlyCents * CONFIG.COSTS.FEES_RATE);
-    const marketing = Math.floor(monthlyCents * CONFIG.COSTS.MARKETING_RATE);
-    const payroll = toCents(
-      CONFIG.COSTS.BASE_PAYROLL + yearsPassed * CONFIG.COSTS.PAYROLL_INCREMENT,
-    );
-    const operations = toCents(
-      CONFIG.COSTS.BASE_OPERATIONS +
-        yearsPassed * CONFIG.COSTS.OPERATIONS_INCREMENT,
-    );
-
-    addTransaction(
-      accounts.business,
-      fees,
-      'debit',
-      'Fees',
-      'Payment Gateway Fees',
-      `${year}-${String(month).padStart(2, '0')}-25 18:00:00`,
-    );
-    addTransaction(
-      accounts.business,
-      marketing,
-      'debit',
-      'Marketing',
-      'Online Advertising Campaign',
-      `${year}-${String(month).padStart(2, '0')}-20 14:00:00`,
-    );
-    addTransaction(
-      accounts.business,
-      payroll,
-      'debit',
-      'Salary',
-      'Monthly Employee Payroll',
-      `${year}-${String(month).padStart(2, '0')}-28 09:00:00`,
-    );
-    addTransaction(
-      accounts.business,
-      operations,
-      'debit',
-      'Operations',
-      'Office & SaaS Expenses',
-      `${year}-${String(month).padStart(2, '0')}-10 11:00:00`,
-    );
-
-    const netProfit =
-      monthlyCents - refundTotal - fees - marketing - payroll - operations;
-
-    const toSavings = Math.floor(
-      netProfit * CONFIG.COSTS.SAVINGS_TRANSFER_RATE,
-    );
-    const toCurrent = Math.floor(
-      netProfit * CONFIG.COSTS.CURRENT_TRANSFER_RATE,
-    );
-
-    addTransaction(
-      accounts.business,
-      toSavings,
-      'debit',
-      'Transfer',
-      'Profit Transfer to Savings',
-      `${year}-${String(month).padStart(2, '0')}-30 12:00:00`,
-    );
-    addTransaction(
-      accounts.savings,
-      toSavings,
-      'credit',
-      'Transfer',
-      'Profit from Business',
-      `${year}-${String(month).padStart(2, '0')}-30 12:00:00`,
-    );
-
-    addTransaction(
-      accounts.business,
-      toCurrent,
-      'debit',
-      'Transfer',
-      'Owner Draw',
-      `${year}-${String(month).padStart(2, '0')}-30 15:00:00`,
-    );
-    addTransaction(
-      accounts.current,
-      toCurrent,
-      'credit',
-      'Transfer',
-      'Income from Business',
-      `${year}-${String(month).padStart(2, '0')}-30 15:00:00`,
-    );
+    result[acc.type.toLowerCase()] = res.lastInsertRowid;
 
     console.log(
-      `${year}-${String(month).padStart(2, '0')} | Net Profit: €${fromCents(netProfit).toLocaleString()}`,
+      `✅ ${acc.type} account created. ID: ${res.lastInsertRowid}, Balance: ${acc.balance}`,
+    );
+  }
+
+  return {
+    businessId: result.business,
+    savingsId: result.savings,
+    currentId: result.current,
+  };
+}
+
+/**
+ * Initialize runtime state (in-memory balances in cents)
+ */
+function initState(accounts) {
+  console.log('🧠 STEP 4: Initializing runtime state');
+
+  // IMPORTANT:
+  // These balances must MATCH what you inserted in STEP 3
+  const INITIAL_BALANCES = {
+    business: 500000,
+    savings: 1000000,
+    current: 300000,
+  };
+
+  const state = {
+    [accounts.businessId]: INITIAL_BALANCES.business * 100,
+    [accounts.savingsId]: INITIAL_BALANCES.savings * 100,
+    [accounts.currentId]: INITIAL_BALANCES.current * 100,
+  };
+
+  console.log('✅ STEP 4 completed. Initial state:', state);
+
+  return state;
+}
+
+/**
+ * Add initial capital transactions
+ */
+function addInitialCapital(db, state, userId, accounts) {
+  console.log('💰 STEP 5: Adding initial capital transactions');
+
+  const stmt = db.prepare(`
+    INSERT INTO tbltransaction
+    (
+      user_id,
+      account_id,
+      description,
+      reference,
+      amount,
+      type,
+      balance_before,
+      balance_after,
+      status,
+      category,
+      createdat
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const now = '2021-01-01 09:00:00';
+
+  const entries = [
+    { accountId: accounts.businessId, name: 'Business' },
+    { accountId: accounts.savingsId, name: 'Savings' },
+    { accountId: accounts.currentId, name: 'Current' },
+  ];
+
+  for (const entry of entries) {
+    const balanceCents = state[entry.accountId];
+
+    const amountEuro = convertCentsToEuro(balanceCents);
+
+    stmt.run(
+      userId,
+      entry.accountId,
+      'Initial Capital',
+      `INIT-${entry.name.toUpperCase()}`,
+      amountEuro, // EUR
+      'credit',
+      0,
+      amountEuro,
+      'Completed',
+      'Capital',
+      now,
     );
 
-    month++;
-    if (month > 12) {
-      month = 1;
-      year++;
+    console.log(`✅ ${entry.name} initial capital recorded: €${amountEuro}`);
+  }
+
+  console.log('✅ STEP 5 completed');
+}
+
+/**
+ * Core transaction helper
+ */
+function addTransaction({
+  db,
+  state,
+  userId,
+  accountId,
+  amountCents,
+  type, // 'credit' | 'debit'
+  category,
+  description,
+  date,
+}) {
+  const before = state[accountId];
+
+  if (type === 'credit') {
+    state[accountId] += amountCents;
+  } else {
+    state[accountId] -= amountCents;
+  }
+
+  const after = state[accountId];
+
+  const stmt = db.prepare(`
+    INSERT INTO tbltransaction
+    (
+      user_id,
+      account_id,
+      description,
+      reference,
+      amount,
+      type,
+      balance_before,
+      balance_after,
+      status,
+      category,
+      createdat
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  stmt.run(
+    userId,
+    accountId,
+    description,
+    `${category}-${Date.now()}`,
+    convertCentsToEuro(amountCents),
+    type,
+    convertCentsToEuro(before),
+    convertCentsToEuro(after),
+    'Completed',
+    category,
+    date,
+  );
+}
+
+function runOneDay(db, state, userId, accounts, { year, month, day }, plan) {
+  const dailyPlan = plan.daily;
+
+  const ACCOUNT_MAP = {
+    business: accounts.businessId,
+    current: accounts.currentId,
+    savings: accounts.savingsId,
+  };
+
+  for (const accountKey of Object.keys(dailyPlan)) {
+    const accountId = ACCOUNT_MAP[accountKey];
+    const accountPlan = dailyPlan[accountKey];
+
+    // ---------- INCOME & EXPENSE ----------
+    for (const flowType of ['income', 'expense']) {
+      const rules = accountPlan[flowType] || [];
+
+      for (const rule of rules) {
+        // ⭐ SPECIAL HANDLING: ORDER PLACED
+        if (rule.note === 'Order placed') {
+          const count = getRandomInt(rule.minCount, rule.maxCount);
+          const [startHour, endHour] =
+            transactionPrimaryHourMap['Order placed'];
+
+          for (let i = 0; i < count; i++) {
+            const { key, value } = pickWeightedCategory(orderItemCatalog);
+
+            const item = value.items[getRandomInt(0, value.items.length - 1)];
+
+            const amountEuro = getRandomFloat(value.price.min, value.price.max);
+
+            const hour = getRandomInt(startHour, endHour);
+            const minute = getRandomInt(0, 59);
+
+            const date = `${year}-${String(month).padStart(
+              2,
+              '0',
+            )}-${String(day).padStart(2, '0')} ${String(hour).padStart(
+              2,
+              '0',
+            )}:${String(minute).padStart(2, '0')}:00`;
+
+            addTransaction({
+              db,
+              state,
+              userId,
+              accountId,
+              amountCents: convertEuroToCents(amountEuro),
+              type: 'credit',
+              category: 'business-income',
+              description: `Order placed · ${key} · ${item}`,
+              date,
+            });
+          }
+
+          continue;
+        }
+
+        // ---------- NORMAL DAILY RULES ----------
+        generateAndInsertTransactions({
+          rule,
+          flowType,
+          accountKey,
+          accountId,
+          db,
+          state,
+          userId,
+          dateParts: { year, month, day },
+        });
+      }
+    }
+
+    // ---------- UNEXPECTED ----------
+    const unexpected = accountPlan.unexpected || {};
+    for (const flowType of ['income', 'expense']) {
+      const rules = unexpected[flowType] || [];
+
+      for (const rule of rules) {
+        generateAndInsertTransactions({
+          rule,
+          flowType,
+          accountKey,
+          accountId,
+          db,
+          state,
+          userId,
+          dateParts: { year, month, day },
+        });
+      }
     }
   }
 }
 
-const seed = db.transaction(() => {
-  resetDatabase(db);
+function runMonthlySimulation(
+  db,
+  state,
+  userId,
+  accounts,
+  { year, month, plan },
+) {
+  console.log(`📆 Running monthly simulation: ${year}-${month}`);
 
-  const userId = createUser(db);
+  const daysInMonth = getDaysInMonth(year, month);
 
-  const { insertAccount, insertTransaction, updateBalance } =
-    prepareStatements(db);
+  // ---------- DAILY SIMULATION ----------
+  for (let day = 1; day <= daysInMonth; day++) {
+    runOneDay(db, state, userId, accounts, { year, month, day }, plan);
+  }
 
-  const businessId = createAccount({
-    userId,
-    type: CONFIG.ACCOUNT_TYPES.BUSINESS,
-    balance: CONFIG.INITIAL_BALANCES.BUSINESS,
-    insertAccount,
-    insertTransaction,
-  });
+  // ---------- MONTHLY RULES ----------
+  const monthlyPlan = plan.monthly;
 
-  const savingsId = createAccount({
-    userId,
-    type: CONFIG.ACCOUNT_TYPES.SAVINGS,
-    balance: CONFIG.INITIAL_BALANCES.SAVINGS,
-    insertAccount,
-    insertTransaction,
-  });
-
-  const currentId = createAccount({
-    userId,
-    type: CONFIG.ACCOUNT_TYPES.CURRENT,
-    balance: CONFIG.INITIAL_BALANCES.CURRENT,
-    insertAccount,
-    insertTransaction,
-  });
-
-  const state = {
-    [businessId]: CONFIG.INITIAL_BALANCES.BUSINESS * 100,
-    [savingsId]: CONFIG.INITIAL_BALANCES.SAVINGS * 100,
-    [currentId]: CONFIG.INITIAL_BALANCES.CURRENT * 100,
+  const ACCOUNT_MAP = {
+    business: accounts.businessId,
+    current: accounts.currentId,
+    savings: accounts.savingsId,
   };
 
-  const addTransaction = createTransactionAdder(
-    state,
-    insertTransaction,
-    userId,
-  );
+  for (const accountKey of Object.keys(monthlyPlan)) {
+    const accountId = ACCOUNT_MAP[accountKey];
+    const plan = monthlyPlan[accountKey];
 
-  runMonthlySimulation({
-    startYear: CONFIG.SIMULATION.START_YEAR,
-    startMonth: CONFIG.SIMULATION.START_MONTH,
-    months: CONFIG.SIMULATION.MONTHS,
-    baseRevenue: CONFIG.SIMULATION.BASE_REVENUE,
-    accounts: {
-      business: businessId,
-      savings: savingsId,
-      current: currentId,
-    },
-    addTransaction,
-  });
+    // income & expense
+    for (const flowType of ['income', 'expense']) {
+      const rules = plan[flowType] || [];
 
-  updateBalance.run(fromCents(state[businessId]), businessId);
-  updateBalance.run(fromCents(state[savingsId]), savingsId);
-  updateBalance.run(fromCents(state[currentId]), currentId);
+      runMonthlyRules({
+        rules,
+        flowType,
+        accountId,
+        accountKey,
+        db,
+        state,
+        userId,
+        year,
+        month,
+      });
+    }
 
-  console.log('🏁 Final Business Balance:', fromCents(state[businessId]));
-  console.log('🏁 Final Savings Balance:', fromCents(state[savingsId]));
-  console.log('🏁 Final Current Balance:', fromCents(state[currentId]));
-});
+    // unexpected
+    const unexpected = plan.unexpected || {};
+    for (const flowType of ['income', 'expense']) {
+      const rules = unexpected[flowType] || [];
+
+      runMonthlyRules({
+        rules,
+        flowType,
+        accountId,
+        accountKey,
+        db,
+        state,
+        userId,
+        year,
+        month,
+      });
+    }
+  }
+
+  console.log(`✅ Monthly simulation completed`);
+}
+
+function runYearlySimulation(
+  db,
+  state,
+  userId,
+  accounts,
+  { startYear, years },
+) {
+  console.log(`📅 Running ${years}-year simulation starting ${startYear}`);
+
+  let currentPlan = deepClone(transactionPlan);
+
+  for (let i = 0; i < years; i++) {
+    const year = startYear + i;
+
+    console.log(`➡️ Year ${year}`);
+
+    for (let month = 1; month <= 12; month++) {
+      runMonthlySimulation(db, state, userId, accounts, {
+        year,
+        month,
+        plan: currentPlan,
+      });
+    }
+    const yearlyPlan = currentPlan.yearly;
+    const ACCOUNT_MAP = {
+      business: accounts.businessId,
+      current: accounts.currentId,
+      savings: accounts.savingsId,
+    };
+
+    for (const accountKey of Object.keys(yearlyPlan)) {
+      const accountId = ACCOUNT_MAP[accountKey];
+      const plan = yearlyPlan[accountKey];
+
+      for (const flowType of ['income', 'expense']) {
+        const rules = plan[flowType] || [];
+
+        for (const rule of rules) {
+          const count = getRandomInt(rule.minCount, rule.maxCount);
+
+          for (let i = 0; i < count; i++) {
+            const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+
+            addTransaction({
+              db,
+              state,
+              userId,
+              accountId,
+              amountCents: convertEuroToCents(amountEuro),
+              type: flowType === 'income' ? 'credit' : 'debit',
+              category: `${accountKey}-${flowType}-yearly`,
+              description: rule.note,
+              date: `${year}-12-31 12:00:00`,
+            });
+          }
+        }
+      }
+    }
+    currentPlan = applyYearlyGrowth(currentPlan, yearOverYearGrowthMap);
+  }
+
+  console.log(`✅ ${years}-year simulation completed`);
+}
+
+function persistFinalBalances(db, state) {
+  console.log('💾 Persisting final account balances');
+
+  const stmt = db.prepare(`
+    UPDATE tblaccount
+    SET account_balance = ?
+    WHERE id = ?
+  `);
+
+  for (const [accountId, balanceCents] of Object.entries(state)) {
+    const balanceEuro = convertCentsToEuro(balanceCents);
+
+    stmt.run(balanceEuro, accountId);
+
+    console.log(
+      `✅ Account ${accountId} final balance updated: €${balanceEuro.toFixed(
+        2,
+      )}`,
+    );
+  }
+
+  console.log('✅ Final balances persisted');
+}
+
+function seed() {
+  db.transaction(() => {
+    resetDatabase(db);
+    const userId = createUser(db);
+    const accounts = createAccounts(db, userId);
+    const state = initState(accounts);
+    addInitialCapital(db, state, userId, accounts);
+    runYearlySimulation(db, state, userId, accounts, {
+      startYear: 2021,
+      years: 5,
+    });
+    persistFinalBalances(db, state);
+  })();
+}
 
 seed();
-
-console.log('✅ Seed completed successfully.');
