@@ -14,7 +14,7 @@ const Navbar = () => {
 
   return (
     <header className="w-full bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-      <span className="text-xl font-bold text-text">Banking App</span>
+      <span className="text-xl font-bold text-text">Expense Tracker</span>
 
       <div className="flex items-center gap-4">
         <div className="text-right hidden md:block">

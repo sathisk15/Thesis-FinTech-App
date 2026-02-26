@@ -81,7 +81,7 @@ const TransactionPage = () => {
                 <option value="">All Accounts</option>
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.account_name} •••• {acc.account_number?.slice(-4)}
+                    {acc.account_type} •••• {acc.account_number?.slice(-4)}
                   </option>
                 ))}
               </select>
@@ -195,7 +195,7 @@ const TransactionPage = () => {
 
                       <td className="px-4 py-3 text-sm text-text">
                         {account
-                          ? `${account.account_name} •••• ${account.account_number?.slice(-4)}`
+                          ? `${account.account_type} •••• ${account.account_number?.slice(-4)}`
                           : '—'}
                       </td>
 

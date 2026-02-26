@@ -39,9 +39,9 @@ const TransferPage = () => {
       const newDescription = `Internal transfer of ${
         fromAccount.currency
       } ${Number(amount).toFixed(2)} from ${
-        fromAccount.account_name
+        fromAccount.account_type
       } Account ${fromAccount.account_number?.slice(-4)} to ${
-        toAccount.account_name
+        toAccount.account_type
       } Account ${toAccount.account_number?.slice(-4)}.`;
 
       setDescription(newDescription);
@@ -115,7 +115,7 @@ const TransferPage = () => {
             <option value="">Select account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.account_name} •••• {acc.account_number?.slice(-4)} (
+                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
                 {acc.currency} {acc.balance})
               </option>
             ))}
@@ -138,7 +138,7 @@ const TransferPage = () => {
               .filter((acc) => acc.id !== fromAccountId)
               .map((acc) => (
                 <option key={acc.id} value={acc.id}>
-                  {acc.account_name} •••• {acc.account_number?.slice(-4)}
+                  {acc.account_type} •••• {acc.account_number?.slice(-4)}
                 </option>
               ))}
           </select>
@@ -179,7 +179,7 @@ const TransferPage = () => {
             <span>From</span>
             <span>
               {fromAccount
-                ? `${fromAccount.account_name} Account ${fromAccount.account_number?.slice(
+                ? `${fromAccount.account_type} Account ${fromAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
@@ -190,7 +190,7 @@ const TransferPage = () => {
             <span>To</span>
             <span>
               {toAccount
-                ? `${toAccount.account_name} Account ${toAccount.account_number?.slice(
+                ? `${toAccount.account_type} Account ${toAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
@@ -211,7 +211,7 @@ const TransferPage = () => {
         <div className="flex justify-end gap-4 pt-4">
           <button
             onClick={() => navigate('/accounts')}
-            className="h-10 px-6 rounded-md border border-border text-text"
+            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
           >
             Cancel
           </button>
@@ -219,7 +219,7 @@ const TransferPage = () => {
           <button
             onClick={handleTransfer}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50"
+            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : 'Transfer'}
           </button>

@@ -7,16 +7,22 @@ const AccountCard = ({ account, setTransferFrom, setShowTransferModal }) => {
 
   const maskedNumber = '••••' + account.account_number?.slice(-4);
 
+  const formatCurrency = (value, currency = 'EUR') =>
+    new Intl.NumberFormat('en-IE', {
+      style: 'currency',
+      currency,
+    }).format(value);
+
   return (
     <div className="bg-card border border-border rounded-lg p-4 flex gap-4">
       <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
-        {account.account_name?.slice(0, 2).toUpperCase()}
+        {account.account_type?.slice(0, 2).toUpperCase()}
       </div>
 
       <div className="flex-1 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-xl font-semibold text-text">
-            {account.account_name} Account
+            {account.account_type} Account
           </p>
 
           <button
@@ -49,8 +55,10 @@ const AccountCard = ({ account, setTransferFrom, setShowTransferModal }) => {
           Last updated: {new Date(account.updatedat).toLocaleDateString()}
         </p>
 
-        <p className="text-lg font-medium text-text">
-          € {account.currency} {account.account_balance?.toFixed(2)}
+        <p
+          className={`text-lg font-medium ${account.account_balance > 0 ? 'text-green-500' : 'text-red-500'}`}
+        >
+          {formatCurrency(account.account_balance?.toFixed(2))}
         </p>
       </div>
     </div>

@@ -7,8 +7,7 @@ import {
   RiSettings3Line,
   RiWallet3Line,
 } from 'react-icons/ri';
-import {} from 'react-icons/hi2';
-import { TbCoinEuroFilled } from 'react-icons/tb';
+import { GiCoins } from 'react-icons/gi';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: RiDashboardLine },
@@ -25,7 +24,7 @@ const Sidebar = () => {
       <div className="p-6">
         <div className="w-full h-10 flex items-center justify-center ">
           <span className="text-white text-3xl  bg-primary rounded-xl p-2">
-            <TbCoinEuroFilled />
+            <GiCoins />
           </span>
         </div>
       </div>

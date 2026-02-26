@@ -9,7 +9,7 @@ export const getAccounts = (req, res) => {
         `
       SELECT 
         id,
-        account_name,
+        account_type,
         account_number,
         currency,
         account_balance,
@@ -35,9 +35,9 @@ export const getAccounts = (req, res) => {
 export const createAccount = (req, res) => {
   try {
     const userId = req.user.id;
-    const { account_name, currency, initialBalance } = req.body;
+    const { account_type, currency, initialBalance } = req.body;
 
-    if (!account_name) {
+    if (!account_type) {
       return res.status(400).json({ message: 'Account type is required' });
     }
 
@@ -56,11 +56,11 @@ export const createAccount = (req, res) => {
         .prepare(
           `
         INSERT INTO tblaccount
-        (user_id, account_name, account_number, currency, account_balance)
+        (user_id, account_type, account_number, currency, account_balance)
         VALUES (?, ?, ?, ?, 0)
       `,
         )
-        .run(userId, account_name, accountNumber, currency || 'EUR');
+        .run(userId, account_type, accountNumber, currency || 'EUR');
 
       const accountId = result.lastInsertRowid;
 
@@ -108,7 +108,7 @@ export const createAccount = (req, res) => {
         `
       SELECT 
         id,
-        account_name,
+        account_type,
         account_number,
         currency,
         account_balance,
@@ -207,7 +207,7 @@ export const deposit = (req, res) => {
         `
       SELECT 
         id,
-        account_name,
+        account_type,
         account_number,
         currency,
         account_balance,

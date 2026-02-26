@@ -17,7 +17,7 @@ const AccountsPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [accountData, setAccountData] = useState({
-    account_name: '',
+    account_type: '',
     currency: 'EUR',
     initialBalance: 100,
   });
@@ -53,7 +53,7 @@ const AccountsPage = () => {
               onClick={() => setShowModal(true)}
               className="h-10 px-4 rounded-md bg-primary text-white cursor-pointer"
             >
-              Create Account
+              Link Account
             </button>
             <button
               onClick={() => setShowDepositModal(true)}

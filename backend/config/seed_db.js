@@ -1315,7 +1315,7 @@ function createAccounts(db, userId) {
 
   const stmt = db.prepare(`
     INSERT INTO tblaccount
-    (user_id, account_name, account_number, currency, account_balance)
+    (user_id, account_type, account_number, currency, account_balance)
     VALUES (?, ?, ?, ?, ?)
   `);
 
@@ -1743,8 +1743,8 @@ function seed() {
     const state = initState(accounts);
     addInitialCapital(db, state, userId, accounts);
     runYearlySimulation(db, state, userId, accounts, {
-      startYear: 2021,
-      years: 5,
+      startYear: 2025,
+      years: 1,
     });
     persistFinalBalances(db, state);
   })();

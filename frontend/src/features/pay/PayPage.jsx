@@ -109,7 +109,7 @@ const PayPage = () => {
             <option value="">Select account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.account_name} •••• {acc.account_number?.slice(-4)} (
+                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
                 {formatCurrency(acc.account_balance, acc.currency)})
               </option>
             ))}
@@ -188,7 +188,7 @@ const PayPage = () => {
             <span>From</span>
             <span>
               {fromAccount
-                ? `${fromAccount.account_name} •••• ${fromAccount.account_number?.slice(
+                ? `${fromAccount.account_type} •••• ${fromAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
@@ -209,7 +209,7 @@ const PayPage = () => {
         <div className="flex justify-end gap-4 pt-4">
           <button
             onClick={() => navigate('/accounts')}
-            className="h-10 px-6 rounded-md border border-border text-text"
+            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
           >
             Cancel
           </button>
@@ -217,7 +217,7 @@ const PayPage = () => {
           <button
             onClick={handlePayment}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50"
+            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : 'Confirm Payment'}
           </button>

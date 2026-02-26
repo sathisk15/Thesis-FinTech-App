@@ -12,6 +12,10 @@ import {
   Legend,
 } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import { SiCashapp } from 'react-icons/si';
+import { BsCashCoin, BsCurrencyDollar } from 'react-icons/bs';
+import { IoMdArrowUp, IoMdArrowDown } from 'react-icons/io';
+import { GiExpense } from 'react-icons/gi';
 
 const DashboardPage = () => {
   const accounts = useAccountStore((state) => state.accounts);
@@ -94,6 +98,7 @@ const DashboardPage = () => {
   );
 
   const calculatePercentage = (current, previous) => {
+    console.log(current, previous);
     if (previous === 0 && current > 0) return 100;
     if (previous === 0 && current === 0) return 0;
     return ((current - previous) / previous) * 100;
@@ -206,20 +211,28 @@ const DashboardPage = () => {
             {
               title: 'Your Total Balance',
               value: formatCurrency(totalBalance),
+              icon: <BsCurrencyDollar size={26} />,
             },
             {
               title: 'Total Income',
               value: formatCurrency(totalIncome),
+              icon: <BsCashCoin size={26} />,
             },
             {
               title: 'Total Expense',
               value: formatCurrency(totalExpense),
+              icon: <GiExpense size={26} />,
             },
           ].map((item) => (
             <div
               key={item.title}
               className="w-full flex items-center justify-between gap-5 px-8 py-12 rounded-lg bg-card border border-border"
             >
+              <div className="flex items-center gap-2">
+                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-white">
+                  {item.icon}
+                </div>
+              </div>
               <div className="space-y-3">
                 <span className="text-text/60 text-lg">{item.title}</span>
                 <p className="text-2xl font-medium text-text">{item.value}</p>
@@ -379,7 +392,7 @@ const DashboardPage = () => {
                         {/* 🔥 Source column now mapped correctly */}
                         <td className="py-3 px-4">
                           {account
-                            ? `${account.account_name} •••• ${account.account_number?.slice(-4)}`
+                            ? `${account.account_type} •••• ${account.account_number?.slice(-4)}`
                             : '—'}
                         </td>
 
@@ -418,15 +431,15 @@ const DashboardPage = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${getAccountColor(
-                        acc.account_name,
+                        acc.account_type,
                       )}`}
                     >
-                      {acc.account_name?.slice(0, 2).toUpperCase()}
+                      {acc.account_type?.slice(0, 2).toUpperCase()}
                     </div>
 
                     <div>
                       <p className="text-text font-medium">
-                        {acc.account_name} Account
+                        {acc.account_type} Account
                       </p>
                       <p className="text-text/60 text-xs font-mono">
                         •••• {acc.account_number?.slice(-4)}

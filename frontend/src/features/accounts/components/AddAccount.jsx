@@ -9,12 +9,6 @@ const AddAccount = ({
 }) => {
   const allTypes = ['Savings', 'Current', 'Business'];
 
-  const existingTypes = accounts.map((acc) => acc.account_name);
-
-  const availableTypes = allTypes.filter(
-    (type) => !existingTypes.includes(type),
-  );
-  console.log(availableTypes, existingTypes);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +16,16 @@ const AddAccount = ({
     setError('');
 
     // Validation
-    if (!accountData.account_name) {
+    if (!accountData.account_type) {
       return setError('Please select an account type.');
+    }
+
+    const accountExists = accounts.some(
+      (acc) => acc.account_type === accountData.account_type,
+    );
+
+    if (accountExists) {
+      return setError('This account name already exists.');
     }
 
     if (accountData.initialBalance < 100) {
@@ -37,7 +39,7 @@ const AddAccount = ({
 
       // Reset form
       setAccountData({
-        account_name: '',
+        account_type: '',
         currency: 'EUR',
         initialBalance: 100,
       });
@@ -62,84 +64,75 @@ const AddAccount = ({
             Open a new account under your profile
           </p>
         </div>
+
         {/* Error Message */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
             {error}
           </div>
         )}
-        {availableTypes.length === 0 ? (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-sm px-3 py-2 rounded-md">
-            You have already created all available account types.
+
+        {/* Form Fields */}
+        <div className="space-y-4">
+          {/* Account Type */}
+          <div className="space-y-1">
+            <label className="text-sm text-text/60">Account Type</label>
+            <select
+              value={accountData.account_type}
+              onChange={(e) =>
+                setAccountData({
+                  ...accountData,
+                  account_type: e.target.value,
+                })
+              }
+              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Select account type</option>
+
+              {allTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type} Account
+                </option>
+              ))}
+            </select>
           </div>
-        ) : (
-          <>
-            {/* Form Fields */}
-            <div className="space-y-4">
-              {/* Account Type */}
-              <div className="space-y-1">
-                <label className="text-sm text-text/60">Account Type</label>
-                <select
-                  value={accountData.account_name}
-                  onChange={(e) =>
-                    setAccountData({
-                      ...accountData,
-                      account_name: e.target.value,
-                    })
-                  }
-                  className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">Select account type</option>
 
-                  {availableTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type} Account
-                    </option>
-                  ))}
-                </select>
-              </div>
+          {/* Currency */}
+          <div className="space-y-1">
+            <label className="text-sm text-text/60">Currency</label>
+            <select
+              value={accountData.currency}
+              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              disabled
+            >
+              <option value="PLN">PLN (Polish Złoty)</option>
+              <option value="EUR">EUR (Euro)</option>
+              <option value="USD">USD (US Dollar)</option>
+            </select>
+          </div>
 
-              {/* Currency */}
-              <div className="space-y-1">
-                <label className="text-sm text-text/60">Currency</label>
-                <select
-                  value={accountData.currency}
-                  // onChange={(e) =>
-                  //   setAccountData({ ...accountData, currency: e.target.value })
-                  // }
-                  className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-                  disabled
-                >
-                  <option value="PLN">PLN (Polish Złoty)</option>
-                  <option value="EUR">EUR (Euro)</option>
-                  <option value="USD">USD (US Dollar)</option>
-                </select>
-              </div>
+          {/* Initial Deposit */}
+          <div className="space-y-1">
+            <label className="text-sm text-text/60">
+              Initial Deposit Amount
+            </label>
+            <input
+              type="number"
+              min="100"
+              placeholder="Enter amount"
+              value={accountData.initialBalance}
+              onChange={(e) =>
+                setAccountData({
+                  ...accountData,
+                  initialBalance: Number(e.target.value),
+                })
+              }
+              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
 
-              {/* Initial Deposit */}
-              <div className="space-y-1">
-                <label className="text-sm text-text/60">
-                  Initial Deposit Amount
-                </label>
-                <input
-                  type="number"
-                  min="100"
-                  placeholder="Enter amount"
-                  value={accountData.initialBalance}
-                  onChange={(e) =>
-                    setAccountData({
-                      ...accountData,
-                      initialBalance: Number(e.target.value),
-                    })
-                  }
-                  className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
-          </>
-        )}
         {/* Buttons */}
-
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowModal(false)}
@@ -148,15 +141,14 @@ const AddAccount = ({
           >
             Cancel
           </button>
-          {availableTypes.length !== 0 && (
-            <button
-              onClick={handleCreate}
-              disabled={loading || availableTypes.length === 0}
-              className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
-            >
-              {loading ? 'Creating...' : 'Create Account'}
-            </button>
-          )}
+
+          <button
+            onClick={handleCreate}
+            disabled={loading}
+            className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? 'Creating...' : 'Create Account'}
+          </button>
         </div>
       </div>
     </div>

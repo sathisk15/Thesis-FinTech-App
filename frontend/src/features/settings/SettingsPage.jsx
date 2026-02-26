@@ -193,7 +193,7 @@ const SettingsPage = () => {
             <div className="flex justify-end pt-6">
               <button
                 type="submit"
-                className="h-10 px-8 rounded-md bg-primary text-white font-medium"
+                className="h-10 px-8 rounded-md bg-primary text-white font-medium cursor-pointer"
               >
                 Save
               </button>
@@ -255,7 +255,7 @@ const SettingsPage = () => {
             <div className="flex justify-end pt-6">
               <button
                 type="submit"
-                className="h-10 px-8 rounded-md bg-primary text-white font-medium"
+                className="h-10 px-8 rounded-md bg-primary text-white font-medium cursor-pointer"
               >
                 Change Password
               </button>
