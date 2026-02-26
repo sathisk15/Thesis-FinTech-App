@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
 
@@ -17,19 +17,19 @@ const TransactionPage = () => {
   const [toDate, setToDate] = useState('');
   const [search, setSearch] = useState('');
 
-  // Fetch accounts + transactions
+  // 🔹 Advanced filters
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
+  const [flow, setFlow] = useState('all');
+  const [sortBy, setSortBy] = useState('date-desc');
+
   useEffect(() => {
     fetchAccounts();
     fetchTransactions();
   }, [fetchAccounts, fetchTransactions]);
 
-  // Refetch on account filter
   useEffect(() => {
-    if (selectedAccount) {
-      fetchTransactions(selectedAccount);
-    } else {
-      fetchTransactions();
-    }
+    selectedAccount ? fetchTransactions(selectedAccount) : fetchTransactions();
   }, [selectedAccount, fetchTransactions]);
 
   const handleClearFilters = () => {
@@ -37,23 +37,63 @@ const TransactionPage = () => {
     setFromDate('');
     setToDate('');
     setSearch('');
+    setMinAmount('');
+    setMaxAmount('');
+    setFlow('all');
+    setSortBy('date-desc');
     fetchTransactions();
   };
 
-  const hasActiveFilters = selectedAccount || fromDate || toDate || search;
+  const hasActiveFilters =
+    selectedAccount ||
+    fromDate ||
+    toDate ||
+    search ||
+    minAmount ||
+    maxAmount ||
+    flow !== 'all';
 
-  // Client-side filtering
-  const filteredTransactions = transactions.filter((tx) => {
-    const txDate = new Date(tx.createdat);
+  const filteredTransactions = useMemo(() => {
+    let data = [...transactions];
 
-    const matchesFrom = fromDate ? txDate >= new Date(fromDate) : true;
-    const matchesTo = toDate ? txDate <= new Date(toDate) : true;
-    const matchesSearch = search
-      ? tx.description?.toLowerCase().includes(search.toLowerCase())
-      : true;
+    data = data.filter((tx) => {
+      const txDate = new Date(tx.createdAt || tx.createdat);
+      const amount = Number(tx.amount);
+      const isIncoming = tx.type === 'deposit' || tx.type === 'credit';
 
-    return matchesFrom && matchesTo && matchesSearch;
-  });
+      return (
+        (!fromDate || txDate >= new Date(fromDate)) &&
+        (!toDate || txDate <= new Date(toDate)) &&
+        (!search ||
+          tx.description?.toLowerCase().includes(search.toLowerCase())) &&
+        (!minAmount || amount >= Number(minAmount)) &&
+        (!maxAmount || amount <= Number(maxAmount)) &&
+        (flow === 'all' || (flow === 'incoming' ? isIncoming : !isIncoming))
+      );
+    });
+
+    data.sort((a, b) => {
+      const da = new Date(a.createdAt || a.createdat).getTime();
+      const db = new Date(b.createdAt || b.createdat).getTime();
+
+      if (sortBy === 'date-desc') return db - da;
+      if (sortBy === 'date-asc') return da - db;
+      if (sortBy === 'amount-desc') return b.amount - a.amount;
+      if (sortBy === 'amount-asc') return a.amount - b.amount;
+      return 0;
+    });
+
+    return data;
+  }, [
+    transactions,
+    fromDate,
+    toDate,
+    search,
+    minAmount,
+    maxAmount,
+    flow,
+    sortBy,
+  ]);
 
   return (
     <div className="w-full py-10 space-y-8">
@@ -69,68 +109,95 @@ const TransactionPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-wrap items-end gap-3">
           {/* Account */}
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-text/60 mb-1">
-              Account
-            </label>
-            <select
-              value={selectedAccount}
-              onChange={(e) => setSelectedAccount(e.target.value)}
-              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
-            >
-              <option value="">All Accounts</option>
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.account_type} •••• {acc.account_number?.slice(-4)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedAccount}
+            onChange={(e) => setSelectedAccount(e.target.value)}
+            className="h-9 px-3 rounded-md bg-background border border-border text-sm
+                       text-text outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="">All Accounts</option>
+            {accounts.map((acc) => (
+              <option key={acc.id} value={acc.id}>
+                {acc.account_type} •••• {acc.account_number?.slice(-4)}
+              </option>
+            ))}
+          </select>
 
-          {/* From */}
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-text/60 mb-1">
-              From
-            </label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
-
-          {/* To */}
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-text/60 mb-1">To</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
+          {/* From / To */}
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="h-9 px-2 rounded-md bg-background border border-border
+                       text-xs text-text outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="h-9 px-2 rounded-md bg-background border border-border
+                       text-xs text-text outline-none focus:ring-2 focus:ring-primary/40"
+          />
 
           {/* Search */}
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-text/60 mb-1">
-              Search
-            </label>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Description…"
-              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Description…"
+            className="h-9 px-3 rounded-md bg-background border border-border
+                       text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+          />
+
+          {/* Amount range (compact) */}
+          <input
+            type="number"
+            placeholder="Min"
+            value={minAmount}
+            onChange={(e) => setMinAmount(e.target.value)}
+            className="h-9 w-20 px-2 rounded-md bg-background border border-border
+                       text-xs outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <input
+            type="number"
+            placeholder="Max"
+            value={maxAmount}
+            onChange={(e) => setMaxAmount(e.target.value)}
+            className="h-9 w-20 px-2 rounded-md bg-background border border-border
+                       text-xs outline-none focus:ring-2 focus:ring-primary/40"
+          />
+
+          {/* Flow */}
+          <select
+            value={flow}
+            onChange={(e) => setFlow(e.target.value)}
+            className="h-9 px-2 rounded-md bg-background border border-border
+                       text-xs outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="all">All</option>
+            <option value="incoming">Incoming</option>
+            <option value="outgoing">Outgoing</option>
+          </select>
+
+          {/* Sort */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="h-9 px-2 rounded-md bg-background border border-border
+                       text-xs outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="date-desc">Newest</option>
+            <option value="date-asc">Oldest</option>
+            <option value="amount-desc">Amount ↓</option>
+            <option value="amount-asc">Amount ↑</option>
+          </select>
 
           {/* Clear */}
           <button
             onClick={handleClearFilters}
             disabled={!hasActiveFilters}
-            className="h-10 px-4 rounded-lg border border-border text-sm text-text
+            className="h-9 px-3 rounded-md border border-border text-xs text-text
                        hover:bg-border/40 transition disabled:opacity-50"
           >
             Clear
@@ -138,7 +205,7 @@ const TransactionPage = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table (unchanged) */}
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading && (
           <div className="py-16 text-center text-text/60">
@@ -174,12 +241,10 @@ const TransactionPage = () => {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
                 {filteredTransactions.map((tx) => {
                   const isIncoming =
                     tx.type === 'deposit' || tx.type === 'credit';
-
                   const account = accounts.find(
                     (acc) =>
                       acc.id === tx.accountId || acc.id === tx.account_id,
@@ -191,26 +256,22 @@ const TransactionPage = () => {
                       className="border-b border-border last:border-0
                                  hover:bg-background/50 transition"
                     >
-                      <td className="px-4 py-3 text-sm text-text">
+                      <td className="px-4 py-3 text-sm">
                         {new Date(
                           tx.createdAt || tx.createdat,
                         ).toLocaleDateString()}
                       </td>
-
-                      <td className="px-4 py-3 text-sm text-text">
+                      <td className="px-4 py-3 text-sm">
                         {account
                           ? `${account.account_type} •••• ${account.account_number?.slice(-4)}`
                           : '—'}
                       </td>
-
-                      <td className="px-4 py-3 text-sm text-text/80 max-w-xs truncate">
+                      <td className="px-4 py-3 text-sm text-text/80 truncate max-w-xs">
                         {tx.description || '—'}
                       </td>
-
-                      <td className="px-4 py-3 text-sm capitalize text-text">
+                      <td className="px-4 py-3 text-sm capitalize">
                         {tx.type}
                       </td>
-
                       <td
                         className={`px-4 py-3 text-sm text-right font-medium ${
                           isIncoming ? 'text-green-500' : 'text-red-500'
