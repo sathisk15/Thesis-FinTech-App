@@ -57,11 +57,9 @@ const AddAccount = ({
       <div className="bg-card border border-border rounded-lg w-full max-w-md p-6 space-y-6">
         {/* Header */}
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-text">
-            Create New Account
-          </h2>
+          <h2 className="text-xl font-semibold text-text">Link New Account</h2>
           <p className="text-sm text-text/60">
-            Open a new account under your profile
+            Link a new account under your profile
           </p>
         </div>
 

@@ -19,7 +19,7 @@ const AccountCard = ({ account, setTransferFrom, setShowTransferModal }) => {
     <div className="bg-card border border-border rounded-lg p-4 flex gap-4">
       {/* Icon */}
       <div className="mt-1 w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
-        {account.account_type?.slice(0, 2).toUpperCase()}
+        {account.account_name.slice(0, 2).toUpperCase()}
       </div>
 
       <div className="flex-1 space-y-2">
