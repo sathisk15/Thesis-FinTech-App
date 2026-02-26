@@ -32,6 +32,7 @@ const init = db.transaction(() => {
     CREATE TABLE IF NOT EXISTS tblaccount (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
+    account_name TEXT NOT NULL,
     account_type TEXT NOT NULL
     CHECK (account_type IN ('Savings','Current','Business')),
     account_number TEXT NOT NULL UNIQUE,

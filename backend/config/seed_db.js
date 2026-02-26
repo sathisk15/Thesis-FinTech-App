@@ -1308,15 +1308,15 @@ function createAccounts(db, userId) {
   console.log('🏦 STEP 3: Creating accounts');
 
   const ACCOUNTS = [
-    { type: 'Business', balance: 500000 },
-    { type: 'Savings', balance: 1000000 },
-    { type: 'Current', balance: 300000 },
+    { name: 'Business Operations Account', type: 'Business', balance: 500000 },
+    { name: 'Long-Term Savings Account', type: 'Savings', balance: 1000000 },
+    { name: 'Personal Spending Account', type: 'Current', balance: 300000 },
   ];
 
   const stmt = db.prepare(`
     INSERT INTO tblaccount
-    (user_id, account_type, account_number, currency, account_balance)
-    VALUES (?, ?, ?, ?, ?)
+    (user_id, account_name, account_type, account_number, currency, account_balance)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   const generateAccountNumber = () =>
@@ -1327,6 +1327,7 @@ function createAccounts(db, userId) {
   for (const acc of ACCOUNTS) {
     const res = stmt.run(
       userId,
+      acc.name,
       acc.type,
       generateAccountNumber(),
       'EUR',
