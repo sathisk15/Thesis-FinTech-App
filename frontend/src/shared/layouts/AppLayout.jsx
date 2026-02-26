@@ -24,13 +24,27 @@ const AppLayout = () => {
       fetchUser();
     }
   }, [token, setUser, logout]);
+
   return (
-    <div className="flex h-screen bg-background text-text">
+    <div className="flex h-screen bg-background text-text overflow-hidden">
+      {/* Sidebar */}
       <Sidebar />
-      <div className="flex flex-col flex-1">
+
+      {/* Main Area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Top Navbar */}
         <Navbar />
-        <main className="flex-1 overflow-y-auto p-3 bg-background">
-          <Outlet />
+
+        {/* Page Content */}
+        <main
+          className="flex-1 overflow-y-auto
+                     bg-background
+                     px-4 py-4 md:px-6 md:py-6"
+        >
+          {/* Content surface */}
+          <div className="max-w-[1600px] mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

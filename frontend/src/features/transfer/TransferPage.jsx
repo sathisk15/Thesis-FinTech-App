@@ -30,7 +30,6 @@ const TransferPage = () => {
   }, [fromAccountId, toAccountId]);
 
   const fromAccount = accounts.find((acc) => acc.id === fromAccountId);
-
   const toAccount = accounts.find((acc) => acc.id === toAccountId);
 
   // Dynamic Description
@@ -52,15 +51,11 @@ const TransferPage = () => {
     setError('');
 
     if (!fromAccountId) return setError('Please select From Account.');
-
     if (!toAccountId) return setError('Please select To Account.');
-
     if (fromAccountId === toAccountId)
       return setError('Cannot transfer to same account.');
-
     if (!amount || Number(amount) <= 0)
       return setError('Amount must be greater than 0.');
-
     if (Number(amount) > fromAccount?.balance)
       return setError('Insufficient balance.');
 
@@ -83,135 +78,145 @@ const TransferPage = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-text mb-2">
+    <div className="w-full max-w-3xl mx-auto py-10 space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text">
           Transfer Money
         </h1>
-        <p className="text-text/60">
-          Send money securely between your accounts
+        <p className="text-sm text-text/60 mt-1">
+          Move funds securely between your accounts
         </p>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-8 space-y-8">
+      {/* Card */}
+      <div className="bg-card border border-border rounded-xl shadow-sm p-8 space-y-8">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
             {error}
           </div>
         )}
 
-        {/* From Account */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">
-            From Account
-          </label>
-          <select
-            value={fromAccountId}
-            onChange={(e) =>
-              setFromAccountId(e.target.value ? Number(e.target.value) : '')
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">Select account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
-                {acc.currency} {acc.balance})
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Form */}
+        <div className="space-y-6">
+          {/* Accounts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* From */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-text/60">
+                From Account
+              </label>
+              <select
+                value={fromAccountId}
+                onChange={(e) =>
+                  setFromAccountId(e.target.value ? Number(e.target.value) : '')
+                }
+                className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <option value="">Select account</option>
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id}>
+                    {acc.account_type} •••• {acc.account_number?.slice(-4)} (
+                    {acc.currency} {acc.balance})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* To Account */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">To Account</label>
-          <select
-            disabled={!fromAccountId}
-            value={toAccountId}
-            onChange={(e) =>
-              setToAccountId(e.target.value ? Number(e.target.value) : '')
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-          >
-            <option value="">Select account</option>
-            {accounts
-              .filter((acc) => acc.id !== fromAccountId)
-              .map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.account_type} •••• {acc.account_number?.slice(-4)}
-                </option>
-              ))}
-          </select>
-        </div>
+            {/* To */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-text/60">
+                To Account
+              </label>
+              <select
+                disabled={!fromAccountId}
+                value={toAccountId}
+                onChange={(e) =>
+                  setToAccountId(e.target.value ? Number(e.target.value) : '')
+                }
+                className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
+              >
+                <option value="">Select account</option>
+                {accounts
+                  .filter((acc) => acc.id !== fromAccountId)
+                  .map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_type} •••• {acc.account_number?.slice(-4)}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
 
-        {/* Amount */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">Amount</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+          {/* Amount */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
 
-        {/* Description */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">
-            Description
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              setIsDescriptionEdited(true);
-            }}
-            className="w-full min-h-[80px] px-3 py-2 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
+          {/* Description */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setIsDescriptionEdited(true);
+              }}
+              className="w-full min-h-[90px] px-3 py-2 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
         </div>
 
         {/* Summary */}
-        <div className="bg-background border border-border rounded-md p-4 space-y-2">
-          <p className="text-sm text-text/60">Transfer Summary</p>
+        <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <p className="text-xs font-medium text-text/60">Transfer Summary</p>
 
-          <div className="flex justify-between text-text">
+          <div className="flex justify-between text-sm text-text">
             <span>From</span>
             <span>
               {fromAccount
-                ? `${fromAccount.account_type} Account ${fromAccount.account_number?.slice(
+                ? `${fromAccount.account_type} •••• ${fromAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
             </span>
           </div>
 
-          <div className="flex justify-between text-text">
+          <div className="flex justify-between text-sm text-text">
             <span>To</span>
             <span>
               {toAccount
-                ? `${toAccount.account_type} Account ${toAccount.account_number?.slice(
+                ? `${toAccount.account_type} •••• ${toAccount.account_number?.slice(
                     -4,
                   )}`
                 : '—'}
             </span>
           </div>
 
-          <div className="flex justify-between font-semibold text-text">
+          <div className="flex justify-between pt-2 border-t border-border text-sm font-semibold text-text">
             <span>Total</span>
             <span>
               {amount && fromAccount
-                ? `€ ${fromAccount.currency} ${Number(amount).toFixed(2)}`
-                : '€ 0.00'}
+                ? `${fromAccount.currency} ${Number(amount).toFixed(2)}`
+                : `${fromAccount?.currency ?? 'EUR'} 0.00`}
             </span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-4 pt-4">
+        <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => navigate('/accounts')}
-            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
+            className="h-10 px-5 rounded-lg border border-border text-sm text-text hover:bg-border/40 transition"
           >
             Cancel
           </button>
@@ -219,9 +224,9 @@ const TransferPage = () => {
           <button
             onClick={handleTransfer}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50 cursor-pointer"
+            className="h-10 px-5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
-            {loading ? 'Processing...' : 'Transfer'}
+            {loading ? 'Processing…' : 'Transfer'}
           </button>
         </div>
       </div>

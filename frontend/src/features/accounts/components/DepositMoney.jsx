@@ -45,84 +45,124 @@ const DepositMoney = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-card border border-border rounded-lg w-full max-w-md p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-text">Deposit Money</h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center
+                 bg-black/40 backdrop-blur-sm"
+    >
+      <div
+        className="w-full max-w-md
+                   bg-card border border-border
+                   rounded-xl shadow-lg
+                   p-6 space-y-6"
+      >
+        {/* Header */}
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold tracking-tight text-text">
+            Deposit Money
+          </h2>
           <p className="text-sm text-text/60">
-            Select account and enter amount
+            Select an account and enter an amount
           </p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
+          <div
+            className="rounded-lg border border-red-500/30
+                       bg-red-500/10 px-3 py-2
+                       text-sm text-red-500"
+          >
             {error}
           </div>
         )}
 
-        {/* Account Dropdown */}
-        <div className="space-y-1">
-          <label className="text-sm text-text/60">Select Account</label>
-          <select
-            value={depositData.accountId}
-            onChange={(e) =>
-              setDepositData({
-                ...depositData,
-                accountId: e.target.value,
-              })
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
-          >
-            <option value="">Choose account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.account_type} ••••
-                {acc.account_number.slice(-4)}
-              </option>
-            ))}
-          </select>
+        {/* Form */}
+        <div className="space-y-4">
+          {/* Account */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Select Account
+            </label>
+            <select
+              value={depositData.accountId}
+              onChange={(e) =>
+                setDepositData({
+                  ...depositData,
+                  accountId: e.target.value,
+                })
+              }
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="">Choose account</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.account_type} ••••{acc.account_number.slice(-4)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Amount */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Deposit Amount
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={depositData.amount}
+              onChange={(e) =>
+                setDepositData({
+                  ...depositData,
+                  amount: Number(e.target.value),
+                })
+              }
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Description (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Enter deposit note"
+              value={depositData.description}
+              onChange={(e) =>
+                setDepositData({
+                  ...depositData,
+                  description: e.target.value,
+                })
+              }
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
         </div>
 
-        {/* Amount */}
-        <div className="space-y-1">
-          <label className="text-sm text-text/60">Deposit Amount</label>
-          <input
-            type="number"
-            min="1"
-            value={depositData.amount}
-            onChange={(e) =>
-              setDepositData({
-                ...depositData,
-                amount: Number(e.target.value),
-              })
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
-          />
-        </div>
-
-        {/* Description */}
-        <div className="space-y-1">
-          <label className="text-sm text-text/60">Description (Optional)</label>
-          <input
-            type="text"
-            placeholder="Enter deposit note"
-            value={depositData.description}
-            onChange={(e) =>
-              setDepositData({
-                ...depositData,
-                description: e.target.value,
-              })
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
-          />
-        </div>
-
-        {/* Buttons */}
+        {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowDepositModal(false)}
-            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
             disabled={loading}
+            className="h-10 px-5 rounded-lg
+                       border border-border
+                       text-sm text-text
+                       hover:bg-border/40
+                       transition"
           >
             Cancel
           </button>
@@ -130,9 +170,14 @@ const DepositMoney = ({
           <button
             onClick={handleDeposit}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
+            className="h-10 px-5 rounded-lg
+                       bg-primary text-white
+                       text-sm font-medium
+                       hover:bg-primary/90
+                       disabled:opacity-50
+                       transition"
           >
-            {loading ? 'Processing...' : 'Deposit'}
+            {loading ? 'Processing…' : 'Deposit'}
           </button>
         </div>
       </div>

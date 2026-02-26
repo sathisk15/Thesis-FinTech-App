@@ -13,27 +13,63 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-      <span className="text-xl font-bold text-text">Expense Tracker</span>
+    <header
+      className="w-full flex items-center justify-between
+                 px-6 py-4
+                 bg-background/80 backdrop-blur
+                 border-b border-border
+                 shadow-sm"
+    >
+      {/* Title */}
+      <span className="text-lg font-semibold tracking-tight text-text">
+        Expense Tracker
+      </span>
 
+      {/* Right Section */}
       <div className="flex items-center gap-4">
-        <div className="text-right hidden md:block">
+        {/* User Info */}
+        <div className="text-right hidden md:block leading-tight">
           <p className="text-sm font-medium text-text">
-            {user?.firstname + ' ' + (user?.lastname ?? '')}
+            {user?.firstname} {user?.lastname ?? ''}
           </p>
           <p className="text-xs text-text/60">{user?.email}</p>
         </div>
 
-        <img
-          src="https://i.pravatar.cc/100"
-          alt="avatar"
-          className="w-10 h-10 rounded-full cursor-pointer"
-        />
+        {/* Avatar */}
+        <div className="relative group cursor-pointer">
+          <div
+            className="w-10 h-10 rounded-full
+                       bg-gradient-to-br from-primary/30 to-primary/5
+                       p-[2px]"
+          >
+            <img
+              src="https://i.pravatar.cc/100"
+              alt="avatar"
+              className="w-full h-full rounded-full bg-background"
+            />
+          </div>
 
-        <RiLogoutBoxLine
-          className="text-2xl cursor-pointer text-text/70"
+          {/* Online Status */}
+          <span
+            className="absolute bottom-0 right-0
+                       w-2.5 h-2.5 rounded-full
+                       bg-green-500
+                       ring-2 ring-background"
+          />
+        </div>
+
+        {/* Logout */}
+        <button
           onClick={handleLogout}
-        />
+          title="Logout"
+          className="p-2 rounded-lg
+                     text-text/60
+                     hover:text-red-500
+                     hover:bg-red-500/10
+                     transition cursor-pointer"
+        >
+          <RiLogoutBoxLine className="text-lg" />
+        </button>
       </div>
     </header>
   );

@@ -37,7 +37,6 @@ const AddAccount = ({
     try {
       await addAccount(accountData);
 
-      // Reset form
       setAccountData({
         account_type: '',
         currency: 'EUR',
@@ -53,28 +52,44 @@ const AddAccount = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-card border border-border rounded-lg w-full max-w-md p-6 space-y-6">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center
+                    bg-black/40 backdrop-blur-sm"
+    >
+      <div
+        className="w-full max-w-md
+                   bg-card border border-border
+                   rounded-xl shadow-lg
+                   p-6 space-y-6"
+      >
         {/* Header */}
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-text">Link New Account</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-text">
+            Link New Account
+          </h2>
           <p className="text-sm text-text/60">
-            Link a new account under your profile
+            Add a new account under your profile
           </p>
         </div>
 
-        {/* Error Message */}
+        {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
+          <div
+            className="rounded-lg border border-red-500/30
+                          bg-red-500/10 px-3 py-2
+                          text-sm text-red-500"
+          >
             {error}
           </div>
         )}
 
-        {/* Form Fields */}
+        {/* Form */}
         <div className="space-y-4">
           {/* Account Name */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Account Name</label>
+            <label className="text-xs font-medium text-text/60">
+              Account Name
+            </label>
             <input
               value={accountData.account_name}
               onChange={(e) =>
@@ -84,12 +99,19 @@ const AddAccount = ({
                 })
               }
               placeholder="Business Operations"
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
+
           {/* Account Type */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Account Type</label>
+            <label className="text-xs font-medium text-text/60">
+              Account Type
+            </label>
             <select
               value={accountData.account_type}
               onChange={(e) =>
@@ -98,10 +120,13 @@ const AddAccount = ({
                   account_type: e.target.value,
                 })
               }
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             >
               <option value="">Select account type</option>
-
               {allTypes.map((type) => (
                 <option key={type} value={type}>
                   {type} Account
@@ -112,7 +137,9 @@ const AddAccount = ({
 
           {/* Account Number */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Account Number</label>
+            <label className="text-xs font-medium text-text/60">
+              Account Number
+            </label>
             <input
               value={accountData.account_number}
               onChange={(e) =>
@@ -122,17 +149,23 @@ const AddAccount = ({
                 })
               }
               placeholder="DE38947874"
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
           {/* Currency */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Currency</label>
+            <label className="text-xs font-medium text-text/60">Currency</label>
             <select
               value={accountData.currency}
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
               disabled
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text/60 text-sm"
             >
               <option value="PLN">PLN (Polish Złoty)</option>
               <option value="EUR">EUR (Euro)</option>
@@ -142,13 +175,12 @@ const AddAccount = ({
 
           {/* Initial Deposit */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">
-              Initial Deposit Amount
+            <label className="text-xs font-medium text-text/60">
+              Initial Deposit
             </label>
             <input
               type="number"
               min="100"
-              placeholder="Enter amount"
               value={accountData.initialBalance}
               onChange={(e) =>
                 setAccountData({
@@ -156,17 +188,25 @@ const AddAccount = ({
                   initialBalance: Number(e.target.value),
                 })
               }
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowModal(false)}
-            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
             disabled={loading}
+            className="h-10 px-5 rounded-lg
+                       border border-border
+                       text-sm text-text
+                       hover:bg-border/40
+                       transition"
           >
             Cancel
           </button>
@@ -174,9 +214,13 @@ const AddAccount = ({
           <button
             onClick={handleCreate}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white font-medium disabled:opacity-50 cursor-pointer"
+            className="h-10 px-5 rounded-lg
+                       bg-primary text-white text-sm font-medium
+                       hover:bg-primary/90
+                       disabled:opacity-50
+                       transition"
           >
-            {loading ? 'Linking...' : 'Link Account'}
+            {loading ? 'Linking…' : 'Link Account'}
           </button>
         </div>
       </div>

@@ -82,37 +82,60 @@ const Transfer = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-card border border-border rounded-lg w-full max-w-md p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-text">Transfer Money</h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center
+                 bg-black/40 backdrop-blur-sm"
+    >
+      <div
+        className="w-full max-w-md
+                   bg-card border border-border
+                   rounded-xl shadow-lg
+                   p-6 space-y-6"
+      >
+        {/* Header */}
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold tracking-tight text-text">
+            Transfer Money
+          </h2>
           <p className="text-sm text-text/60">
             From {transferFrom.account_type} Account
           </p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
+          <div
+            className="rounded-lg border border-red-500/30
+                       bg-red-500/10 px-3 py-2
+                       text-sm text-red-500"
+          >
             {error}
           </div>
         )}
 
+        {/* Form */}
         <div className="space-y-4">
-          {/* From (Read Only) */}
+          {/* From */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">From Account</label>
+            <label className="text-xs font-medium text-text/60">
+              From Account
+            </label>
             <input
               disabled
               value={`${transferFrom.account_type} •••• ${transferFrom.account_number?.slice(
                 -4,
               )}`}
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text/70 text-sm"
             />
           </div>
 
-          {/* To Account */}
+          {/* To */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">To Account</label>
+            <label className="text-xs font-medium text-text/60">
+              To Account
+            </label>
             <select
               value={transferData.toAccountId}
               onChange={(e) =>
@@ -121,7 +144,11 @@ const Transfer = ({
                   toAccountId: Number(e.target.value),
                 })
               }
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             >
               <option value="">Select destination</option>
               {accounts
@@ -136,7 +163,7 @@ const Transfer = ({
 
           {/* Amount */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Amount</label>
+            <label className="text-xs font-medium text-text/60">Amount</label>
             <input
               type="number"
               value={transferData.amount}
@@ -146,13 +173,19 @@ const Transfer = ({
                   amount: e.target.value,
                 })
               }
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="text-sm text-text/60">Description</label>
+            <label className="text-xs font-medium text-text/60">
+              Description
+            </label>
             <input
               value={transferData.description}
               onChange={(e) => {
@@ -162,15 +195,24 @@ const Transfer = ({
                 });
                 setIsDescriptionEdited(true);
               }}
-              className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 px-3 rounded-lg
+                         bg-background border border-border
+                         text-text text-sm
+                         outline-none
+                         focus:ring-2 focus:ring-primary/40"
             />
           </div>
         </div>
 
+        {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => setShowTransferModal(false)}
-            className="h-10 px-6 rounded-md border border-border text-text"
+            className="h-10 px-5 rounded-lg
+                       border border-border
+                       text-sm text-text
+                       hover:bg-border/40
+                       transition"
           >
             Cancel
           </button>
@@ -178,9 +220,14 @@ const Transfer = ({
           <button
             onClick={handleTransfer}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50"
+            className="h-10 px-5 rounded-lg
+                       bg-primary text-white
+                       text-sm font-medium
+                       hover:bg-primary/90
+                       disabled:opacity-50
+                       transition"
           >
-            {loading ? 'Transferring...' : 'Transfer'}
+            {loading ? 'Transferring…' : 'Transfer'}
           </button>
         </div>
       </div>

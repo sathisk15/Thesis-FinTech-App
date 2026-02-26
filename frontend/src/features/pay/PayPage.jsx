@@ -39,20 +39,14 @@ const PayPage = () => {
     setError('');
 
     if (!fromAccountId) return setError('Please select source account.');
-
     if (!recipientName.trim()) return setError('Recipient name is required.');
-
     if (!externalAccountNumber.trim())
       return setError('Recipient account number is required.');
-
     if (!validateExternalAccount(externalAccountNumber))
       return setError('Account number must be 2 letters + 8 digits.');
-
     if (!externalBankName.trim()) return setError('Bank name is required.');
-
     if (!amount || Number(amount) <= 0)
       return setError('Amount must be greater than 0.');
-
     if (Number(amount) > fromAccount?.account_balance)
       return setError('Insufficient balance.');
 
@@ -79,112 +73,120 @@ const PayPage = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-text mb-2">
+    <div className="w-full max-w-3xl mx-auto py-10 space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text">
           Make a Payment
         </h1>
-        <p className="text-text/60">
+        <p className="text-sm text-text/60 mt-1">
           Send money securely to another bank account
         </p>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-8 space-y-8">
+      {/* Card */}
+      <div className="bg-card border border-border rounded-xl shadow-sm p-8 space-y-8">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-3 py-2 rounded-md">
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
             {error}
           </div>
         )}
 
-        {/* From Account */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">Pay From</label>
-          <select
-            value={fromAccountId}
-            onChange={(e) =>
-              setFromAccountId(e.target.value ? Number(e.target.value) : '')
-            }
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">Select account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.account_type} •••• {acc.account_number?.slice(-4)} (
-                {formatCurrency(acc.account_balance, acc.currency)})
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Form */}
+        <div className="space-y-6">
+          {/* From Account */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">Pay From</label>
+            <select
+              value={fromAccountId}
+              onChange={(e) =>
+                setFromAccountId(e.target.value ? Number(e.target.value) : '')
+              }
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="">Select account</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.account_type} •••• {acc.account_number?.slice(-4)} (
+                  {formatCurrency(acc.account_balance, acc.currency)})
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Recipient Name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">
-            Recipient Name
-          </label>
-          <input
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value)}
-            placeholder="John Doe"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+          {/* Recipient */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-text/60">
+                Recipient Name
+              </label>
+              <input
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
 
-        {/* External Account Number */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">
-            Recipient Account Number
-          </label>
-          <input
-            value={externalAccountNumber}
-            onChange={(e) =>
-              setExternalAccountNumber(e.target.value.toUpperCase())
-            }
-            placeholder="DE12345678"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-text/60">
+                Bank Name
+              </label>
+              <input
+                value={externalBankName}
+                onChange={(e) => setExternalBankName(e.target.value)}
+                placeholder="Deutsche Bank"
+                className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+          </div>
 
-        {/* Bank Name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">Bank Name</label>
-          <input
-            value={externalBankName}
-            onChange={(e) => setExternalBankName(e.target.value)}
-            placeholder="Deutsche Bank"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+          {/* Account Number */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Recipient Account Number
+            </label>
+            <input
+              value={externalAccountNumber}
+              onChange={(e) =>
+                setExternalAccountNumber(e.target.value.toUpperCase())
+              }
+              placeholder="DE12345678"
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
 
-        {/* Amount */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">Amount</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+          {/* Amount */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
 
-        {/* Description */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text/60">
-            Description (Optional)
-          </label>
-          <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Invoice 2026-01"
-            className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-          />
+          {/* Description */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-text/60">
+              Description (optional)
+            </label>
+            <input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Invoice 2026-01"
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
         </div>
 
         {/* Summary */}
-        <div className="bg-background border border-border rounded-md p-4 space-y-3">
-          <p className="text-sm text-text/60">Payment Summary</p>
+        <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <p className="text-xs font-medium text-text/60">Payment Summary</p>
 
-          <div className="flex justify-between text-text">
+          <div className="flex justify-between text-sm text-text">
             <span>From</span>
             <span>
               {fromAccount
@@ -195,7 +197,7 @@ const PayPage = () => {
             </span>
           </div>
 
-          <div className="flex justify-between font-semibold text-text pt-2 border-t border-border">
+          <div className="flex justify-between pt-2 border-t border-border text-sm font-semibold text-text">
             <span>Total</span>
             <span>
               {amount && fromAccount
@@ -206,10 +208,10 @@ const PayPage = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-4 pt-4">
+        <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={() => navigate('/accounts')}
-            className="h-10 px-6 rounded-md border border-border text-text cursor-pointer"
+            className="h-10 px-5 rounded-lg border border-border text-sm text-text hover:bg-border/40 transition"
           >
             Cancel
           </button>
@@ -217,9 +219,9 @@ const PayPage = () => {
           <button
             onClick={handlePayment}
             disabled={loading}
-            className="h-10 px-6 rounded-md bg-primary text-white disabled:opacity-50 cursor-pointer"
+            className="h-10 px-5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
-            {loading ? 'Processing...' : 'Confirm Payment'}
+            {loading ? 'Processing…' : 'Confirm Payment'}
           </button>
         </div>
       </div>

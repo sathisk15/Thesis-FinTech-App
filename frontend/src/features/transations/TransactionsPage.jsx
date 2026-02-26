@@ -17,13 +17,13 @@ const TransactionPage = () => {
   const [toDate, setToDate] = useState('');
   const [search, setSearch] = useState('');
 
-  // Fetch accounts + all transactions on load
+  // Fetch accounts + transactions
   useEffect(() => {
     fetchAccounts();
     fetchTransactions();
   }, [fetchAccounts, fetchTransactions]);
 
-  // Refetch when account changes
+  // Refetch on account filter
   useEffect(() => {
     if (selectedAccount) {
       fetchTransactions(selectedAccount);
@@ -32,7 +32,6 @@ const TransactionPage = () => {
     }
   }, [selectedAccount, fetchTransactions]);
 
-  // Clear Filters
   const handleClearFilters = () => {
     setSelectedAccount('');
     setFromDate('');
@@ -48,9 +47,7 @@ const TransactionPage = () => {
     const txDate = new Date(tx.createdat);
 
     const matchesFrom = fromDate ? txDate >= new Date(fromDate) : true;
-
     const matchesTo = toDate ? txDate <= new Date(toDate) : true;
-
     const matchesSearch = search
       ? tx.description?.toLowerCase().includes(search.toLowerCase())
       : true;
@@ -59,114 +56,120 @@ const TransactionPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      <div className="w-full py-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
-          <p className="text-2xl 2xl:text-3xl font-semibold text-text/60">
-            Transactions Activity
+    <div className="w-full py-10 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text">
+            Transactions
+          </h1>
+          <p className="text-sm text-text/60 mt-1">
+            View and filter your transaction history
           </p>
-
-          <div className="flex flex-col md:flex-row md:items-end gap-4">
-            {/* Account Filter */}
-            <div className="flex flex-col">
-              <label className="text-sm text-text/60 mb-1">
-                Filter by Account
-              </label>
-              <select
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-                className="h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">All Accounts</option>
-                {accounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.account_type} •••• {acc.account_number?.slice(-4)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Date Filters */}
-            <div className="flex flex-col">
-              <label className="text-sm text-text/60 mb-1">From</label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm text-text/60 mb-1">To</label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Search */}
-            <div className="flex flex-col">
-              <label className="text-sm text-text/60 mb-1">Search</label>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search description..."
-                className="h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Clear Filters */}
-            <div className="flex flex-col">
-              <label className="text-sm text-text/60 mb-1 invisible">
-                Clear
-              </label>
-              <button
-                onClick={handleClearFilters}
-                disabled={!hasActiveFilters}
-                className="h-10 px-4 rounded-md border border-border text-text hover:bg-background/50 disabled:opacity-50"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Transactions Table */}
-        <div className="overflow-x-auto mt-5">
-          {loading && (
-            <div className="w-full flex items-center justify-center py-10 text-text/60 text-lg">
-              Loading transactions...
-            </div>
-          )}
+        {/* Filters */}
+        <div className="flex flex-wrap items-end gap-4">
+          {/* Account */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-text/60 mb-1">
+              Account
+            </label>
+            <select
+              value={selectedAccount}
+              onChange={(e) => setSelectedAccount(e.target.value)}
+              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="">All Accounts</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.account_type} •••• {acc.account_number?.slice(-4)}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {!loading && filteredTransactions.length === 0 && (
-            <div className="w-full flex items-center justify-center py-10 text-text/60 text-lg">
-              No Transaction History
-            </div>
-          )}
+          {/* From */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-text/60 mb-1">
+              From
+            </label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
 
-          {!loading && filteredTransactions.length > 0 && (
-            <table className="w-full border border-border rounded-md overflow-hidden">
+          {/* To */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-text/60 mb-1">To</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+
+          {/* Search */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-text/60 mb-1">
+              Search
+            </label>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Description…"
+              className="h-10 px-3 rounded-lg bg-background border border-border text-sm text-text outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+
+          {/* Clear */}
+          <button
+            onClick={handleClearFilters}
+            disabled={!hasActiveFilters}
+            className="h-10 px-4 rounded-lg border border-border text-sm text-text
+                       hover:bg-border/40 transition disabled:opacity-50"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        {loading && (
+          <div className="py-16 text-center text-text/60">
+            Loading transactions…
+          </div>
+        )}
+
+        {!loading && filteredTransactions.length === 0 && (
+          <div className="py-16 text-center text-text/60">
+            No transactions found.
+          </div>
+        )}
+
+        {!loading && filteredTransactions.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead className="bg-background border-b border-border">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm text-text/60">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text/60">
                     Date
                   </th>
-                  <th className="text-left px-4 py-3 text-sm text-text/60">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text/60">
                     Account
                   </th>
-                  <th className="text-left px-4 py-3 text-sm text-text/60">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text/60">
                     Description
                   </th>
-                  <th className="text-left px-4 py-3 text-sm text-text/60">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text/60">
                     Type
                   </th>
-                  <th className="text-right px-4 py-3 text-sm text-text/60">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text/60">
                     Amount
                   </th>
                 </tr>
@@ -185,7 +188,8 @@ const TransactionPage = () => {
                   return (
                     <tr
                       key={tx.id}
-                      className="border-b border-border hover:bg-background/50"
+                      className="border-b border-border last:border-0
+                                 hover:bg-background/50 transition"
                     >
                       <td className="px-4 py-3 text-sm text-text">
                         {new Date(
@@ -199,11 +203,11 @@ const TransactionPage = () => {
                           : '—'}
                       </td>
 
-                      <td className="px-4 py-3 text-sm text-text">
+                      <td className="px-4 py-3 text-sm text-text/80 max-w-xs truncate">
                         {tx.description || '—'}
                       </td>
 
-                      <td className="px-4 py-3 text-sm text-text capitalize">
+                      <td className="px-4 py-3 text-sm capitalize text-text">
                         {tx.type}
                       </td>
 
@@ -223,8 +227,8 @@ const TransactionPage = () => {
                 })}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
