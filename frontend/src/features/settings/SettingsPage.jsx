@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { useAuthStore } from '../../store/useAuthStore';
-
+import Loader from '../../shared/componenets/Loader';
 const SettingsPage = () => {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -15,7 +15,23 @@ const SettingsPage = () => {
     currency: user?.currency || 'EUR',
   });
 
-  const [profileLoading, setProfileLoading] = useState(false);
+  async function getCurrentUserData() {
+    setProfileLoading(true);
+    try {
+      const response = await api.get('/auth/me');
+      for (let i = 0; i < 9000000; i++) {}
+      setUser(response.data.user);
+    } catch (error) {
+    } finally {
+      setProfileLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getCurrentUserData();
+  }, []);
+
+  const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState('');
 
   const handleProfileChange = (e) => {
@@ -85,8 +101,10 @@ const SettingsPage = () => {
       setPasswordLoading(false);
     }
   };
+
   return (
     <div className="flex min-h-screen bg-background w-full items-center justify-center">
+      {profileLoading && <Loader />}
       <div className="w-full max-w-4xl p-4 my-6 md:px-10 md:my-10 bg-card border border-border rounded-lg shadow-sm">
         {/* Section Header */}
         <div className="mt-6 border-b border-border pb-4">
