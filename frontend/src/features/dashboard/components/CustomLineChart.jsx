@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 
 const CustomLineChart = ({ chartData, labelFilter }) => {
+  console.log(chartData);
   return (
     <div className=" bg-card border border-border rounded-xl p-4 h-[420px] flex flex-col">
       <div className="flex justify-between mb-4">
@@ -40,6 +41,13 @@ const CustomLineChart = ({ chartData, labelFilter }) => {
               stroke="#dc2626"
               strokeWidth={3}
             />
+            {/* <Line
+              type="monotone"
+              dataKey="savings" // cumulative balance
+              stroke="#2563eb"
+              strokeWidth={4}
+              dot={false}
+            /> */}
           </LineChart>
         </ResponsiveContainer>
       </div>

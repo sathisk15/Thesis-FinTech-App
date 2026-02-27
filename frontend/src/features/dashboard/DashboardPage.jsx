@@ -115,13 +115,8 @@ const DashboardPage = () => {
     setSelectedLabel('1d');
   };
 
-  function getChartData({
-    transactions, // already account-filtered
-    range, // '1m' | '3m' | '6m' | '1y' | '3y' | '6y' | 'all'
-    label, // '1d' | '3d' | '6d' | '1m' | '3m' | '6m'
-  }) {
+  function getChartData({ transactions, range, label }) {
     const now = new Date();
-
     const DAY_MS = 24 * 60 * 60 * 1000;
 
     const RANGE_DAYS = {
@@ -154,7 +149,6 @@ const DashboardPage = () => {
       }
     }
 
-    // ---- range start
     const from =
       range === 'all'
         ? null
@@ -165,14 +159,10 @@ const DashboardPage = () => {
 
     transactions.forEach((tx) => {
       const date = new Date(tx.createdat);
-
-      // range filter
       if (from && (date < from || date > now)) return;
 
-      // ✅ correct bucket calculation (time-based, not calendar-based)
       const bucketTime = Math.floor(date.getTime() / bucketMs) * bucketMs;
       const bucket = new Date(bucketTime);
-
       const key = bucket.toISOString();
 
       if (!grouped[key]) {
@@ -181,6 +171,7 @@ const DashboardPage = () => {
           income: 0,
           expense: 0,
           balance: 0,
+          savings: 0, // placeholder
         };
       }
 
@@ -195,9 +186,18 @@ const DashboardPage = () => {
       grouped[key].balance = grouped[key].income - grouped[key].expense;
     });
 
+    // ✅ compute cumulative savings
+    let runningSavings = 0;
+
     return Object.keys(grouped)
       .sort()
-      .map((key) => grouped[key]);
+      .map((key) => {
+        runningSavings += grouped[key].balance;
+        return {
+          ...grouped[key],
+          savings: runningSavings,
+        };
+      });
   }
 
   const chartData = getChartData({
