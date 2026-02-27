@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { FiX } from 'react-icons/fi';
 
 // Component Imports
 import FinancialHealthScore from './components/FinancialHealthScore';
@@ -21,11 +12,11 @@ import AccountsList from './components/AccountsList';
 import LatestTransactions from './components/LatestTransactions';
 import KpiGrid from './components/KpiGrid';
 import IncomeExpenseBreakdown from './components/IncomeExpenseBreakdown';
-import TransactionActivityHeader from './components/TransactionActivityHeader';
 import DashboardHeader from './components/DashboardHeader';
 import CustomPieChart from './components/CustomPieChart';
 import CustomLineChart from './components/CustomLineChart';
 import { AccountFilterDropdown } from './components/AccountFilterDropdown';
+import TimeRangeFilterChips from './components/TimeRangeFilterChips';
 
 const DashboardPage = () => {
   const accounts = useAccountStore((state) => state.accounts);
@@ -41,15 +32,67 @@ const DashboardPage = () => {
   }, [fetchAccounts, fetchTransactions]);
 
   // Seprate Logic
+  function parseDate(dateString) {
+    // "2025-12-31 12:00:00" → "2025-12-31T12:00:00"
+    return new Date(dateString.replace(' ', 'T'));
+  }
+  function isInTimeRange(dateString, range) {
+    if (range === 'all_time') return true;
+
+    const txDate = parseDate(dateString);
+    const now = new Date();
+
+    if (range === 'this_month') {
+      return (
+        txDate.getMonth() === now.getMonth() &&
+        txDate.getFullYear() === now.getFullYear()
+      );
+    }
+
+    if (range === 'last_month') {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return (
+        txDate.getMonth() === lastMonth.getMonth() &&
+        txDate.getFullYear() === lastMonth.getFullYear()
+      );
+    }
+
+    if (range === 'last_3_months') {
+      const from = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      return txDate >= from;
+    }
+
+    if (range === 'last_6_months') {
+      const from = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+      return txDate >= from;
+    }
+
+    if (range === 'ytd') {
+      const from = new Date(now.getFullYear(), 0, 1);
+      return txDate >= from;
+    }
+
+    return true;
+  }
+
   // KPI logic
 
   const [selectedkpiAccountId, setSelectedKpiAccountId] = useState('all');
-  const filteredKpiTransactions =
-    selectedkpiAccountId === 'all'
-      ? transactions
-      : transactions.filter(
-          (tx) => tx.account_id === Number(selectedkpiAccountId),
-        );
+  const [kpiTimeRange, setKpiTimeRange] = useState('all_time');
+
+  const clearKpiFilters = () => {
+    setSelectedKpiAccountId('all');
+    setKpiTimeRange('all_time');
+  };
+
+  const finalKpiTransactions = transactions.filter((tx) => {
+    const matchesAccount =
+      selectedkpiAccountId === 'all'
+        ? true
+        : tx.account_id === Number(selectedkpiAccountId);
+    const matchesTime = isInTimeRange(tx.createdat, kpiTimeRange);
+    return matchesAccount && matchesTime;
+  });
 
   // Line Chart
   const [selectedLineChartAccountId, setSelectedLineChartAccountId] =
@@ -60,47 +103,64 @@ const DashboardPage = () => {
       : transactions.filter(
           (tx) => tx.account_id === Number(selectedLineChartAccountId),
         );
-  const [timeFilter, setTimeFilter] = useState('monthly');
+
   const getChartData = (txn) => {
     const grouped = {};
+
     txn.forEach((tx) => {
       const date = new Date(tx.createdat);
-      let key = '',
-        label = '';
 
-      if (timeFilter === 'yearly') {
-        key = date.getFullYear();
-        label = `${key}`;
-      } else if (timeFilter === 'monthly') {
-        key = `${date.getFullYear()}-${date.getMonth()}`;
-        label = date.toLocaleString('default', { month: 'short' });
-      } else if (timeFilter === 'daily') {
-        key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-        label = date.getDate();
-      } else if (timeFilter === 'hourly') {
-        key = `${date.getHours()}`;
-        label = `${date.getHours()}:00`;
+      // stable time key → YYYY-MM
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        '0',
+      )}`;
+
+      if (!grouped[key]) {
+        grouped[key] = {
+          label: key, // e.g. 2026-02
+          income: 0,
+          expense: 0,
+        };
       }
 
-      if (!grouped[key]) grouped[key] = { label, income: 0, expense: 0 };
-      if (tx.type === 'credit' || tx.type === 'deposit')
-        grouped[key].income += Number(tx.amount);
-      else grouped[key].expense += Number(tx.amount);
+      const amount = Number(tx.amount);
+
+      if (tx.type === 'credit' || tx.type === 'deposit') {
+        grouped[key].income += amount;
+      } else {
+        grouped[key].expense += amount;
+      }
     });
-    return Object.values(grouped);
+
+    // ensure correct order for trend charts
+    return Object.keys(grouped)
+      .sort()
+      .map((key) => grouped[key]);
   };
   const chartData = getChartData(filteredLineChartTransactions);
 
   // Income & Expense Breakdown
   const [selectedPieChartAccountId, setSelectedPieChartAccountId] =
     useState('all');
-  const filteredPieChartTransactions =
-    selectedPieChartAccountId === 'all'
-      ? transactions
-      : transactions.filter(
-          (tx) => tx.account_id === Number(selectedPieChartAccountId),
-        );
-  const expenseByCategory = filteredPieChartTransactions.reduce((acc, tx) => {
+  const [pieChartRange, setPieChartRange] = useState('all_time');
+
+  const clearPieChartFilters = () => {
+    setSelectedPieChartAccountId('all');
+    setPieChartRange('all_time');
+  };
+
+  const finalPieChartTransactions = transactions.filter((tx) => {
+    const matchesAccount =
+      selectedPieChartAccountId === 'all'
+        ? true
+        : tx.account_id === Number(selectedPieChartAccountId);
+    const matchesTime = isInTimeRange(tx.createdat, pieChartRange);
+
+    return matchesAccount && matchesTime;
+  });
+
+  const expenseByCategory = finalPieChartTransactions.reduce((acc, tx) => {
     if (!(tx.type === 'debit' || tx.type === 'withdrawal')) return acc;
     const category = tx.description || 'Others';
     acc[category] = (acc[category] || 0) + Number(tx.amount);
@@ -118,7 +178,7 @@ const DashboardPage = () => {
     }),
   );
 
-  const incomeByCategory = filteredPieChartTransactions.reduce((acc, tx) => {
+  const incomeByCategory = finalPieChartTransactions.reduce((acc, tx) => {
     if (!(tx.type === 'credit' || tx.type === 'deposit')) return acc;
 
     const category = tx.category || 'Others';
@@ -159,11 +219,11 @@ const DashboardPage = () => {
     0,
   );
 
-  const totalPieChartIncome = filteredPieChartTransactions
+  const totalPieChartIncome = finalPieChartTransactions
     .filter((tx) => tx.type === 'deposit' || tx.type === 'credit')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
-  const totalPieCharExpense = filteredPieChartTransactions
+  const totalPieCharExpense = finalPieChartTransactions
     .filter((tx) => tx.type === 'debit' || tx.type === 'withdrawal')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
   const pieData = [
@@ -175,12 +235,31 @@ const DashboardPage = () => {
   // Health Cards
   const [selectedHealthCardsAccountId, setSelectedHealthCardsAccountId] =
     useState('all');
-  const filteredHealthCardsTransactions =
-    selectedHealthCardsAccountId === 'all'
-      ? transactions
-      : transactions.filter(
-          (tx) => tx.account_id === Number(selectedHealthCardsAccountId),
-        );
+
+  const [healthCardsRange, setHealthCardsRange] = useState('all_time');
+
+  const clearHealthCardFilters = () => {
+    setSelectedHealthCardsAccountId('all');
+    setHealthCardsRange('all_time');
+  };
+
+  const finalHealthCardTransactions = transactions.filter((tx) => {
+    const matchesAccount =
+      selectedHealthCardsAccountId === 'all'
+        ? true
+        : tx.account_id === Number(selectedHealthCardsAccountId);
+    const matchesTime = isInTimeRange(tx.createdat, healthCardsRange);
+
+    return matchesAccount && matchesTime;
+  });
+
+  // const filteredHealthCardsTransactions =
+  //   selectedHealthCardsAccountId === 'all'
+  //     ? transactions
+  //     : transactions.filter(
+  //         (tx) => tx.account_id === Number(selectedHealthCardsAccountId),
+  //       );
+
   const now = new Date();
 
   const isSameMonth = (date) => {
@@ -197,16 +276,16 @@ const DashboardPage = () => {
       d.getMonth() === prev.getMonth() && d.getFullYear() === prev.getFullYear()
     );
   };
-  const totalHealthCardsIncome = filteredHealthCardsTransactions
+  const totalHealthCardsIncome = finalHealthCardTransactions
     .filter((tx) => tx.type === 'deposit' || tx.type === 'credit')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
-  const totalHealthCardsExpense = filteredHealthCardsTransactions
+  const totalHealthCardsExpense = finalHealthCardTransactions
     .filter((tx) => tx.type === 'debit' || tx.type === 'withdrawal')
     .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
   const getMonthlyHealthCardsTotal = (filterFn) =>
-    filteredHealthCardsTransactions
+    finalHealthCardTransactions
       .filter(filterFn)
       .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
@@ -259,40 +338,97 @@ const DashboardPage = () => {
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Key Financial Metrics</h2>
-
-          <AccountFilterDropdown
-            accounts={accounts}
-            selectedAccountId={selectedkpiAccountId}
-            onChange={setSelectedKpiAccountId}
-          />
+          <div className="filter flex">
+            <TimeRangeFilterChips
+              value={kpiTimeRange}
+              onChange={setKpiTimeRange}
+            />
+            <span className="mr-2"></span>
+            <AccountFilterDropdown
+              accounts={accounts}
+              selectedAccountId={selectedkpiAccountId}
+              onChange={setSelectedKpiAccountId}
+            />
+            <span className="mr-2"></span>
+            <button
+              onClick={clearKpiFilters}
+              title="Clear filters"
+              className="p-2 rounded-lg border-border bg-card
+                      text-text/60
+                      hover:text-text
+                      hover:bg-border/40
+                      transition cursor-pointer"
+            >
+              <FiX size={16} />
+            </button>
+          </div>
         </div>
 
-        <KpiGrid transactions={filteredKpiTransactions} />
+        <KpiGrid transactions={finalKpiTransactions} />
       </section>
 
       {/* Charts  */}
       <section className="grid grid-cols-1 gap-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Income & Expense Trends</h2>
-          <AccountFilterDropdown
-            accounts={accounts}
-            selectedAccountId={selectedLineChartAccountId}
-            onChange={setSelectedLineChartAccountId}
-          />
+          <div className="flex">
+            <TimeRangeFilterChips
+              value={kpiTimeRange}
+              onChange={setKpiTimeRange}
+            />
+            <span className="mr-2"></span>
+            <AccountFilterDropdown
+              accounts={accounts}
+              selectedAccountId={selectedLineChartAccountId}
+              onChange={setSelectedLineChartAccountId}
+            />
+            <span className="mr-2"></span>
+            <button
+              onClick={clearKpiFilters}
+              title="Clear filters"
+              className="p-2 rounded-lg border-border bg-card
+                      text-text/60
+                      hover:text-text
+                      hover:bg-border/40
+                      transition cursor-pointer"
+            >
+              <FiX size={16} />
+            </button>
+          </div>
         </div>
 
-        <CustomLineChart chartData={chartData} timeFilter={timeFilter} />
+        <CustomLineChart chartData={chartData} />
       </section>
 
       {/* Expense Breakdown & Pie Chart*/}
       <section className="grid grid-cols-3 gap-6">
         <div className="col-span-3 flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Income & Expense Breakdown</h2>{' '}
-          <AccountFilterDropdown
-            accounts={accounts}
-            selectedAccountId={selectedPieChartAccountId}
-            onChange={setSelectedPieChartAccountId}
-          />
+          <h2 className="text-lg font-semibold">Income & Expense Breakdown</h2>
+          <div className="flex">
+            <TimeRangeFilterChips
+              value={pieChartRange}
+              onChange={setPieChartRange}
+            />
+            <span className="mr-2"></span>
+
+            <AccountFilterDropdown
+              accounts={accounts}
+              selectedAccountId={selectedPieChartAccountId}
+              onChange={setSelectedPieChartAccountId}
+            />
+            <span className="mr-2"></span>
+            <button
+              onClick={clearPieChartFilters}
+              title="Clear filters"
+              className="p-2 rounded-lg border-border bg-card
+                      text-text/60
+                      hover:text-text
+                      hover:bg-border/40
+                      transition cursor-pointer"
+            >
+              <FiX size={16} />
+            </button>
+          </div>
         </div>
         <IncomeExpenseBreakdown
           expenseCategoryPercentages={expenseCategoryPercentages}
@@ -315,11 +451,30 @@ const DashboardPage = () => {
             <h2 className="text-lg font-semibold">
               Financial Health & Performance
             </h2>
-            <AccountFilterDropdown
-              accounts={accounts}
-              selectedAccountId={selectedHealthCardsAccountId}
-              onChange={setSelectedHealthCardsAccountId}
-            />
+            <div className="flex">
+              <TimeRangeFilterChips
+                value={healthCardsRange}
+                onChange={setHealthCardsRange}
+              />
+              <span className="mr-2"></span>
+              <AccountFilterDropdown
+                accounts={accounts}
+                selectedAccountId={selectedHealthCardsAccountId}
+                onChange={setSelectedHealthCardsAccountId}
+              />
+              <span className="mr-2"></span>
+              <button
+                onClick={clearHealthCardFilters}
+                title="Clear filters"
+                className="p-2 rounded-lg border-border bg-card
+                      text-text/60
+                      hover:text-text
+                      hover:bg-border/40
+                      transition cursor-pointer"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
           </div>
           <FinancialHealthScore
             totalIncome={totalHealthCardsIncome}

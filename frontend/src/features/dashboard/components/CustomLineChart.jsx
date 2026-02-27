@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import TransactionActivityHeader from './TransactionActivityHeader';
 import {
   CartesianGrid,
   Legend,
@@ -12,14 +10,12 @@ import {
 } from 'recharts';
 
 const CustomLineChart = ({ chartData }) => {
-  const [timeFilter, setTimeFilter] = useState('monthly');
-
+  console.log(chartData);
   return (
     <div className=" bg-card border border-border rounded-xl p-4 h-[420px] flex flex-col">
-      <TransactionActivityHeader
-        timeFilter={timeFilter}
-        onChange={setTimeFilter}
-      />
+      <div className="flex justify-between mb-4">
+        <p className="text-sm font-medium text-text/60">Transaction Activity</p>
+      </div>
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
