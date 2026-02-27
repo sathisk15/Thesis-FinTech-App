@@ -2,11 +2,11 @@ node_modules
 backend/node_modules
 frontend/node_modules
 backend/db/banking_app.db
-playwright/node_modules
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+playwright/node_modules
+playwright/test-results/
+playwright/playwright-report/
+playwright/blob-report/
+playwright/playwright/.cache/
+playwright/playwright/.auth/

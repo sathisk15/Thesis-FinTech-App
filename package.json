@@ -8,7 +8,6 @@
     "dev": "concurrently \"npm run client\" \"npm run server\" "
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.2",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.14"
