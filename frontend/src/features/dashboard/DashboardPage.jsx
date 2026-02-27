@@ -14,7 +14,10 @@ import KpiGrid from './components/KpiGrid';
 import IncomeExpenseBreakdown from './components/IncomeExpenseBreakdown';
 import DashboardHeader from './components/DashboardHeader';
 import CustomPieChart from './components/CustomPieChart';
-import CustomLineChart from './components/CustomLineChart';
+import CustomLineChart, {
+  LabelFilterChips,
+  RangeFilterChips,
+} from './components/CustomLineChart';
 import { AccountFilterDropdown } from './components/AccountFilterDropdown';
 import TimeRangeFilterChips from './components/TimeRangeFilterChips';
 
@@ -97,6 +100,8 @@ const DashboardPage = () => {
   // Line Chart
   const [selectedLineChartAccountId, setSelectedLineChartAccountId] =
     useState('all');
+  const [selectedRange, setSelectedRange] = useState('3m');
+  const [selectedLabel, setSelectedLabel] = useState('1d');
   const filteredLineChartTransactions =
     selectedLineChartAccountId === 'all'
       ? transactions
@@ -104,23 +109,78 @@ const DashboardPage = () => {
           (tx) => tx.account_id === Number(selectedLineChartAccountId),
         );
 
-  const getChartData = (txn) => {
+  const clearLineChartFilters = () => {
+    setSelectedLineChartAccountId('all');
+    setSelectedRange('3m');
+    setSelectedLabel('1d');
+  };
+
+  function getChartData({
+    transactions, // already account-filtered
+    range, // '1m' | '3m' | '6m' | '1y' | '3y' | '6y' | 'all'
+    label, // '1d' | '3d' | '6d' | '1m' | '3m' | '6m'
+  }) {
+    const now = new Date();
+
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    const RANGE_DAYS = {
+      '1m': 30,
+      '3m': 90,
+      '6m': 180,
+      '1y': 365,
+      '3y': 365 * 3,
+      '6y': 365 * 6,
+      all: 365 * 20,
+    };
+
+    const LABEL_DAYS = {
+      '1d': 1,
+      '3d': 3,
+      '6d': 6,
+      '1m': 30,
+      '3m': 90,
+      '6m': 180,
+    };
+
+    // ---- resolve label (anti-clutter)
+    const orderedLabels = ['1d', '3d', '6d', '1m', '3m', '6m'];
+    let effectiveLabel = label;
+
+    if (range !== 'all') {
+      while (RANGE_DAYS[range] / LABEL_DAYS[effectiveLabel] > 24) {
+        effectiveLabel =
+          orderedLabels[orderedLabels.indexOf(effectiveLabel) + 1] || '6m';
+      }
+    }
+
+    // ---- range start
+    const from =
+      range === 'all'
+        ? null
+        : new Date(now.getTime() - RANGE_DAYS[range] * DAY_MS);
+
+    const bucketMs = LABEL_DAYS[effectiveLabel] * DAY_MS;
     const grouped = {};
 
-    txn.forEach((tx) => {
+    transactions.forEach((tx) => {
       const date = new Date(tx.createdat);
 
-      // stable time key → YYYY-MM
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-        2,
-        '0',
-      )}`;
+      // range filter
+      if (from && (date < from || date > now)) return;
+
+      // ✅ correct bucket calculation (time-based, not calendar-based)
+      const bucketTime = Math.floor(date.getTime() / bucketMs) * bucketMs;
+      const bucket = new Date(bucketTime);
+
+      const key = bucket.toISOString();
 
       if (!grouped[key]) {
         grouped[key] = {
-          label: key, // e.g. 2026-02
+          label: bucket.toLocaleDateString(),
           income: 0,
           expense: 0,
+          balance: 0,
         };
       }
 
@@ -131,14 +191,20 @@ const DashboardPage = () => {
       } else {
         grouped[key].expense += amount;
       }
+
+      grouped[key].balance = grouped[key].income - grouped[key].expense;
     });
 
-    // ensure correct order for trend charts
     return Object.keys(grouped)
       .sort()
       .map((key) => grouped[key]);
-  };
-  const chartData = getChartData(filteredLineChartTransactions);
+  }
+
+  const chartData = getChartData({
+    transactions: filteredLineChartTransactions,
+    range: selectedRange,
+    label: selectedLabel,
+  });
 
   // Income & Expense Breakdown
   const [selectedPieChartAccountId, setSelectedPieChartAccountId] =
@@ -253,13 +319,6 @@ const DashboardPage = () => {
     return matchesAccount && matchesTime;
   });
 
-  // const filteredHealthCardsTransactions =
-  //   selectedHealthCardsAccountId === 'all'
-  //     ? transactions
-  //     : transactions.filter(
-  //         (tx) => tx.account_id === Number(selectedHealthCardsAccountId),
-  //       );
-
   const now = new Date();
 
   const isSameMonth = (date) => {
@@ -372,9 +431,9 @@ const DashboardPage = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Income & Expense Trends</h2>
           <div className="flex">
-            <TimeRangeFilterChips
-              value={kpiTimeRange}
-              onChange={setKpiTimeRange}
+            <RangeFilterChips
+              value={selectedRange}
+              onChange={setSelectedRange}
             />
             <span className="mr-2"></span>
             <AccountFilterDropdown
@@ -384,7 +443,7 @@ const DashboardPage = () => {
             />
             <span className="mr-2"></span>
             <button
-              onClick={clearKpiFilters}
+              onClick={clearLineChartFilters}
               title="Clear filters"
               className="p-2 rounded-lg border-border bg-card
                       text-text/60
@@ -397,7 +456,15 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <CustomLineChart chartData={chartData} />
+        <CustomLineChart
+          chartData={chartData}
+          labelFilter={
+            <LabelFilterChips
+              value={selectedLabel}
+              onChange={setSelectedLabel}
+            />
+          }
+        />
       </section>
 
       {/* Expense Breakdown & Pie Chart*/}

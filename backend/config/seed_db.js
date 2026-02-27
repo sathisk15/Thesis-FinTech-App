@@ -1664,22 +1664,22 @@ function runYearlySimulation(
 
     console.log(`➡️ Year ${year}`);
 
-    // for (let month = 1; month <= 12; month++) {
-    //   runMonthlySimulation(db, state, userId, accounts, {
-    //     year,
-    //     month,
-    //     plan: currentPlan,
-    //   });
-    // }
+    for (let month = 1; month <= 12; month++) {
+      runMonthlySimulation(db, state, userId, accounts, {
+        year,
+        month,
+        plan: currentPlan,
+      });
+    }
 
-    runOneDay(
-      db,
-      state,
-      userId,
-      accounts,
-      { year, month: 1, day: 1 },
-      currentPlan,
-    );
+    // runOneDay(
+    //   db,
+    //   state,
+    //   userId,
+    //   accounts,
+    //   { year, month: 1, day: 1 },
+    //   currentPlan,
+    // );
     const yearlyPlan = currentPlan.yearly;
     const ACCOUNT_MAP = {
       business: accounts.businessId,
@@ -1753,8 +1753,8 @@ function seed() {
     const state = initState(accounts);
     addInitialCapital(db, state, userId, accounts);
     runYearlySimulation(db, state, userId, accounts, {
-      startYear: 2025,
-      years: 1,
+      startYear: 2022,
+      years: 5,
     });
     persistFinalBalances(db, state);
   })();
