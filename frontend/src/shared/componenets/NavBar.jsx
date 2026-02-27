@@ -1,7 +1,8 @@
 import { RiLogoutBoxLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
-
+import { FiUser } from 'react-icons/fi';
+import avatar from '../../assets/user-avatar.png';
 const Navbar = () => {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
@@ -43,10 +44,11 @@ const Navbar = () => {
                        p-[2px]"
           >
             <img
-              src="https://i.pravatar.cc/100"
+              src={avatar}
               alt="avatar"
               className="w-full h-full rounded-full bg-background"
             />
+            {/* <FiUser className="w-full h-full rounded-full bg-background" /> */}
           </div>
 
           {/* Online Status */}

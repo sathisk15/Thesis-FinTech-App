@@ -83,7 +83,7 @@ const FinancialHealthScore = ({
   /* ================= UI ================= */
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+    <div className="flex flex-col justify-evenly items-start bg-card border border-border rounded-xl p-6 space-y-4">
       <div>
         <p className="text-sm text-text/60">Financial Health</p>
         <p className={`text-3xl font-semibold ${healthColor}`}>{score}/100</p>

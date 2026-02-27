@@ -571,7 +571,7 @@ const DashboardPage = () => {
       {/* Transactions and Account */}
       <section className="grid grid-cols-3 gap-6">
         <div className="col-span-2">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-5">Recent Activity's</h2>
             <AccountFilterDropdown
               accounts={accounts}
