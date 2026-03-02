@@ -1,0 +1,26 @@
+{
+  "/settings": {
+    "page": "/settings",
+    "url": "http://localhost:5173/settings",
+    "timestamp": "2026-03-02T15:18:28.101Z",
+    "performanceScore": 55.00000000000001,
+    "firstContentfulPaint": 53194.34675000001,
+    "largestContentfulPaint": 104584.62050000002,
+    "speedIndex": 53194.34675000001,
+    "totalBlockingTime": 0,
+    "cumulativeLayoutShift": 0,
+    "timeToInteractive": 104584.62050000002
+  },
+  "/dashboard": {
+    "page": "/dashboard",
+    "url": "http://localhost:5173/dashboard",
+    "timestamp": "2026-03-02T15:18:35.375Z",
+    "performanceScore": 55.00000000000001,
+    "firstContentfulPaint": 53041.7,
+    "largestContentfulPaint": 104430.06,
+    "speedIndex": 53041.7,
+    "totalBlockingTime": 0,
+    "cumulativeLayoutShift": 0,
+    "timeToInteractive": 104430.06
+  }
+}
