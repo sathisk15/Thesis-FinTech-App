@@ -5,6 +5,10 @@ import fs from 'fs';
 const BASE_URL = 'http://localhost:5173';
 const DEBUG_PORT = 9222;
 
+const EXPERIMENT_CONFIG = {
+  repetitions: 10, // number of experiment repetitions
+};
+
 const PAGES = [
   { url: '/dashboard', name: 'dashboard' },
   { url: '/account', name: 'accounts' },
@@ -57,6 +61,10 @@ async function runLighthouseAudit(url, port) {
     output: 'json',
     logLevel: 'info',
     disableStorageReset: true,
+
+    // Experimental flags
+    throttlingMethod: 'simulate',
+    screenEmulation: { disabled: true },
   });
 
   return JSON.parse(result.report);
@@ -73,11 +81,35 @@ function extractMetrics(report) {
   };
 }
 
+function computeStatistics(results) {
+  const mean = (arr) => arr.reduce((a, b) => a + b) / arr.length;
+
+  const std = (arr) => {
+    const m = mean(arr);
+    return Math.sqrt(
+      arr.reduce((s, v) => s + Math.pow(v - m, 2), 0) / arr.length,
+    );
+  };
+
+  return {
+    performance_mean: mean(results.map((r) => r.performance)),
+    performance_std: std(results.map((r) => r.performance)),
+
+    lcp_mean: mean(results.map((r) => r.lcp)),
+    lcp_std: std(results.map((r) => r.lcp)),
+
+    fcp_mean: mean(results.map((r) => r.fcp)),
+    fcp_std: std(results.map((r) => r.fcp)),
+  };
+}
+
 async function runSingleTest(pageConfig, runs) {
   const results = [];
 
+  const browser = await setupLoggedInBrowser();
+
   for (let i = 0; i < runs; i++) {
-    const browser = await setupLoggedInBrowser();
+    console.log(`🔁 Run ${i + 1} for ${pageConfig.name}`);
 
     const report = await runLighthouseAudit(
       BASE_URL + pageConfig.url,
@@ -87,20 +119,25 @@ async function runSingleTest(pageConfig, runs) {
     const metrics = extractMetrics(report);
 
     results.push(metrics);
-
-    await browser.close();
-
-    console.log(`✅ Test completed for ${pageConfig.name}`);
   }
+
+  await browser.close();
 
   return results;
 }
 
 async function runAllTests(pages, runs) {
   const metrics = {};
+
   for (const page of pages) {
-    metrics[page.name] = await runSingleTest(page, runs);
+    const results = await runSingleTest(page, runs);
+
+    metrics[page.name] = {
+      runs: results,
+      statistics: computeStatistics(results),
+    };
   }
+
   return metrics;
 }
 
@@ -119,4 +156,4 @@ async function startAudit({ runs = 1 }) {
   saveReport(metrics);
 }
 
-startAudit({ runs: 1 });
+startAudit({ runs: EXPERIMENT_CONFIG.repetitions });
