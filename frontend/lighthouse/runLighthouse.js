@@ -82,25 +82,28 @@ function extractMetrics(report) {
 }
 
 function computeStatistics(results) {
-  const mean = (arr) => arr.reduce((a, b) => a + b) / arr.length;
+  const mean = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
 
   const std = (arr) => {
     const m = mean(arr);
     return Math.sqrt(
-      arr.reduce((s, v) => s + Math.pow(v - m, 2), 0) / arr.length,
+      arr.reduce((sum, val) => sum + Math.pow(val - m, 2), 0) / arr.length,
     );
   };
 
-  return {
-    performance_mean: mean(results.map((r) => r.performance)),
-    performance_std: std(results.map((r) => r.performance)),
+  const statistics = {};
 
-    lcp_mean: mean(results.map((r) => r.lcp)),
-    lcp_std: std(results.map((r) => r.lcp)),
+  // automatically detect all metrics from result object
+  const metrics = Object.keys(results[0]);
 
-    fcp_mean: mean(results.map((r) => r.fcp)),
-    fcp_std: std(results.map((r) => r.fcp)),
-  };
+  metrics.forEach((metric) => {
+    const values = results.map((r) => r[metric]);
+
+    statistics[`${metric}_mean`] = mean(values);
+    statistics[`${metric}_std`] = std(values);
+  });
+
+  return statistics;
 }
 
 async function runSingleTest(pageConfig, runs) {
