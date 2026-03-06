@@ -1,8 +1,10 @@
 .DS_Store
+.scannerwork
+.vscode
 node_modules
 backend/node_modules
 frontend/node_modules
 frontend/.DS_Store
-frontend/lighthouse/reports
 frontend/lighthouse/.DS_Store
 backend/db/banking_app.db
+reports

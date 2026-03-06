@@ -1,6 +1,7 @@
 import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
+import path from 'path';
 
 const BASE_URL = 'http://localhost:5173';
 const DEBUG_PORT = 9222;
@@ -145,12 +146,17 @@ async function runAllTests(pages, runs) {
 }
 
 function saveReport(metrics) {
-  fs.writeFileSync(
-    './lighthouse/reports/metrics.json',
-    JSON.stringify(metrics),
-  );
+  const dir = path.resolve('reports');
 
-  console.log('✅ Lighthouse report generated');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const filePath = path.join(dir, 'performance_metrics.json');
+
+  fs.writeFileSync(filePath, JSON.stringify(metrics, null, 2));
+
+  console.log('✅ Lighthouse report generated at:', filePath);
 }
 
 async function startAudit({ runs = 1 }) {
@@ -159,4 +165,4 @@ async function startAudit({ runs = 1 }) {
   saveReport(metrics);
 }
 
-startAudit({ runs: EXPERIMENT_CONFIG.repetitions });
+startAudit({ runs: 1 });
