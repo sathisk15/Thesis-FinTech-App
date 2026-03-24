@@ -1,12 +1,14 @@
+import '../config/loadEnv.js';
 import axios from 'axios';
 import { execSync } from 'child_process';
 import sonarScanner from 'sonarqube-scanner';
 
 const scanner = sonarScanner.default;
-const SONAR_URL = 'http://localhost:9000';
-const TOKEN = 'squ_1fb139f4db35e8ee7a4ca12545818e31bc62bb3a';
-const PROJECT_KEY = 'fintech-app';
-const PROJECT_NAME = 'Fintech App';
+const SONAR_URL = process.env.SONAR_URL || 'http://localhost:9000';
+const TOKEN = process.env.SONAR_TOKEN;
+const PROJECT_KEY = process.env.SONAR_PROJECT_KEY || 'fintech-app';
+const PROJECT_NAME = process.env.SONAR_PROJECT_NAME || 'Fintech App';
+const TEST_COMMAND = process.env.SONAR_TEST_COMMAND || 'npm test';
 
 async function projectExists() {
   try {
@@ -59,7 +61,7 @@ async function run() {
   }
 
   console.log('Running tests...');
-  execSync('npm test', { stdio: 'inherit' });
+  execSync(TEST_COMMAND, { stdio: 'inherit' });
 
   console.log('Running SonarQube analysis...');
 

@@ -8,8 +8,12 @@
     "client": "npm run dev --prefix frontend",
     "server": "nodemon backend/server.js",
     "dev": "concurrently \"npm run client\" \"npm run server\" ",
-    "light": "node scripts/runLighthouse.js",
-    "sonar": "node scripts/sonar-analysis.js"
+    "seed:db": "node backend/config/seed_db.js",
+    "audit:lighthouse": "node scripts/runLighthouse.js",
+    "audit:lighthouse:legacy": "node scripts/lighthouse.js",
+    "audit:sonar": "node scripts/sonar-analysis.js",
+    "light": "npm run audit:lighthouse",
+    "sonar": "npm run audit:sonar"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

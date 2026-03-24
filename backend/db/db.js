@@ -1,3 +1,4 @@
+import '../../config/loadEnv.js';
 import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
@@ -10,7 +11,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const db = new Database(dbPath, {
-  verbose: console.log,
+  verbose: process.env.DB_VERBOSE === 'true' ? console.log : undefined,
 });
 
 export default db;

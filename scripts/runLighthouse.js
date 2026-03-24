@@ -1,14 +1,23 @@
+import '../config/loadEnv.js';
 import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { pathToFileURL } from 'url';
 
-const BASE_URL = 'http://localhost:5173';
-const DEBUG_PORT = 9222;
+const BASE_URL = process.env.LIGHTHOUSE_BASE_URL || 'http://localhost:5173';
+const DEBUG_PORT = Number(process.env.LIGHTHOUSE_DEBUG_PORT || 9222);
+const LIGHTHOUSE_EMAIL =
+  process.env.LIGHTHOUSE_EMAIL || process.env.SEED_USER_EMAIL || 'sathis@gmail.com';
+const LIGHTHOUSE_PASSWORD =
+  process.env.LIGHTHOUSE_PASSWORD || process.env.SEED_USER_PASSWORD || '123';
+const LIGHTHOUSE_RUNS = Number(process.env.LIGHTHOUSE_RUNS || 1);
+const LIGHTHOUSE_OUTPUT_FILE =
+  process.env.LIGHTHOUSE_OUTPUT_FILE || 'performance_metrics.json';
 
 const EXPERIMENT_CONFIG = {
-  repetitions: 10, // number of experiment repetitions
+  runs: LIGHTHOUSE_RUNS,
 };
 
 const PAGES = [
@@ -44,12 +53,15 @@ async function openLoginPage(browser) {
 }
 
 async function performLogin(page) {
-  await page.type('input[name="email"]', 'sathis@gmail.com');
-  await page.type('input[name="password"]', '123');
+  await page.type('input[name="email"]', LIGHTHOUSE_EMAIL);
+  await page.type('input[name="password"]', LIGHTHOUSE_PASSWORD);
 
-  await page.click('button[type="submit"]');
-
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
+  await Promise.all([
+    page.click('button[type="submit"]'),
+    page.waitForFunction(() => window.location.pathname !== '/login', {
+      timeout: 15000,
+    }),
+  ]);
 
   console.log('✅ Logged in successfully');
 }
@@ -164,17 +176,32 @@ function saveReport(metrics) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  const filePath = path.join(dir, 'performance_metrics.json');
+  const filePath = path.join(dir, LIGHTHOUSE_OUTPUT_FILE);
 
   fs.writeFileSync(filePath, JSON.stringify(metrics, null, 2));
 
   console.log('✅ Lighthouse report generated at:', filePath);
 }
 
-async function startAudit({ runs = 1 }) {
+export async function startAudit({ runs = EXPERIMENT_CONFIG.runs } = {}) {
   const metrics = await runAllTests(PAGES, runs);
 
   saveReport(metrics);
 }
 
-startAudit({ runs: 1 });
+async function main() {
+  try {
+    await startAudit({ runs: EXPERIMENT_CONFIG.runs });
+  } catch (error) {
+    console.error('Lighthouse audit failed:', error);
+    process.exit(1);
+  }
+}
+
+const isDirectExecution =
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+
+if (isDirectExecution) {
+  main();
+}

@@ -1059,6 +1059,148 @@ const orderItemCatalog = {
   },
 };
 
+const DEFAULT_SEED = process.env.SEED_DB_SEED || 'thesis-fintech-base-v1';
+
+const SEED_USER = {
+  email: process.env.SEED_USER_EMAIL || 'sathis@gmail.com',
+  firstname: process.env.SEED_USER_FIRSTNAME || 'Sathiskumar',
+  lastname: process.env.SEED_USER_LASTNAME || 'Ravichandran',
+  contact: process.env.SEED_USER_CONTACT || '+48 989876972',
+  password: process.env.SEED_USER_PASSWORD || '123',
+  provider: 'local',
+  country: process.env.SEED_USER_COUNTRY || 'Poland',
+  currency: process.env.SEED_USER_CURRENCY || 'EUR',
+};
+
+const accountMinimumBalanceMap = {
+  business: 400000, // EUR 4,000
+  current: 50000, // EUR 500
+  savings: 250000, // EUR 2,500
+};
+
+const transferRuleMap = {
+  'Owner salary transfer': {
+    from: 'business',
+    to: 'current',
+    referencePrefix: 'owner-salary',
+    outgoingDescription: 'Owner salary transfer · Transfer to current account',
+    incomingDescription:
+      'Owner salary transfer · Salary credited from business account',
+  },
+  'Savings deposit': {
+    from: 'current',
+    to: 'savings',
+    referencePrefix: 'savings-deposit',
+    outgoingDescription: 'Savings deposit · Transfer to savings account',
+    incomingDescription:
+      'Savings deposit · Savings allocation from current account',
+  },
+  'Profit transferred to savings': {
+    from: 'business',
+    to: 'savings',
+    referencePrefix: 'profit-savings',
+    outgoingDescription:
+      'Profit transferred to savings · Retained profit allocation',
+    incomingDescription:
+      'Profit transferred to savings · Business profit allocation received',
+  },
+  'Business support transfer': {
+    from: 'savings',
+    to: 'business',
+    referencePrefix: 'business-support',
+    outgoingDescription:
+      'Business support transfer · Emergency support from savings',
+    incomingDescription:
+      'Business support transfer · Emergency support credited to business',
+  },
+};
+
+const monthlyRuleDayWindowMap = {
+  'Salary received': [24, 28],
+  'Owner salary transfer': [25, 28],
+  'Savings deposit': [25, 28],
+  'Profit transferred to savings': [26, 28],
+  'House rent': [1, 3],
+  'Office rent': [1, 5],
+  'Utility bills': [5, 12],
+  'Insurance premium': [10, 18],
+  'Employee salary': [25, 28],
+  'Payment gateway fees': [26, 28],
+  'Tax reserve allocation': [25, 28],
+};
+
+const yearlyRuleMonthWindowMap = {
+  'Annual business tax': [3, 4],
+  'Audit and accounting fees': [1, 2],
+  'License renewal': [6, 8],
+  'Employee bonus': [12, 12],
+  'Vacation expenses': [6, 8],
+  'Personal device purchase': [9, 11],
+  'Insurance renewal': [1, 3],
+  'Annual tax refund': [2, 4],
+  'Annual tax payment': [4, 4],
+  'Long-term investment': [3, 11],
+  'Business support transfer': [1, 12],
+};
+
+const merchantMap = {
+  'Advertisement expense': [
+    'Google Ads',
+    'Meta Ads',
+    'TikTok Ads',
+    'LinkedIn Campaign Manager',
+  ],
+  'Courier and shipping charges': [
+    'DHL Parcel',
+    'DPD Express',
+    'FedEx',
+    'InPost',
+  ],
+  'Food and meals': ['Costa Coffee', 'Zabka', 'Pyszne.pl', 'Bistro 24'],
+  'Transportation expense': ['Uber', 'Bolt', 'PKP Intercity', 'LOT Airlines'],
+  'Dining outside': ['Hard Rock Cafe', 'Nolio', 'Sushi Bar', 'Pizza Hut'],
+  'Online shopping': ['Amazon', 'Allegro', 'Zalando', 'MediaMarkt'],
+  'Minor repair expense': ['Fixly Services', 'Home Repair Co.'],
+  'Employee salary': ['Payroll Batch'],
+  'SaaS and platform charges': ['Shopify', 'Google Workspace', 'AWS', 'Notion'],
+  'Subscription services': ['Netflix', 'Spotify', 'iCloud', 'Google One'],
+  'Medical expense': ['Medicover', 'Lux Med', 'Pharmacy Plus'],
+  'Device repair': ['iSpot Service', 'Laptop Clinic'],
+  'Interest credited': ['Savings Interest Engine'],
+  'One-time investment': ['XTB', 'Vanguard', 'Binance', 'mBank Brokerage'],
+  'Annual business tax': ['Polish Tax Office'],
+  'Audit and accounting fees': ['KPMG', 'PwC', 'EY', 'Deloitte'],
+  'Insurance premium': ['Allianz', 'PZU', 'AXA'],
+};
+
+function hashSeed(input) {
+  let hash = 2166136261;
+
+  for (const char of input) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function createSeededRandom(seed) {
+  let state = seed >>> 0;
+
+  return () => {
+    state += 0x6d2b79f5;
+    let t = state;
+
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const random = createSeededRandom(hashSeed(DEFAULT_SEED));
+let referenceSequence = 0;
+
 function convertCentsToEuro(cents) {
   return cents / 100;
 }
@@ -1072,22 +1214,267 @@ function getDaysInMonth(year, month) {
 }
 
 function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(random() * (max - min + 1)) + min;
 }
 
 function getRandomFloat(min, max) {
-  return +(Math.random() * (max - min) + min).toFixed(2);
+  return +(random() * (max - min) + min).toFixed(2);
 }
 
 function pickWeightedCategory(catalog) {
   const entries = Object.entries(catalog);
   const totalWeight = entries.reduce((s, [, v]) => s + v.weight, 0);
 
-  let r = Math.random() * totalWeight;
+  let r = random() * totalWeight;
 
   for (const [key, value] of entries) {
     if (r < value.weight) return { key, value };
     r -= value.weight;
+  }
+}
+
+function pickRandom(items) {
+  return items[getRandomInt(0, items.length - 1)];
+}
+
+function getMonthLabel(month) {
+  return [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ][month - 1];
+}
+
+function isWeekend(year, month, day) {
+  const date = new Date(year, month - 1, day);
+  return date.getDay() === 0 || date.getDay() === 6;
+}
+
+function getRandomHour(startHour, endHour) {
+  if (startHour <= endHour) {
+    return getRandomInt(startHour, endHour);
+  }
+
+  const span = 24 - startHour + endHour + 1;
+  const offset = getRandomInt(0, span - 1);
+
+  return (startHour + offset) % 24;
+}
+
+function createTimestamp({ year, month, day, startHour, endHour }) {
+  const hour = getRandomHour(startHour, endHour);
+  const minute = getRandomInt(0, 59);
+
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(
+    2,
+    '0',
+  )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
+function buildReference(prefix, date) {
+  referenceSequence += 1;
+
+  const normalizedPrefix =
+    prefix
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '')
+      .slice(0, 14) || 'TXN';
+
+  return `${normalizedPrefix}-${date.replace(/[^0-9]/g, '')}-${String(
+    referenceSequence,
+  ).padStart(6, '0')}`;
+}
+
+function getRuleCount(rule, dateParts) {
+  let minCount = rule.minCount;
+  let maxCount = rule.maxCount;
+  const weekend = isWeekend(dateParts.year, dateParts.month, dateParts.day);
+
+  if (rule.note === 'Order placed') {
+    const monthAdjustment =
+      monthlyOrderAdjustment[getMonthLabel(dateParts.month)] || 0;
+    minCount = Math.max(0, Math.round(minCount * (1 + monthAdjustment)));
+    maxCount = Math.max(minCount, Math.round(maxCount * (1 + monthAdjustment)));
+
+    if (weekend) {
+      minCount = Math.max(0, Math.round(minCount * 0.72));
+      maxCount = Math.max(minCount, Math.round(maxCount * 0.78));
+    }
+  }
+
+  if (rule.note === 'Transportation expense' && weekend) {
+    minCount = Math.max(0, Math.round(minCount * 0.6));
+    maxCount = Math.max(minCount, Math.round(maxCount * 0.7));
+  }
+
+  if (
+    (rule.note === 'Dining outside' || rule.note === 'Online shopping') &&
+    weekend
+  ) {
+    minCount = Math.max(0, Math.round(minCount * 1.4));
+    maxCount = Math.max(minCount, Math.round(maxCount * 1.6));
+  }
+
+  return getRandomInt(minCount, maxCount);
+}
+
+function getAmountMultiplier(rule, dateParts) {
+  let multiplier = 1;
+
+  if (rule.note === 'Order placed') {
+    const monthAdjustment =
+      monthlyOrderAdjustment[getMonthLabel(dateParts.month)] || 0;
+    multiplier *= Math.max(0.85, 1 + monthAdjustment * 0.35);
+  }
+
+  if (
+    rule.note === 'Utility bills' &&
+    [11, 12, 1, 2].includes(dateParts.month)
+  ) {
+    multiplier *= 1.18;
+  }
+
+  if (
+    (rule.note === 'Dining outside' || rule.note === 'Online shopping') &&
+    isWeekend(dateParts.year, dateParts.month, dateParts.day)
+  ) {
+    multiplier *= 1.12;
+  }
+
+  if (
+    rule.note === 'Vacation expenses' &&
+    [6, 7, 8].includes(dateParts.month)
+  ) {
+    multiplier *= 1.25;
+  }
+
+  return multiplier;
+}
+
+function buildTransactionDescription(ruleNote, subType) {
+  const merchantOptions = merchantMap[ruleNote] || [];
+  const merchant = merchantOptions.length ? pickRandom(merchantOptions) : null;
+
+  return [ruleNote, subType, merchant].filter(Boolean).join(' · ');
+}
+
+function getAccountIdByKey(accounts, accountKey) {
+  const accountIdMap = {
+    business: accounts.businessId,
+    current: accounts.currentId,
+    savings: accounts.savingsId,
+  };
+
+  return accountIdMap[accountKey];
+}
+
+function getMonthlyRuleDay(ruleNote, year, month) {
+  const [startDay, endDay] = monthlyRuleDayWindowMap[ruleNote] || [1, 5];
+  return getRandomInt(startDay, Math.min(endDay, getDaysInMonth(year, month)));
+}
+
+function getYearlyRuleDateParts(ruleNote, year) {
+  const [startMonth, endMonth] = yearlyRuleMonthWindowMap[ruleNote] || [1, 12];
+  const month = getRandomInt(startMonth, endMonth);
+  const day = getRandomInt(1, Math.min(28, getDaysInMonth(year, month)));
+
+  return { year, month, day };
+}
+
+function normalizeDebitAmountCents({
+  accountKey,
+  accountId,
+  amountCents,
+  state,
+}) {
+  const minimumBalanceCents = accountMinimumBalanceMap[accountKey] || 0;
+  const availableCents = state[accountId] - minimumBalanceCents;
+
+  if (availableCents <= 0) {
+    return null;
+  }
+
+  const normalizedAmount = Math.min(amountCents, availableCents);
+
+  return normalizedAmount >= 100 ? normalizedAmount : null;
+}
+
+function runLinkedTransferRule({
+  rule,
+  accounts,
+  db,
+  state,
+  userId,
+  year,
+  month,
+}) {
+  const transferRule = transferRuleMap[rule.note];
+
+  if (!transferRule) {
+    return;
+  }
+
+  const sourceAccountId = getAccountIdByKey(accounts, transferRule.from);
+  const targetAccountId = getAccountIdByKey(accounts, transferRule.to);
+  const count = getRandomInt(rule.minCount, rule.maxCount);
+
+  for (let i = 0; i < count; i++) {
+    const day = getMonthlyRuleDay(rule.note, year, month);
+    const dateParts = { year, month, day };
+    const [startHour, endHour] = transactionPrimaryHourMap[rule.note] || [
+      9, 17,
+    ];
+    const date = createTimestamp({
+      ...dateParts,
+      startHour,
+      endHour,
+    });
+    const amountEuro = +(
+      getRandomFloat(rule.minAmount, rule.maxAmount) *
+      getAmountMultiplier(rule, dateParts)
+    ).toFixed(2);
+    const reference = buildReference(transferRule.referencePrefix, date);
+
+    const sourceTransaction = addTransaction({
+      db,
+      state,
+      userId,
+      accountId: sourceAccountId,
+      accountKey: transferRule.from,
+      amountCents: convertEuroToCents(amountEuro),
+      type: 'debit',
+      category: `${transferRule.from}-transfer-out`,
+      description: transferRule.outgoingDescription,
+      date,
+      reference,
+    });
+
+    if (!sourceTransaction) {
+      continue;
+    }
+
+    addTransaction({
+      db,
+      state,
+      userId,
+      accountId: targetAccountId,
+      accountKey: transferRule.to,
+      amountCents: sourceTransaction.amountCents,
+      type: 'credit',
+      category: `${transferRule.to}-transfer-in`,
+      description: transferRule.incomingDescription,
+      date,
+      reference,
+    });
   }
 }
 
@@ -1101,23 +1488,20 @@ function generateAndInsertTransactions({
   userId,
   dateParts,
 }) {
-  const count = getRandomInt(rule.minCount, rule.maxCount);
+  const count = getRuleCount(rule, dateParts);
   const [startHour, endHour] = transactionPrimaryHourMap[rule.note] || [9, 17];
   const subTypes = transactionTypesMap[rule.note] || [];
 
   for (let i = 0; i < count; i++) {
-    const hour = getRandomInt(startHour, endHour);
-    const minute = getRandomInt(0, 59);
-
-    const date = `${dateParts.year}-${String(dateParts.month).padStart(
-      2,
-      '0',
-    )}-${String(dateParts.day).padStart(
-      2,
-      '0',
-    )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
-
-    const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+    const date = createTimestamp({
+      ...dateParts,
+      startHour,
+      endHour,
+    });
+    const amountEuro = +(
+      getRandomFloat(rule.minAmount, rule.maxAmount) *
+      getAmountMultiplier(rule, dateParts)
+    ).toFixed(2);
 
     const subType =
       subTypes.length > 0
@@ -1129,10 +1513,11 @@ function generateAndInsertTransactions({
       state,
       userId,
       accountId,
+      accountKey,
       amountCents: convertEuroToCents(amountEuro),
       type: flowType === 'income' ? 'credit' : 'debit',
       category: `${accountKey}-${flowType}`,
-      description: subType ? `${rule.note} · ${subType}` : rule.note,
+      description: buildTransactionDescription(rule.note, subType),
       date,
     });
   }
@@ -1148,29 +1533,40 @@ function runMonthlyRules({
   userId,
   year,
   month,
+  accounts,
 }) {
   for (const rule of rules) {
+    if (transferRuleMap[rule.note]) {
+      runLinkedTransferRule({
+        rule,
+        accounts,
+        db,
+        state,
+        userId,
+        year,
+        month,
+      });
+      continue;
+    }
+
     const count = getRandomInt(rule.minCount, rule.maxCount);
     const [startHour, endHour] = transactionPrimaryHourMap[rule.note] || [
       9, 17,
     ];
-
     const subTypes = transactionTypesMap[rule.note] || [];
 
     for (let i = 0; i < count; i++) {
-      const day = getRandomInt(1, 5); // early-month realism
-      const hour = getRandomInt(startHour, endHour);
-      const minute = getRandomInt(0, 59);
-
-      const date = `${year}-${String(month).padStart(
-        2,
-        '0',
-      )}-${String(day).padStart(2, '0')} ${String(hour).padStart(
-        2,
-        '0',
-      )}:${String(minute).padStart(2, '0')}:00`;
-
-      const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+      const day = getMonthlyRuleDay(rule.note, year, month);
+      const dateParts = { year, month, day };
+      const date = createTimestamp({
+        ...dateParts,
+        startHour,
+        endHour,
+      });
+      const amountEuro = +(
+        getRandomFloat(rule.minAmount, rule.maxAmount) *
+        getAmountMultiplier(rule, dateParts)
+      ).toFixed(2);
 
       const subType =
         subTypes.length > 0
@@ -1182,10 +1578,11 @@ function runMonthlyRules({
         state,
         userId,
         accountId,
+        accountKey,
         amountCents: convertEuroToCents(amountEuro),
         type: flowType === 'income' ? 'credit' : 'debit',
         category: `${accountKey}-${flowType}-monthly`,
-        description: subType ? `${rule.note} · ${subType}` : rule.note,
+        description: buildTransactionDescription(rule.note, subType),
         date,
       });
     }
@@ -1235,6 +1632,29 @@ function applyYearlyGrowth(basePlan, growthMap) {
           }
         }
       }
+
+      const unexpectedGrowth = accountGrowth.unexpected || {};
+
+      for (const section of ['income', 'expense']) {
+        const rules = periodPlan.unexpected?.[section] || [];
+
+        for (const rule of rules) {
+          const growth = unexpectedGrowth[rule.note];
+
+          if (!growth) continue;
+
+          if (growth.amountGrowth) {
+            rule.minAmount = +(
+              rule.minAmount *
+              (1 + growth.amountGrowth)
+            ).toFixed(2);
+            rule.maxAmount = +(
+              rule.maxAmount *
+              (1 + growth.amountGrowth)
+            ).toFixed(2);
+          }
+        }
+      }
     }
   }
 
@@ -1256,6 +1676,8 @@ function resetDatabase(db) {
     DELETE FROM tbltransaction;
     DELETE FROM tblaccount;
     DELETE FROM tbluser;
+    DELETE FROM sqlite_sequence
+    WHERE name IN ('tbltransaction', 'tblaccount', 'tbluser');
   `);
 
   console.log('completed');
@@ -1265,19 +1687,7 @@ function resetDatabase(db) {
  */
 function createUser(db) {
   console.log('👤 STEP 2: Creating user');
-
-  const USER = {
-    email: 'sathis@gmail.com',
-    firstname: 'Sathiskumar',
-    lastname: 'Ravichandran',
-    contact: '+48 989876972',
-    password: '123',
-    provider: 'local',
-    country: 'Poland',
-    currency: 'EUR',
-  };
-
-  const hashedPassword = bcrypt.hashSync(USER.password, 10);
+  const hashedPassword = bcrypt.hashSync(SEED_USER.password, 10);
 
   const stmt = db.prepare(`
     INSERT INTO tbluser
@@ -1286,14 +1696,14 @@ function createUser(db) {
   `);
 
   const result = stmt.run(
-    USER.email,
-    USER.firstname,
-    USER.lastname,
-    USER.contact,
+    SEED_USER.email,
+    SEED_USER.firstname,
+    SEED_USER.lastname,
+    SEED_USER.contact,
     hashedPassword,
-    USER.provider,
-    USER.country,
-    USER.currency,
+    SEED_USER.provider,
+    SEED_USER.country,
+    SEED_USER.currency,
   );
 
   console.log('✅ STEP 2 completed. User ID:', result.lastInsertRowid);
@@ -1320,7 +1730,7 @@ function createAccounts(db, userId) {
   `);
 
   const generateAccountNumber = () =>
-    'AC' + Math.floor(10000000 + Math.random() * 90000000);
+    `AC${String(getRandomInt(10000000, 99999999)).padStart(8, '0')}`;
 
   const result = {};
 
@@ -1438,18 +1848,35 @@ function addTransaction({
   state,
   userId,
   accountId,
+  accountKey,
   amountCents,
   type, // 'credit' | 'debit'
   category,
   description,
   date,
+  reference = buildReference(category, date),
 }) {
+  let finalAmountCents = amountCents;
+
+  if (type === 'debit') {
+    finalAmountCents = normalizeDebitAmountCents({
+      accountKey,
+      accountId,
+      amountCents,
+      state,
+    });
+
+    if (!finalAmountCents) {
+      return null;
+    }
+  }
+
   const before = state[accountId];
 
   if (type === 'credit') {
-    state[accountId] += amountCents;
+    state[accountId] += finalAmountCents;
   } else {
-    state[accountId] -= amountCents;
+    state[accountId] -= finalAmountCents;
   }
 
   const after = state[accountId];
@@ -1476,8 +1903,8 @@ function addTransaction({
     userId,
     accountId,
     description,
-    `${category}-${Date.now()}`,
-    convertCentsToEuro(amountCents),
+    reference,
+    convertCentsToEuro(finalAmountCents),
     type,
     convertCentsToEuro(before),
     convertCentsToEuro(after),
@@ -1485,6 +1912,13 @@ function addTransaction({
     category,
     date,
   );
+
+  return {
+    amountCents: finalAmountCents,
+    beforeCents: before,
+    afterCents: after,
+    reference,
+  };
 }
 
 function runOneDay(db, state, userId, accounts, { year, month, day }, plan) {
@@ -1507,7 +1941,7 @@ function runOneDay(db, state, userId, accounts, { year, month, day }, plan) {
       for (const rule of rules) {
         // ⭐ SPECIAL HANDLING: ORDER PLACED
         if (rule.note === 'Order placed') {
-          const count = getRandomInt(rule.minCount, rule.maxCount);
+          const count = getRuleCount(rule, { year, month, day });
           const [startHour, endHour] =
             transactionPrimaryHourMap['Order placed'];
 
@@ -1516,24 +1950,24 @@ function runOneDay(db, state, userId, accounts, { year, month, day }, plan) {
 
             const item = value.items[getRandomInt(0, value.items.length - 1)];
 
-            const amountEuro = getRandomFloat(value.price.min, value.price.max);
-
-            const hour = getRandomInt(startHour, endHour);
-            const minute = getRandomInt(0, 59);
-
-            const date = `${year}-${String(month).padStart(
-              2,
-              '0',
-            )}-${String(day).padStart(2, '0')} ${String(hour).padStart(
-              2,
-              '0',
-            )}:${String(minute).padStart(2, '0')}:00`;
+            const amountEuro = +(
+              getRandomFloat(value.price.min, value.price.max) *
+              getAmountMultiplier(rule, { year, month, day })
+            ).toFixed(2);
+            const date = createTimestamp({
+              year,
+              month,
+              day,
+              startHour,
+              endHour,
+            });
 
             addTransaction({
               db,
               state,
               userId,
               accountId,
+              accountKey,
               amountCents: convertEuroToCents(amountEuro),
               type: 'credit',
               category: 'business-income',
@@ -1623,6 +2057,7 @@ function runMonthlySimulation(
         userId,
         year,
         month,
+        accounts,
       });
     }
 
@@ -1641,6 +2076,7 @@ function runMonthlySimulation(
         userId,
         year,
         month,
+        accounts,
       });
     }
   }
@@ -1695,21 +2131,52 @@ function runYearlySimulation(
         const rules = plan[flowType] || [];
 
         for (const rule of rules) {
+          if (transferRuleMap[rule.note]) {
+            runLinkedTransferRule({
+              rule,
+              accounts,
+              db,
+              state,
+              userId,
+              year,
+              month: getYearlyRuleDateParts(rule.note, year).month,
+            });
+            continue;
+          }
+
           const count = getRandomInt(rule.minCount, rule.maxCount);
 
           for (let i = 0; i < count; i++) {
-            const amountEuro = getRandomFloat(rule.minAmount, rule.maxAmount);
+            const dateParts = getYearlyRuleDateParts(rule.note, year);
+            const [startHour, endHour] = transactionPrimaryHourMap[
+              rule.note
+            ] || [9, 17];
+            const date = createTimestamp({
+              ...dateParts,
+              startHour,
+              endHour,
+            });
+            const amountEuro = +(
+              getRandomFloat(rule.minAmount, rule.maxAmount) *
+              getAmountMultiplier(rule, dateParts)
+            ).toFixed(2);
+            const subTypes = transactionTypesMap[rule.note] || [];
+            const subType =
+              subTypes.length > 0
+                ? subTypes[getRandomInt(0, subTypes.length - 1)]
+                : null;
 
             addTransaction({
               db,
               state,
               userId,
               accountId,
+              accountKey,
               amountCents: convertEuroToCents(amountEuro),
               type: flowType === 'income' ? 'credit' : 'debit',
               category: `${accountKey}-${flowType}-yearly`,
-              description: rule.note,
-              date: `${year}-12-31 12:00:00`,
+              description: buildTransactionDescription(rule.note, subType),
+              date,
             });
           }
         }
@@ -1746,6 +2213,9 @@ function persistFinalBalances(db, state) {
 }
 
 function seed() {
+  console.log(`🌱 Using deterministic seed: ${DEFAULT_SEED}`);
+  console.log(`👤 Seed user email: ${SEED_USER.email}`);
+
   db.transaction(() => {
     resetDatabase(db);
     const userId = createUser(db);
@@ -1753,8 +2223,8 @@ function seed() {
     const state = initState(accounts);
     addInitialCapital(db, state, userId, accounts);
     runYearlySimulation(db, state, userId, accounts, {
-      startYear: 2022,
-      years: 5,
+      startYear: 2026,
+      years: 1,
     });
     persistFinalBalances(db, state);
   })();
