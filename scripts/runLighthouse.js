@@ -2,6 +2,7 @@ import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const BASE_URL = 'http://localhost:5173';
 const DEBUG_PORT = 9222;
@@ -20,9 +21,15 @@ const PAGES = [
 ];
 
 async function launchBrowser() {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'puppeteer-profile-'));
+
   return puppeteer.launch({
     headless: true,
-    args: [`--remote-debugging-port=${DEBUG_PORT}`],
+    args: [
+      `--remote-debugging-port=${DEBUG_PORT}`,
+      `--user-data-dir=${tempDir}`,
+      '--disable-cache',
+    ],
   });
 }
 
@@ -61,11 +68,18 @@ async function runLighthouseAudit(url, port) {
     port,
     output: 'json',
     logLevel: 'info',
-    disableStorageReset: true,
+
+    formFactor: 'desktop',
 
     // Experimental flags
     throttlingMethod: 'simulate',
-    screenEmulation: { disabled: true },
+    screenEmulation: {
+      mobile: false,
+      width: 1350,
+      height: 940,
+      deviceScaleFactor: 1,
+      disabled: false,
+    },
   });
 
   return JSON.parse(result.report);
@@ -109,7 +123,6 @@ function computeStatistics(results) {
 
 async function runSingleTest(pageConfig, runs) {
   const results = [];
-
   const browser = await setupLoggedInBrowser();
 
   for (let i = 0; i < runs; i++) {
@@ -126,7 +139,6 @@ async function runSingleTest(pageConfig, runs) {
   }
 
   await browser.close();
-
   return results;
 }
 
