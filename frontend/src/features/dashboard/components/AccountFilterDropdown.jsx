@@ -5,6 +5,7 @@ export const AccountFilterDropdown = ({
 }) => {
   return (
     <select
+      data-testid="dashboard-account-filter"
       value={selectedAccountId}
       onChange={(e) => onChange(e.target.value)}
       className="

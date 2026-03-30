@@ -76,6 +76,7 @@ export const RangeFilterChips = ({ value, onChange }) => {
         return (
           <button
             key={range.value}
+            data-testid={`trends-range-filter-${range.value}`}
             onClick={() => onChange(range.value)}
             className={`
               px-3 py-1.5 rounded-full text-sm font-medium

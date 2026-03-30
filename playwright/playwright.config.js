@@ -23,7 +23,7 @@ export default defineConfig({
   use: {
     baseURL,
     browserName: 'chromium',
-    headless: true,
+    headless: process.env.PLAYWRIGHT_HEADLESS !== 'false',
     viewport: {
       width: 1440,
       height: 960,

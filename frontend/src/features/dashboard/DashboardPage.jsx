@@ -394,7 +394,7 @@ const DashboardPage = () => {
       />
 
       {/* KPI Grid */}
-      <section className="space-y-4">
+      <section data-testid="dashboard-kpi-section" className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Key Financial Metrics</h2>
           <div className="filter flex">
@@ -427,7 +427,7 @@ const DashboardPage = () => {
       </section>
 
       {/* Charts  */}
-      <section className="grid grid-cols-1 gap-6">
+      <section data-testid="dashboard-trends-section" className="grid grid-cols-1 gap-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Income & Expense Trends</h2>
           <div className="flex">
@@ -468,7 +468,7 @@ const DashboardPage = () => {
       </section>
 
       {/* Expense Breakdown & Pie Chart*/}
-      <section className="grid grid-cols-3 gap-6">
+      <section data-testid="dashboard-breakdown-section" className="grid grid-cols-3 gap-6">
         <div className="col-span-3 flex justify-between items-center">
           <h2 className="text-lg font-semibold">Income & Expense Breakdown</h2>
           <div className="flex">
@@ -512,7 +512,7 @@ const DashboardPage = () => {
       </section>
 
       {/* Health Cards */}
-      <section>
+      <section data-testid="dashboard-health-section">
         <div className="grid grid-cols-4 gap-6">
           <div className="col-span-4 flex justify-between items-center">
             <h2 className="text-lg font-semibold">
@@ -570,7 +570,7 @@ const DashboardPage = () => {
 
       {/* Transactions and Account */}
       <section className="grid grid-cols-3 gap-6">
-        <div className="col-span-2">
+        <div data-testid="dashboard-activity-section" className="col-span-2">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-5">Recent Activity's</h2>
             <AccountFilterDropdown

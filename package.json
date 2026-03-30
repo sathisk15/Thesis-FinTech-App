@@ -14,6 +14,7 @@
     "audit:playwright": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance",
     "audit:playwright:routes": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/route-readiness.spec.js",
     "audit:playwright:journey": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/user-journey.spec.js",
+    "audit:playwright:ops": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/page-operations.spec.js",
     "audit:playwright:list": "npx playwright test --config=playwright/playwright.config.js --list",
     "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
     "audit:sonar": "node scripts/sonar-analysis.js",
