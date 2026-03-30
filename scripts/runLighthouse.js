@@ -4,6 +4,7 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { execSync } from 'child_process';
 import { pathToFileURL } from 'url';
 
 const BASE_URL = process.env.LIGHTHOUSE_BASE_URL || 'http://localhost:5173';
@@ -13,12 +14,31 @@ const LIGHTHOUSE_EMAIL =
 const LIGHTHOUSE_PASSWORD =
   process.env.LIGHTHOUSE_PASSWORD || process.env.SEED_USER_PASSWORD || '123';
 const LIGHTHOUSE_RUNS = Number(process.env.LIGHTHOUSE_RUNS || 1);
-const LIGHTHOUSE_OUTPUT_FILE =
-  process.env.LIGHTHOUSE_OUTPUT_FILE || 'performance_metrics.json';
+
+function getGitBranch() {
+  try {
+    return execSync('git rev-parse --abbrev-ref HEAD', { stdio: 'pipe' }).toString().trim();
+  } catch {
+    return 'unlabeled';
+  }
+}
+
+const AUDIT_LABEL = process.env.AUDIT_LABEL || getGitBranch();
 
 const EXPERIMENT_CONFIG = {
   runs: LIGHTHOUSE_RUNS,
 };
+
+function getGitMetadata() {
+  try {
+    const commitHash = execSync('git rev-parse --short HEAD', { stdio: 'pipe' })
+      .toString()
+      .trim();
+    return { branch: AUDIT_LABEL, commitHash };
+  } catch {
+    return { branch: AUDIT_LABEL, commitHash: 'unknown' };
+  }
+}
 
 const PAGES = [
   { url: '/dashboard', name: 'dashboard' },
@@ -112,9 +132,10 @@ function computeStatistics(results) {
   const mean = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
 
   const std = (arr) => {
+    if (arr.length < 2) return 0;
     const m = mean(arr);
     return Math.sqrt(
-      arr.reduce((sum, val) => sum + Math.pow(val - m, 2), 0) / arr.length,
+      arr.reduce((sum, val) => sum + Math.pow(val - m, 2), 0) / (arr.length - 1),
     );
   };
 
@@ -170,17 +191,35 @@ async function runAllTests(pages, runs) {
 }
 
 function saveReport(metrics) {
-  const dir = path.resolve('reports');
+  const { branch, commitHash } = getGitMetadata();
+  const timestamp = new Date().toISOString();
 
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+  const report = {
+    _meta: {
+      label: AUDIT_LABEL,
+      branch,
+      commitHash,
+      timestamp,
+      node_version: process.version,
+    },
+    ...metrics,
+  };
 
-  const filePath = path.join(dir, LIGHTHOUSE_OUTPUT_FILE);
+  const lighthouseDir = path.resolve('reports', 'lighthouse');
+  const historyDir = path.join(lighthouseDir, 'history');
 
-  fs.writeFileSync(filePath, JSON.stringify(metrics, null, 2));
+  fs.mkdirSync(historyDir, { recursive: true });
 
-  console.log('✅ Lighthouse report generated at:', filePath);
+  // Latest report for this label (used by compareReports.js)
+  const latestPath = path.join(lighthouseDir, `${AUDIT_LABEL}.json`);
+  fs.writeFileSync(latestPath, JSON.stringify(report, null, 2));
+  console.log('✅ Lighthouse report saved at:', latestPath);
+
+  // Permanent archive with timestamp
+  const safeTimestamp = timestamp.replace(/[:.]/g, '-');
+  const archivePath = path.join(historyDir, `${AUDIT_LABEL}_${safeTimestamp}.json`);
+  fs.writeFileSync(archivePath, JSON.stringify(report, null, 2));
+  console.log('📦 Archived at:', archivePath);
 }
 
 export async function startAudit({ runs = EXPERIMENT_CONFIG.runs } = {}) {

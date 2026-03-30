@@ -17,6 +17,8 @@
     "audit:playwright:list": "npx playwright test --config=playwright/playwright.config.js --list",
     "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
     "audit:sonar": "node scripts/sonar-analysis.js",
+    "audit:all": "npm run audit:lighthouse && npm run audit:playwright && npm run audit:sonar",
+    "audit:compare": "node scripts/compareReports.js",
     "light": "npm run audit:lighthouse",
     "sonar": "npm run audit:sonar"
   },

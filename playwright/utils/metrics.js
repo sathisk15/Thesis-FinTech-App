@@ -1,6 +1,17 @@
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { playwrightReportDir, resultsLabel, thesisVariant } from './config.js';
+
+function getGitBranch() {
+  try {
+    return execSync('git rev-parse --abbrev-ref HEAD', { stdio: 'pipe' }).toString().trim();
+  } catch {
+    return thesisVariant;
+  }
+}
+
+const AUDIT_LABEL = process.env.AUDIT_LABEL || getGitBranch();
 
 function round(value) {
   return Math.round(value * 100) / 100;
@@ -11,17 +22,21 @@ function getMean(values) {
 }
 
 function getStdDev(values) {
+  if (values.length < 2) return 0;
   const mean = getMean(values);
   const variance =
-    values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+    values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1);
 
   return Math.sqrt(variance);
 }
 
 function buildSummary(runs) {
+  if (!runs || runs.length === 0) return {};
+
   const grouped = new Map();
 
   for (const run of runs) {
+    if (!run.measurements) continue;
     for (const measurement of run.measurements) {
       const entry = grouped.get(measurement.name) || [];
       entry.push(measurement.duration_ms);
@@ -48,6 +63,7 @@ function readExistingReport(filePath, suiteName) {
     return {
       suite: suiteName,
       variant: thesisVariant,
+      audit_label: AUDIT_LABEL,
       report_label: resultsLabel,
       generated_at: new Date().toISOString(),
       runs: [],
@@ -105,6 +121,7 @@ export class PerformanceRecorder {
     const report = readExistingReport(filePath, this.suiteName);
 
     report.variant = thesisVariant;
+    report.audit_label = AUDIT_LABEL;
     report.report_label = resultsLabel;
     report.generated_at = new Date().toISOString();
     report.runs.push({

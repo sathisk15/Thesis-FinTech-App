@@ -15,8 +15,11 @@ export default defineConfig({
     timeout: 15000,
   },
   outputDir: './test-results',
-  reporter: [['list']],
-  repeatEach: Number(process.env.PLAYWRIGHT_REPEAT_EACH || 1),
+  reporter: [
+    ['list'],
+    ['json', { outputFile: '../reports/playwright/pw_results.json' }],
+  ],
+  repeatEach: Number(process.env.PLAYWRIGHT_REPEAT_EACH || 3),
   use: {
     baseURL,
     browserName: 'chromium',

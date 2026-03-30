@@ -73,7 +73,7 @@ async function run() {
         'sonar.projectKey': PROJECT_KEY,
         'sonar.projectName': PROJECT_NAME,
         'sonar.sources': 'frontend,backend',
-        'sonar.exclusions': 'node_modules/**,dist/**',
+        'sonar.exclusions': 'node_modules/**,dist/**,playwright/**,scripts/**,reports/**',
       },
     },
     () => process.exit(),
