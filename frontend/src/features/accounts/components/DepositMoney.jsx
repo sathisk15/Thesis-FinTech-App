@@ -46,6 +46,7 @@ const DepositMoney = ({
 
   return (
     <div
+      data-testid="deposit-modal"
       className="fixed inset-0 z-50 flex items-center justify-center
                  bg-black/40 backdrop-blur-sm"
     >
@@ -84,6 +85,7 @@ const DepositMoney = ({
               Select Account
             </label>
             <select
+              data-testid="deposit-account-select"
               value={depositData.accountId}
               onChange={(e) =>
                 setDepositData({
@@ -112,6 +114,7 @@ const DepositMoney = ({
               Deposit Amount
             </label>
             <input
+              data-testid="deposit-amount-input"
               type="number"
               min="1"
               value={depositData.amount}
@@ -135,6 +138,7 @@ const DepositMoney = ({
               Description (optional)
             </label>
             <input
+              data-testid="deposit-description-input"
               type="text"
               placeholder="Enter deposit note"
               value={depositData.description}
@@ -156,6 +160,7 @@ const DepositMoney = ({
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
+            data-testid="deposit-cancel"
             onClick={() => setShowDepositModal(false)}
             disabled={loading}
             className="h-10 px-5 rounded-lg
@@ -168,6 +173,7 @@ const DepositMoney = ({
           </button>
 
           <button
+            data-testid="deposit-submit"
             onClick={handleDeposit}
             disabled={loading}
             className="h-10 px-5 rounded-lg

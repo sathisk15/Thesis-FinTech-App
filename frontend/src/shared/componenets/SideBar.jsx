@@ -48,6 +48,7 @@ const Sidebar = () => {
           <NavLink
             key={name}
             to={path}
+            data-testid={`nav-${path.replace('/', '') || 'home'}`}
             className={({ isActive }) =>
               `group relative flex items-center gap-3
                px-4 py-2.5 rounded-lg

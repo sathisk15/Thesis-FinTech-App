@@ -86,7 +86,7 @@ const SettingsPage = () => {
     }
   };
   return (
-    <div className="flex min-h-screen bg-background w-full items-center justify-center">
+    <div data-testid="settings-page" className="flex min-h-screen bg-background w-full items-center justify-center">
       <div className="w-full max-w-4xl p-4 my-6 md:px-10 md:my-10 bg-card border border-border rounded-lg shadow-sm">
         {/* Section Header */}
         <div className="mt-6 border-b border-border pb-4">
@@ -154,6 +154,7 @@ const SettingsPage = () => {
                   Contact
                 </label>
                 <input
+                  data-testid="settings-contact"
                   className="w-full h-10 px-3 rounded-md bg-background border border-border text-text outline-none focus:ring-2 focus:ring-primary"
                   name="contact"
                   value={profileData.contact}
@@ -192,6 +193,7 @@ const SettingsPage = () => {
             {/* Save Button */}
             <div className="flex justify-end pt-6">
               <button
+                data-testid="settings-save-profile"
                 type="submit"
                 className="h-10 px-8 rounded-md bg-primary text-white font-medium cursor-pointer"
               >

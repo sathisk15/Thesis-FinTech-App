@@ -73,7 +73,7 @@ const PayPage = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto py-10 space-y-8">
+    <div data-testid="pay-page" className="w-full max-w-3xl mx-auto py-10 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text">
@@ -98,6 +98,7 @@ const PayPage = () => {
           <div className="space-y-1">
             <label className="text-xs font-medium text-text/60">Pay From</label>
             <select
+              data-testid="pay-from-account"
               value={fromAccountId}
               onChange={(e) =>
                 setFromAccountId(e.target.value ? Number(e.target.value) : '')
@@ -121,6 +122,7 @@ const PayPage = () => {
                 Recipient Name
               </label>
               <input
+                data-testid="pay-recipient-name"
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
                 placeholder="John Doe"
@@ -133,6 +135,7 @@ const PayPage = () => {
                 Bank Name
               </label>
               <input
+                data-testid="pay-bank-name"
                 value={externalBankName}
                 onChange={(e) => setExternalBankName(e.target.value)}
                 placeholder="Deutsche Bank"
@@ -147,6 +150,7 @@ const PayPage = () => {
               Recipient Account Number
             </label>
             <input
+              data-testid="pay-recipient-account"
               value={externalAccountNumber}
               onChange={(e) =>
                 setExternalAccountNumber(e.target.value.toUpperCase())
@@ -160,6 +164,7 @@ const PayPage = () => {
           <div className="space-y-1">
             <label className="text-xs font-medium text-text/60">Amount</label>
             <input
+              data-testid="pay-amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -174,6 +179,7 @@ const PayPage = () => {
               Description (optional)
             </label>
             <input
+              data-testid="pay-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Invoice 2026-01"
@@ -210,6 +216,7 @@ const PayPage = () => {
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
+            data-testid="pay-cancel"
             onClick={() => navigate('/accounts')}
             className="h-10 px-5 rounded-lg border border-border text-sm text-text hover:bg-border/40 transition"
           >
@@ -217,6 +224,7 @@ const PayPage = () => {
           </button>
 
           <button
+            data-testid="pay-submit"
             onClick={handlePayment}
             disabled={loading}
             className="h-10 px-5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition"

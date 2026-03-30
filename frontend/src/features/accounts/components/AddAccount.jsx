@@ -53,6 +53,7 @@ const AddAccount = ({
 
   return (
     <div
+      data-testid="add-account-modal"
       className="fixed inset-0 z-50 flex items-center justify-center
                     bg-black/40 backdrop-blur-sm"
     >
@@ -91,6 +92,7 @@ const AddAccount = ({
               Account Name
             </label>
             <input
+              data-testid="add-account-name"
               value={accountData.account_name}
               onChange={(e) =>
                 setAccountData({
@@ -113,6 +115,7 @@ const AddAccount = ({
               Account Type
             </label>
             <select
+              data-testid="add-account-type"
               value={accountData.account_type}
               onChange={(e) =>
                 setAccountData({
@@ -141,6 +144,7 @@ const AddAccount = ({
               Account Number
             </label>
             <input
+              data-testid="add-account-number"
               value={accountData.account_number}
               onChange={(e) =>
                 setAccountData({
@@ -179,6 +183,7 @@ const AddAccount = ({
               Initial Deposit
             </label>
             <input
+              data-testid="add-account-initial-balance"
               type="number"
               min="100"
               value={accountData.initialBalance}
@@ -200,6 +205,7 @@ const AddAccount = ({
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <button
+            data-testid="add-account-cancel"
             onClick={() => setShowModal(false)}
             disabled={loading}
             className="h-10 px-5 rounded-lg
@@ -212,6 +218,7 @@ const AddAccount = ({
           </button>
 
           <button
+            data-testid="add-account-submit"
             onClick={handleCreate}
             disabled={loading}
             className="h-10 px-5 rounded-lg

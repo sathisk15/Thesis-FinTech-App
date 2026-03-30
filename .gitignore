@@ -10,3 +10,4 @@ frontend/lighthouse/.DS_Store
 frontend/dist
 backend/db/banking_app.db
 reports
+playwright/test-results

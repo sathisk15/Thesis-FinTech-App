@@ -42,6 +42,7 @@ const SignInPage = () => {
 
   return (
     <div
+      data-testid="login-page"
       className="min-h-screen flex items-center justify-center
                  bg-background px-4"
     >
@@ -69,6 +70,7 @@ const SignInPage = () => {
               Email address
             </label>
             <input
+              data-testid="login-email"
               name="email"
               type="email"
               value={formData.email}
@@ -87,6 +89,7 @@ const SignInPage = () => {
           <div className="space-y-1">
             <label className="text-xs font-medium text-text/60">Password</label>
             <input
+              data-testid="login-password"
               name="password"
               type="password"
               value={formData.password}
@@ -110,6 +113,7 @@ const SignInPage = () => {
 
           {/* Submit */}
           <button
+            data-testid="login-submit"
             type="submit"
             disabled={loading}
             className="w-full h-10 rounded-lg

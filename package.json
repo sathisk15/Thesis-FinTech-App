@@ -11,6 +11,11 @@
     "seed:db": "node backend/config/seed_db.js",
     "audit:lighthouse": "node scripts/runLighthouse.js",
     "audit:lighthouse:legacy": "node scripts/lighthouse.js",
+    "audit:playwright": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance",
+    "audit:playwright:routes": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/route-readiness.spec.js",
+    "audit:playwright:journey": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/user-journey.spec.js",
+    "audit:playwright:list": "npx playwright test --config=playwright/playwright.config.js --list",
+    "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
     "audit:sonar": "node scripts/sonar-analysis.js",
     "light": "npm run audit:lighthouse",
     "sonar": "npm run audit:sonar"

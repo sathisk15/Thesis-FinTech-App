@@ -52,7 +52,7 @@ const AccountsPage = () => {
 
   return (
     <>
-      <section className="w-full space-y-10">
+      <section data-testid="accounts-page" className="w-full space-y-10">
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -67,6 +67,7 @@ const AccountsPage = () => {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <button
+              data-testid="accounts-link-button"
               onClick={() => setShowModal(true)}
               className="h-10 px-4 rounded-lg
                          bg-primary text-white
@@ -77,6 +78,7 @@ const AccountsPage = () => {
             </button>
 
             <button
+              data-testid="accounts-deposit-button"
               onClick={() => setShowDepositModal(true)}
               className="h-10 px-4 rounded-lg
                          border border-border

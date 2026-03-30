@@ -62,6 +62,7 @@ const Navbar = () => {
 
         {/* Logout */}
         <button
+          data-testid="logout-button"
           onClick={handleLogout}
           title="Logout"
           className="p-2 rounded-lg

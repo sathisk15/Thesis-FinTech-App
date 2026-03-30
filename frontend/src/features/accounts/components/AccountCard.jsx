@@ -23,6 +23,7 @@ const AccountCard = ({
 
   return (
     <div
+      data-testid={`account-card-${account.id}`}
       className="group relative
                  bg-card border border-border
                  rounded-2xl p-5
@@ -112,6 +113,7 @@ const AccountCard = ({
           </p>
 
           <p
+            data-testid={`account-balance-${account.id}`}
             className={`text-lg font-semibold tracking-tight ${
               account.account_balance > 0 ? 'text-green-500' : 'text-red-500'
             }`}

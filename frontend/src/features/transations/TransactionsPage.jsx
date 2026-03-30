@@ -96,7 +96,7 @@ const TransactionPage = () => {
   ]);
 
   return (
-    <div className="w-full py-10 space-y-8">
+    <div data-testid="transactions-page" className="w-full py-10 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
@@ -112,6 +112,7 @@ const TransactionPage = () => {
         <div className="flex flex-wrap items-end gap-3">
           {/* Account */}
           <select
+            data-testid="transactions-account-filter"
             value={selectedAccount}
             onChange={(e) => setSelectedAccount(e.target.value)}
             className="h-9 px-3 rounded-md bg-background border border-border text-sm
@@ -127,6 +128,7 @@ const TransactionPage = () => {
 
           {/* From / To */}
           <input
+            data-testid="transactions-from-date"
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
@@ -134,6 +136,7 @@ const TransactionPage = () => {
                        text-xs text-text outline-none focus:ring-2 focus:ring-primary/40"
           />
           <input
+            data-testid="transactions-to-date"
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
@@ -143,6 +146,7 @@ const TransactionPage = () => {
 
           {/* Search */}
           <input
+            data-testid="transactions-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Description…"
@@ -152,6 +156,7 @@ const TransactionPage = () => {
 
           {/* Amount range (compact) */}
           <input
+            data-testid="transactions-min-amount"
             type="number"
             placeholder="Min"
             value={minAmount}
@@ -160,6 +165,7 @@ const TransactionPage = () => {
                        text-xs outline-none focus:ring-2 focus:ring-primary/40"
           />
           <input
+            data-testid="transactions-max-amount"
             type="number"
             placeholder="Max"
             value={maxAmount}
@@ -170,6 +176,7 @@ const TransactionPage = () => {
 
           {/* Flow */}
           <select
+            data-testid="transactions-flow-filter"
             value={flow}
             onChange={(e) => setFlow(e.target.value)}
             className="h-9 px-2 rounded-md bg-background border border-border
@@ -182,6 +189,7 @@ const TransactionPage = () => {
 
           {/* Sort */}
           <select
+            data-testid="transactions-sort"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="h-9 px-2 rounded-md bg-background border border-border
@@ -195,6 +203,7 @@ const TransactionPage = () => {
 
           {/* Clear */}
           <button
+            data-testid="transactions-clear"
             onClick={handleClearFilters}
             disabled={!hasActiveFilters}
             className="h-9 px-3 rounded-md border border-border text-xs text-text
@@ -241,7 +250,7 @@ const TransactionPage = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody data-testid="transactions-table-body">
                 {filteredTransactions.map((tx) => {
                   const isIncoming =
                     tx.type === 'deposit' || tx.type === 'credit';
