@@ -221,7 +221,15 @@ npm run audit:all
 
 # Run specific audits
 npm run audit:lighthouse
-npm run audit:playwright
+npm run audit:playwright          # all specs
+npm run audit:playwright:auth
+npm run audit:playwright:routes
+npm run audit:playwright:dashboard
+npm run audit:playwright:transactions
+npm run audit:playwright:accounts
+npm run audit:playwright:transfer-pay
+npm run audit:playwright:settings
+npm run audit:playwright:journey
 
 # Compare two lighthouse runs
 npm run audit:compare

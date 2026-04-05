@@ -434,6 +434,10 @@ Convention: `{feature}-{element}` in kebab-case.
 | `settings-page` | Page container |
 | `settings-contact` | Contact input |
 | `settings-save-profile` | Save profile button |
+| `settings-current-password` | Current password input |
+| `settings-new-password` | New password input |
+| `settings-confirm-password` | Confirm password input |
+| `settings-change-password-submit` | Change password submit button |
 
 ---
 
@@ -460,9 +464,17 @@ npm run audit:playwright:routes   # Route readiness timing tests only
 npm run audit:playwright:journey  # Full user journey tests only
 npm run audit:playwright:ops      # Page operations timing tests only
 npm run audit:playwright:list     # List all available Playwright tests
-npm run audit:playwright:summary  # Aggregate Playwright JSON reports → summary.json
-npm run audit:all                 # lighthouse + playwright (no auto-log)
-npm run light                     # Alias for audit:lighthouse
+npm run audit:playwright:auth         # Auth timing spec only
+npm run audit:playwright:routes       # Route readiness spec only
+npm run audit:playwright:dashboard    # Dashboard filter spec only
+npm run audit:playwright:transactions # Transactions filter spec only
+npm run audit:playwright:accounts     # Accounts operations spec only
+npm run audit:playwright:transfer-pay # Transfer + payment spec only
+npm run audit:playwright:settings     # Settings operations spec only
+npm run audit:playwright:journey      # Full user journey spec only
+npm run audit:playwright:summary      # Aggregate all JSON reports → summary.json
+npm run audit:all                     # lighthouse + playwright (no auto-log)
+npm run light                         # Alias for audit:lighthouse
 
 # Comparisons
 npm run audit:compare base base-performance             # Lighthouse delta

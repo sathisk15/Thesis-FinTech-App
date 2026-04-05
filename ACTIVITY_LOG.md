@@ -27,6 +27,42 @@
 
 ---
 
+### 2026-04-05 20:00 `[TEST]` `[MEASUREMENT]`
+**Playwright test suite reorganized and expanded**
+
+**Deleted:**
+- `playwright/tests/performance/page-operations.spec.js` — split into 3 dedicated files
+
+**New spec files (one per feature area):**
+- `auth.spec.js` — login_ms, logout_ms, login_after_logout_ms (thesis: S3 rate limiting, S7 cookie auth)
+- `dashboard.spec.js` — initial render + per-section filter timings across KPI, Trends, Breakdown, Health, Activity (thesis: P1/P2/P3 memoization)
+- `transactions.spec.js` — initial load, search, date/amount/flow/sort filters, combined (thesis: P5 virtualization, P6 debounce)
+- `accounts.spec.js` — page load, modal open, create account, deposit (thesis: S4 validation overhead)
+- `transfer-pay.spec.js` — transfer fill/submit, pay fill/submit, complete flow (thesis: S4, S7)
+- `settings.spec.js` — page load, profile update, password change with restore (thesis: S4, S7)
+
+**Updated specs:**
+- `route-readiness.spec.js` — removed duplicate transactions nav and misplaced search filter measurement
+- `user-journey.spec.js` — expanded to 10 steps including dashboard filter interactions and transactions browse; `full_user_journey_ms` is the headline V1→V3 comparison metric
+
+**Updated utilities:**
+- `utils/metrics.js` — added `getP95()` and `p95_ms` to all report summaries
+- `utils/helpers.js` — added `measureApiCall()` helper for capturing API round-trip timing alongside UI timing
+
+**Added test IDs:**
+- `SettingsPage.jsx` — `settings-current-password`, `settings-new-password`, `settings-confirm-password`, `settings-change-password-submit`
+
+**Other:**
+- `package.json` — added 6 new `audit:playwright:*` scripts (auth, dashboard, transactions, accounts, transfer-pay, settings)
+- `playwright/README.md` — rewritten with spec table, utility reference, workflow, env vars, report format
+- `CLAUDE.md`, `PROJECT_REFERENCE.md` — updated scripts and test ID sections
+
+**Purpose:** Each page now has an isolated, repeatable spec that directly maps to the thesis techniques being measured. Running `THESIS_VARIANT=base npm run audit:playwright` produces 8 labeled JSON files covering all measurement dimensions for V1→V2→V3 comparison.
+
+**Files:** All files listed above
+
+---
+
 ### 2026-04-05 19:00 `[CLEANUP]`
 **Removed SonarQube from project**
 - Deleted `scripts/sonar-analysis.js` and `scripts/setupSonarProfile.js`
