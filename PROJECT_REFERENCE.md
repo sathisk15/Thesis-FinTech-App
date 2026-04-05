@@ -450,8 +450,12 @@ npm run seed:db       # Re-seed SQLite database with test data
 
 ### Auditing
 ```bash
+# Run entire pipeline for a variant (recommended — logs results to ACTIVITY_LOG.md)
+THESIS_VARIANT=base npm run audit:pipeline
+THESIS_VARIANT=base npm run pipeline          # alias
+
+# Individual audits
 npm run audit:lighthouse          # Lighthouse performance audit (runs × LIGHTHOUSE_RUNS)
-npm run audit:lighthouse:legacy   # Old Lighthouse script
 npm run audit:playwright          # All Playwright performance tests
 npm run audit:playwright:routes   # Route readiness timing tests only
 npm run audit:playwright:journey  # Full user journey tests only
@@ -459,11 +463,18 @@ npm run audit:playwright:ops      # Page operations timing tests only
 npm run audit:playwright:list     # List all available Playwright tests
 npm run audit:playwright:summary  # Aggregate Playwright JSON reports → summary.json
 npm run audit:sonar               # SonarQube code quality scan
-npm run audit:all                 # lighthouse + playwright + sonar (sequential)
-npm run audit:compare             # Compare two Lighthouse runs by label
+npm run audit:all                 # lighthouse + playwright + sonar (no auto-log)
 npm run light                     # Alias for audit:lighthouse
 npm run sonar                     # Alias for audit:sonar
+
+# Comparisons
+npm run audit:compare base base-performance             # Lighthouse delta
+npm run audit:playwright:compare base base-performance  # Playwright timing delta
 ```
+
+**Pipeline env flags:**
+- `PIPELINE_SKIP_SONAR=true` — skip SonarQube step (faster runs during development)
+- `SONAR_SKIP_TESTS=true` — skip test command inside sonar scan
 
 ---
 

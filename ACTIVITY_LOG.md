@@ -27,6 +27,32 @@
 
 ---
 
+### 2026-04-05 `[CONFIG]` `[MEASUREMENT]`
+**Audit scripts reviewed, fixed, and extended**
+
+**Fixes to existing scripts:**
+- `scripts/runLighthouse.js` — added `min` and `max` to statistics (was mean + std dev only); fixed `AUDIT_LABEL` fallback order (`AUDIT_LABEL → THESIS_VARIANT → git branch`) so variant reports never overwrite each other; added per-run metric logging to console
+- `scripts/lighthouse.js` — deleted (redundant 4-line wrapper)
+- `scripts/compareReports.js` — fixed confusing duplicate variable name (`meanKeyB` used for both A and B); added improved/degraded/unchanged totals summary line
+- `scripts/summarizePlaywrightReports.js` — excluded `pw_results.json` from aggregation (wrong schema caused silent failures); added console table preview of results
+- `scripts/sonar-analysis.js` — now uses per-variant project keys (`fintech-app-base`, `fintech-app-base-performance`, `fintech-app-base-performance-security`) so each variant has independent SonarQube history; added `SONAR_SKIP_TESTS=true` flag; improved error handling
+- `playwright/utils/metrics.js` — Playwright performance reports now prefixed with `PLAYWRIGHT_RESULTS_LABEL` (e.g. `base.route-readiness.performance.json`) enabling variant-specific files
+
+**New scripts:**
+- `scripts/comparePlaywright.js` — Playwright equivalent of `compareReports.js`; compares operation timings across two variant labels for all 3 suites; shows ▲/▼ delta per operation; saves JSON
+- `scripts/runPipeline.js` — master pipeline; runs Lighthouse → Playwright → summary → SonarQube in sequence; auto-appends `[MEASUREMENT]` entry to `ACTIVITY_LOG.md` with scores, timings, commit hash
+
+**`package.json` changes:**
+- Removed `audit:lighthouse:legacy` (script deleted)
+- Added `audit:playwright:compare` → `node scripts/comparePlaywright.js`
+- Added `audit:pipeline` and `pipeline` alias → `node scripts/runPipeline.js`
+
+**Purpose:** Complete the measurement infrastructure. One command (`THESIS_VARIANT=base npm run pipeline`) now runs all audits and logs results automatically — no manual ACTIVITY_LOG entries needed after audit runs.
+
+**Files:** `scripts/runLighthouse.js`, `scripts/compareReports.js`, `scripts/summarizePlaywrightReports.js`, `scripts/sonar-analysis.js`, `scripts/comparePlaywright.js` (new), `scripts/runPipeline.js` (new), `playwright/utils/metrics.js`, `package.json`
+
+---
+
 ### 2026-04-05 `[DOCS]` `[CONFIG]`
 **Thesis variant plan finalized + project documentation created**
 
