@@ -106,6 +106,33 @@ When making changes, consider the effect on these audits:
 - **Branch:** Work on `main` unless user specifies otherwise
 - **Do not force-push** without explicit user instruction
 
+### Commit Messages — Required Format
+
+**After every change, always provide a detailed commit message.** Do not wait for the user to ask.
+
+Structure:
+```
+<type>(<scope>): <short summary under 70 chars>
+
+<body — one paragraph or bullet list per file/area changed>
+File or area
+- What changed and why
+- What was the problem before (for fixes)
+- What the new behaviour is
+
+<footer — optional: breaking changes, closes issues>
+```
+
+**Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `config`, `chore`
+
+**Rules:**
+- Body must explain the **why**, not just the what
+- Each changed file or logical area gets its own bullet block
+- For bug fixes: state what was wrong before and what it does now
+- For new files: describe purpose, inputs, outputs, and how it's triggered
+- Always include file paths for non-obvious changes
+- Do not use vague messages like "minor changes" or "updates"
+
 ---
 
 ## 8. Activity Log — `ACTIVITY_LOG.md`
@@ -113,7 +140,7 @@ When making changes, consider the effect on these audits:
 After every session where code was changed, append a new entry to `ACTIVITY_LOG.md` at the top of the log (below the `## 2026` heading). Use the template at the bottom of that file.
 
 **Always include:**
-- Date (`YYYY-MM-DD`)
+- Date and time (`YYYY-MM-DD HH:MM`) — use local time from the commit or system clock
 - Category tag(s): `[FEATURE]`, `[FIX]`, `[MEASUREMENT]`, `[TEST]`, `[REFACTOR]`, `[CONFIG]`, `[DOCS]`, `[SECURITY]`, `[CLEANUP]`
 - What changed (bullet points)
 - **Purpose:** why it was done / thesis relevance
