@@ -562,6 +562,60 @@ Output: `reports/playwright/{label}.performance.json` + `pw_results.json`
 - Scans `frontend/` and `backend/` dirs
 - Excludes `node_modules`, `dist`, `playwright`, `scripts`, `reports`
 - Auto-creates project if it doesn't exist
+- Applies `Thesis-Security-Profile` quality profile (see section 10)
+
+---
+
+## 10. SonarQube Quality Profile
+
+**Profile name:** `Thesis-Security-Profile`
+**Language:** JavaScript (`js`)
+**Purpose:** Restrict SonarQube analysis to only the security rules that map to thesis techniques S1–S10. Eliminates general code-smell noise from results, making cross-variant comparisons clean and thesis-relevant.
+
+### Setup
+
+Run once before the first SonarQube scan (or after a fresh SonarQube install):
+
+```bash
+npm run sonar:setup
+```
+
+This script:
+1. Creates `Thesis-Security-Profile` if it doesn't exist (idempotent)
+2. Activates all 16 rules at `MAJOR` severity
+3. Assigns the profile to all 3 variant projects
+4. Prints a summary of activated/skipped rules
+
+> **Note:** Some rules require the SonarQube Security plugin. If rules are skipped, install it via: Administration → Marketplace → Security
+
+### Activated Rules (16)
+
+| Category | Rule Key | Description | Thesis Technique |
+|----------|----------|-------------|-----------------|
+| XSS | `javascript:S5131` | DOM XSS via innerHTML / document.write | S9 |
+| XSS | `javascript:S6105` | Unsafe dangerouslySetInnerHTML in React | S9 |
+| SQL Injection | `javascript:S3649` | SQL injection risk | Baseline check |
+| NoSQL Injection | `javascript:S5334` | NoSQL injection via unvalidated input | Baseline check |
+| Auth | `javascript:S5527` | Insecure SSL/TLS configuration | S7 |
+| Auth | `javascript:S5659` | JWT signature not verified / algorithm confusion | S5, S6 |
+| Auth | `javascript:S5247` | Disabling certificate validation | S7 |
+| Secrets | `javascript:S2068` | Hardcoded password or credential | S5 |
+| Secrets | `javascript:S6418` | Hardcoded secret or API token | S5 |
+| Cookies | `javascript:S2255` | Cookies written without proper flags | S7 |
+| Cookies | `javascript:S3330` | Cookie missing HttpOnly flag | S7 |
+| Cookies | `javascript:S2092` | Cookie missing Secure flag | S7 |
+| Input Validation | `javascript:S5146` | Open redirect via unvalidated URL | S4 |
+| Input Validation | `javascript:S2631` | Regular expression injection | S4 |
+| Cryptography | `javascript:S4426` | Cryptographic key too short | — |
+| Cryptography | `javascript:S5542` | Insecure cipher mode (ECB, no padding) | — |
+
+### Expected Behaviour Per Variant
+
+| Variant | Expected Violations | Reason |
+|---------|---------------------|--------|
+| V1 `base` | High | Hardcoded JWT secret (S2068, S6418), no HttpOnly cookie (S3330, S2092), XSS exposure (S5131) |
+| V2 `base-performance` | High (same as V1) | No security changes in this variant |
+| V3 `base-performance-security` | Low / zero | All security techniques applied — violations should be resolved |
 
 ---
 
