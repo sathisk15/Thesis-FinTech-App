@@ -7,11 +7,81 @@
 
 ## 1. Project Overview
 
-A full-stack fintech/banking web application built for **thesis research on performance optimization**. The app serves as a realistic banking dashboard used to measure and compare performance metrics across different implementation variants (base, bad, performance, security).
+A full-stack fintech/banking web application built for **thesis research on the cumulative impact of performance and security optimizations**. The app serves as a realistic banking dashboard used to measure and compare metrics across three implementation variants.
 
 **Research tooling:** Lighthouse audits, Playwright E2E performance tests, SonarQube code quality scans.
 
-**Thesis variants** are controlled via `THESIS_VARIANT` env var — each variant may have different implementations of the same features to compare performance characteristics.
+**Research question:** How do layered performance and security optimizations affect Lighthouse scores, Playwright timings, and SonarQube metrics — individually and combined?
+
+---
+
+### Thesis Variants
+
+Controlled via `THESIS_VARIANT` env var. **Cumulative** — each variant builds on top of the previous.
+
+#### V1 — `base` (Baseline / Bad Version)
+The current unoptimized application. No performance or security techniques applied. Used as the **worst-case measurement baseline**.
+
+- No component memoization
+- No computation caching
+- All routes loaded eagerly (no code splitting)
+- No debouncing on inputs
+- No list virtualization
+- JWT stored in localStorage, secret hardcoded
+- No HTTP security headers
+- No rate limiting
+- No input validation
+- No sanitization
+
+**Status:** Current codebase as-is. `THESIS_VARIANT=base`
+
+---
+
+#### V2 — `base-performance` (V1 + Performance Optimizations)
+All performance techniques applied on top of V1.
+
+| # | Technique | Where Applied | Implementation |
+|---|-----------|---------------|----------------|
+| P1 | `React.memo` | All 12 dashboard sub-components | Wrap each component export in `React.memo()` |
+| P2 | `useMemo` | `DashboardPage.jsx` | Memoize KPI calculations, chart data derivation, filtered transaction arrays |
+| P3 | `useCallback` | `DashboardPage.jsx` | Memoize account filter handler, time range filter handler |
+| P4 | Code Splitting (`React.lazy` + `Suspense`) | `frontend/src/app/router.jsx` | Convert all 8 static route imports to `React.lazy()` with `<Suspense fallback>` |
+| P5 | Lazy Loading (routes) | `frontend/src/app/router.jsx` | Same as P4 — lazy imports mean bundles load on demand |
+| P6 | List Virtualization (`react-window`) | `TransactionsPage.jsx` | Replace flat list render with `FixedSizeList` from `react-window` |
+| P7 | Debouncing | `TransactionsPage.jsx` search input | 300ms debounce on the `transactions-search` input handler |
+| P8 | Dynamic imports | Large icon/chart imports | Use dynamic `import()` for any non-critical heavy modules |
+
+**Status:** Not started. `THESIS_VARIANT=base-performance`
+
+---
+
+#### V3 — `base-performance-security` (V2 + Security Hardening)
+All security techniques applied on top of V2.
+
+| # | Technique | Where Applied | Implementation |
+|---|-----------|---------------|----------------|
+| S1 | HTTP Security Headers (`Helmet.js`) | `backend/app.js` | `app.use(helmet())` — sets X-Frame-Options, X-Content-Type-Options, Referrer-Policy, X-DNS-Prefetch-Control |
+| S2 | Content Security Policy (CSP) | `backend/app.js` | `helmet.contentSecurityPolicy({ directives: { ... } })` — whitelist only self + CDN origins |
+| S3 | Rate Limiting | `backend/app.js` | `express-rate-limit`: 10 requests / 15 min on `/api/auth/login` and `/api/auth/register` |
+| S4 | Input Validation | All POST/PUT routes | `express-validator`: validate and sanitize all request body fields in auth + account + payment routes |
+| S5 | JWT Secret from Env | `backend/middleware/auth.middleware.js` + `backend/controllers/auth.controller.js` | Replace hardcoded `"supersecret"` with `process.env.JWT_SECRET` |
+| S6 | JWT Short Expiry | `backend/controllers/auth.controller.js` | Change `expiresIn` from `1d` to `15m`; add refresh token endpoint |
+| S7 | JWT in HttpOnly Cookie | `backend/controllers/auth.controller.js` + `frontend/src/api/axios.js` + `frontend/src/store/useAuthStore.js` | Send JWT as HttpOnly + Secure + SameSite=Strict cookie instead of JSON body; update frontend to use `withCredentials: true` |
+| S8 | CSRF Protection | `backend/app.js` | SameSite=Strict cookie (from S7) provides CSRF protection; add `csurf` middleware if needed |
+| S9 | XSS Prevention (`DOMPurify`) | `TransactionsPage.jsx`, `AccountsPage.jsx`, `DashboardPage.jsx` | Sanitize all user-controlled string values before rendering (transaction descriptions, account names, payment references) |
+| S10 | Secure CORS | `backend/app.js` | Restrict `cors()` to `process.env.CORS_ORIGIN` (frontend URL only) |
+
+**Status:** Not started. `THESIS_VARIANT=base-performance-security`
+
+---
+
+### Measurement Comparison Plan
+
+| Comparison | What It Shows |
+|------------|---------------|
+| V1 → V2 | Performance gain from React optimizations (Lighthouse scores, Playwright timing) |
+| V2 → V3 | Security overhead/impact on performance (does adding security slow things down?) |
+| V1 → V3 | Total combined effect of all optimizations |
 
 ---
 
@@ -431,7 +501,7 @@ All configured in `.env` at root. Loaded via `config/loadEnv.js`.
 ### Playwright
 | Key | Description |
 |-----|-------------|
-| `THESIS_VARIANT` | Variant label (`base`, `bad`, `performance`, `security`) |
+| `THESIS_VARIANT` | Variant label: `base` \| `base-performance` \| `base-performance-security` |
 | `PLAYWRIGHT_BASE_URL` | App URL (default: `http://localhost:5173`) |
 | `PLAYWRIGHT_EMAIL` | Test user email |
 | `PLAYWRIGHT_PASSWORD` | Test user password |
@@ -519,24 +589,33 @@ Output: `reports/playwright/{label}.performance.json` + `pw_results.json`
 
 ---
 
-## 12. Enhancement Roadmap (Priority Order)
+## 12. Implementation Checklist
 
-### High Priority
-1. Move JWT secret to env var (`JWT_SECRET`)
-2. Add rate limiting on auth endpoints (e.g., `express-rate-limit`)
-3. Re-enable ESLint (`frontend/eslint.config.js`)
-4. Remove debug `console.log` calls from components
+Track which techniques have been implemented per variant. Update status as work completes.
 
-### Medium Priority
-5. Fix folder typos (`transations/` → `transactions/`, `componenets/` → `components/`)
-6. Add pagination to `GET /transactions` API endpoint
-7. Re-enable React `<StrictMode>` in `main.jsx`
-8. Clean up commented-out code blocks (store SQL, dashboard routes)
-9. Improve health check to test DB connectivity
+### V2 — Performance Techniques
 
-### Low Priority
-10. Add request logging middleware (e.g., Morgan)
-11. Make CORS origin configurable via env
-12. Add password complexity validation on register
-13. Add component-level tests (Vitest) for critical dashboard calculations
-14. Implement `dashboard.controller.js` (currently empty)
+| ID | Technique | File(s) | Status |
+|----|-----------|---------|--------|
+| P1 | `React.memo` on all 12 dashboard sub-components | `frontend/src/features/dashboard/components/*.jsx` | Not started |
+| P2 | `useMemo` for KPI calculations + chart data + filtered arrays | `frontend/src/features/dashboard/DashboardPage.jsx` | Not started |
+| P3 | `useCallback` for account filter + time range filter handlers | `frontend/src/features/dashboard/DashboardPage.jsx` | Not started |
+| P4 | `React.lazy` + `Suspense` on all 8 route imports | `frontend/src/app/router.jsx` | Not started |
+| P5 | `react-window` `FixedSizeList` for transactions list | `frontend/src/features/transations/TransactionsPage.jsx` | Not started |
+| P6 | 300ms debounce on search input | `frontend/src/features/transations/TransactionsPage.jsx` | Not started |
+| P7 | Dynamic imports for heavy non-critical modules | TBD during implementation | Not started |
+
+### V3 — Security Techniques (applied on top of V2)
+
+| ID | Technique | File(s) | Status |
+|----|-----------|---------|--------|
+| S1 | `helmet()` middleware — X-Frame-Options, X-Content-Type-Options, Referrer-Policy | `backend/app.js` | Not started |
+| S2 | `helmet.contentSecurityPolicy()` — whitelist origins | `backend/app.js` | Not started |
+| S3 | `express-rate-limit` — 10 req / 15 min on auth endpoints | `backend/app.js` | Not started |
+| S4 | `express-validator` — validate + sanitize all POST/PUT bodies | `backend/routes/*.js` or middleware | Not started |
+| S5 | JWT secret from `process.env.JWT_SECRET` | `backend/middleware/auth.middleware.js`, `backend/controllers/auth.controller.js` | Not started |
+| S6 | JWT expiry: `15m` + refresh token endpoint | `backend/controllers/auth.controller.js`, new refresh route | Not started |
+| S7 | JWT in HttpOnly + Secure + SameSite=Strict cookie | `backend/controllers/auth.controller.js`, `frontend/src/api/axios.js`, `frontend/src/store/useAuthStore.js` | Not started |
+| S8 | CSRF protection via SameSite=Strict (from S7) | Covered by S7 | Not started |
+| S9 | `DOMPurify` sanitization on rendered user strings | `frontend/src/features/transations/TransactionsPage.jsx`, `AccountsPage.jsx`, `DashboardPage.jsx` | Not started |
+| S10 | CORS restricted to `process.env.CORS_ORIGIN` | `backend/app.js` | Not started |

@@ -139,24 +139,46 @@ Update the relevant section of `PROJECT_REFERENCE.md` when:
 | New npm script added | Section 8 (NPM Scripts) |
 | New bug discovered | Section 11 (Known Issues) |
 | Bug fixed | Remove from Section 11 |
-| Enhancement completed | Remove from Section 12 (Roadmap) |
+| Technique implemented (P1–P7 or S1–S10) | Update status in Section 12 checklist from "Not started" → "Done" |
 
 ---
 
-## 10. Enhancement Priority Order
+## 10. Variant Implementation Rules
 
-When the user asks for "improvements" or "enhancements" without specifying, use this priority order (from `PROJECT_REFERENCE.md` section 12):
+The project has **3 thesis variants**. Each is cumulative. Do not mix techniques across variants.
 
-1. Move JWT secret to `JWT_SECRET` env var
-2. Add rate limiting on auth endpoints
-3. Re-enable ESLint in `frontend/eslint.config.js`
-4. Remove debug `console.log` calls
-5. Fix folder typos
-6. Add pagination to `GET /transactions`
-7. Re-enable `<StrictMode>` in `main.jsx`
-8. Clean up commented-out code blocks
-9. Improve health check to verify DB connectivity
-10. Add request logging middleware
+| Variant | Label | Contains |
+|---------|-------|----------|
+| V1 | `base` | Current codebase — no optimizations. The bad/baseline version. |
+| V2 | `base-performance` | V1 + performance techniques P1–P7 |
+| V3 | `base-performance-security` | V2 + security techniques S1–S10 |
+
+**When implementing a technique:**
+1. Confirm which variant the user is currently building
+2. Only implement techniques belonging to that variant
+3. After implementing, update `PROJECT_REFERENCE.md` section 12 checklist: change `Not started` → `Done` for that technique ID
+4. Add an entry to `ACTIVITY_LOG.md` with the technique ID (e.g., `[P1]`, `[S3]`), what was changed, which files, and why
+
+**Performance techniques (V2): P1 through P7**
+- P1: `React.memo` on all 12 dashboard sub-components
+- P2: `useMemo` for KPIs, chart data, filtered arrays in DashboardPage
+- P3: `useCallback` for filter handlers in DashboardPage
+- P4: `React.lazy` + `Suspense` on all 8 route imports in router.jsx
+- P5: `react-window` `FixedSizeList` in TransactionsPage
+- P6: 300ms debounce on search input in TransactionsPage
+- P7: Dynamic imports for heavy non-critical modules
+
+**Security techniques (V3): S1 through S10**
+- S1: `helmet()` middleware in backend/app.js
+- S2: `helmet.contentSecurityPolicy()` in backend/app.js
+- S3: `express-rate-limit` on `/api/auth/login` and `/api/auth/register`
+- S4: `express-validator` on all POST/PUT routes
+- S5: JWT secret from `process.env.JWT_SECRET`
+- S6: JWT expiry `15m` + refresh token endpoint
+- S7: JWT in HttpOnly + Secure + SameSite=Strict cookie
+- S8: CSRF protection (covered by S7 SameSite=Strict)
+- S9: `DOMPurify` on rendered user strings in TransactionsPage, AccountsPage, DashboardPage
+- S10: CORS restricted to `process.env.CORS_ORIGIN`
 
 ---
 

@@ -27,13 +27,39 @@
 
 ---
 
-### 2026-04-05 `[DOCS]`
-**Created project documentation files**
-- Created `PROJECT_REFERENCE.md` — full technical snapshot of the codebase (tech stack, architecture, schema, API routes, test IDs, scripts, env vars, known issues, roadmap)
-- Created `CLAUDE.md` — coding assistant rules file (auto-loaded by Claude Code each session)
-- Created `ACTIVITY_LOG.md` — this file, for tracking all project changes for thesis writing
-- **Purpose:** Avoid re-analyzing the project every session; provide thesis writing reference
-- **Files:** `PROJECT_REFERENCE.md`, `CLAUDE.md`, `ACTIVITY_LOG.md` (all new, root level)
+### 2026-04-05 `[DOCS]` `[CONFIG]`
+**Thesis variant plan finalized + project documentation created**
+
+**Variant structure decided:**
+- **V1 `base`** — Current unoptimized codebase. No performance or security techniques. The bad/baseline version used as worst-case measurement starting point.
+- **V2 `base-performance`** — V1 + 7 performance techniques (P1–P7)
+- **V3 `base-performance-security`** — V2 + 10 security techniques (S1–S10)
+- Variants are cumulative — each builds on the previous
+
+**Performance techniques planned for V2:**
+- P1: `React.memo` on all 12 dashboard sub-components
+- P2: `useMemo` for KPI calculations, chart data, filtered arrays in `DashboardPage.jsx`
+- P3: `useCallback` for filter handlers in `DashboardPage.jsx`
+- P4: `React.lazy` + `Suspense` on all 8 route imports in `router.jsx`
+- P5: `react-window` `FixedSizeList` for transactions list in `TransactionsPage.jsx`
+- P6: 300ms debounce on search input in `TransactionsPage.jsx`
+- P7: Dynamic imports for heavy non-critical modules
+
+**Security techniques planned for V3 (on top of V2):**
+- S1: `helmet()` — X-Frame-Options, X-Content-Type-Options, Referrer-Policy in `backend/app.js`
+- S2: `helmet.contentSecurityPolicy()` — origin whitelisting in `backend/app.js`
+- S3: `express-rate-limit` — 10 req/15 min on `/api/auth/login` + `/api/auth/register`
+- S4: `express-validator` — validate + sanitize all POST/PUT bodies in backend routes
+- S5: JWT secret from `process.env.JWT_SECRET` (remove hardcoded `"supersecret"`)
+- S6: JWT expiry `15m` + refresh token endpoint
+- S7: JWT in HttpOnly + Secure + SameSite=Strict cookie (remove from localStorage)
+- S8: CSRF protection via SameSite=Strict (covered by S7)
+- S9: `DOMPurify` — sanitize user-controlled strings before rendering
+- S10: CORS restricted to `process.env.CORS_ORIGIN`
+
+**Purpose:** Define exact thesis scope — ensures reproducible, measurable, and comparable variants for academic research. V1→V2 shows performance impact; V2→V3 shows security overhead; V1→V3 shows combined effect.
+
+**Files:** `PROJECT_REFERENCE.md` (variant plan + implementation checklist), `CLAUDE.md` (variant rules), `ACTIVITY_LOG.md` (this entry)
 
 ---
 
