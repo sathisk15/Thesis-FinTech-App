@@ -67,11 +67,10 @@ function compareReports(labelA, labelB) {
     const pageComparison = {};
 
     for (const metricKey of Object.keys(METRIC_LABELS)) {
-      const meanKeyA = `${metricKey}_mean`;
-      const meanKeyB = `${metricKey}_mean`;
+      const meanKey = `${metricKey}_mean`;
 
-      const valA = statsA[meanKeyA];
-      const valB = statsB[meanKeyB];
+      const valA = statsA[meanKey];
+      const valB = statsB[meanKey];
 
       if (valA == null || valB == null) continue;
 
@@ -93,6 +92,18 @@ function compareReports(labelA, labelB) {
     console.log();
   }
 
+  // Totals summary
+  let improved = 0, degraded = 0, unchanged = 0;
+  for (const pageData of Object.values(comparison)) {
+    for (const [metricKey, data] of Object.entries(pageData)) {
+      const isLowerBetter = LOWER_IS_BETTER.includes(metricKey);
+      const better = isLowerBetter ? data.abs_delta < 0 : data.abs_delta > 0;
+      if (data.abs_delta === 0) unchanged++;
+      else if (better) improved++;
+      else degraded++;
+    }
+  }
+  console.log(`  SUMMARY: ${improved} improved  ${degraded} degraded  ${unchanged} unchanged`);
   console.log('═'.repeat(80) + '\n');
 
   // Save JSON comparison
