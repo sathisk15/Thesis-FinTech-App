@@ -117,7 +117,12 @@ export class PerformanceRecorder {
   flush(extra = {}) {
     ensureReportDir();
 
-    const filePath = path.join(playwrightReportDir, this.reportName);
+    // Prefix filename with resultsLabel so each variant saves its own file.
+    // e.g. PLAYWRIGHT_RESULTS_LABEL=base → base.route-readiness.performance.json
+    const labeledName = resultsLabel
+      ? `${resultsLabel}.${this.reportName}`
+      : this.reportName;
+    const filePath = path.join(playwrightReportDir, labeledName);
     const report = readExistingReport(filePath, this.suiteName);
 
     report.variant = thesisVariant;
