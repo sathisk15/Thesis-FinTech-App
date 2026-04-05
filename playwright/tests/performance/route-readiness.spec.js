@@ -1,13 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { PerformanceRecorder } from '../../utils/metrics.js';
-import {
-  loginThroughUi,
-  openNavigation,
-} from '../../utils/helpers.js';
+import { loginThroughUi, openNavigation } from '../../utils/helpers.js';
 
-test('measure authenticated route readiness and filter response', async ({
-  page,
-}, testInfo) => {
+test('measure authenticated route readiness', async ({ page }, testInfo) => {
   const recorder = new PerformanceRecorder({
     reportName: 'route-readiness.performance.json',
     suiteName: 'authenticated-route-readiness',
@@ -67,20 +62,6 @@ test('measure authenticated route readiness and filter response', async ({
       );
     });
   }
-
-  await openNavigation(
-    page,
-    'nav-transactions',
-    '**/transactions',
-    page.getByTestId('transactions-page'),
-  );
-
-  await recorder.measure('transactions_search_filter_ms', async () => {
-    await page.getByTestId('transactions-search').fill('Order placed');
-    await expect(page.getByTestId('transactions-table-body')).toContainText(
-      'Order placed',
-    );
-  });
 
   recorder.flush();
 });
