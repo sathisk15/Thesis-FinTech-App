@@ -81,6 +81,7 @@ async function run() {
           'sonar.exclusions':
             'node_modules/**,dist/**,playwright/**,scripts/**,reports/**',
           'sonar.coverage.exclusions': '**/*',
+          'sonar.qualityprofile': 'Thesis-Security-Profile',
         },
       },
       (err) => {
