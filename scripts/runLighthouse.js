@@ -23,7 +23,10 @@ function getGitBranch() {
   }
 }
 
-const AUDIT_LABEL = process.env.AUDIT_LABEL || getGitBranch();
+const AUDIT_LABEL =
+  process.env.AUDIT_LABEL ||
+  process.env.THESIS_VARIANT ||
+  getGitBranch();
 
 const EXPERIMENT_CONFIG = {
   runs: LIGHTHOUSE_RUNS,
@@ -140,15 +143,15 @@ function computeStatistics(results) {
   };
 
   const statistics = {};
-
-  // automatically detect all metrics from result object
   const metrics = Object.keys(results[0]);
 
   metrics.forEach((metric) => {
     const values = results.map((r) => r[metric]);
 
     statistics[`${metric}_mean`] = mean(values);
-    statistics[`${metric}_std`] = std(values);
+    statistics[`${metric}_min`]  = Math.min(...values);
+    statistics[`${metric}_max`]  = Math.max(...values);
+    statistics[`${metric}_std`]  = std(values);
   });
 
   return statistics;
@@ -167,6 +170,9 @@ async function runSingleTest(pageConfig, runs) {
     );
 
     const metrics = extractMetrics(report);
+    console.log(
+      `   perf=${metrics.performance.toFixed(1)}  fcp=${metrics.fcp.toFixed(0)}ms  lcp=${metrics.lcp.toFixed(0)}ms  tbt=${metrics.tbt.toFixed(0)}ms  cls=${metrics.cls.toFixed(3)}`,
+    );
 
     results.push(metrics);
   }
