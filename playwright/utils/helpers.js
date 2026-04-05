@@ -39,6 +39,20 @@ export async function getSelectOptions(page, testId) {
   );
 }
 
+/**
+ * measureApiCall — wraps recorder.measure and waits for a matching network
+ * response. Useful for timing backend-dependent operations (profile update,
+ * auth) especially in V3 where Helmet + rate-limiter + cookie auth add overhead.
+ */
+export async function measureApiCall(page, recorder, name, urlPattern, action) {
+  const responsePromise = page.waitForResponse(
+    (r) => r.url().includes(urlPattern) && r.ok(),
+  );
+  const { durationMs } = await recorder.measure(name, action);
+  const response = await responsePromise;
+  return { durationMs, status: response.status() };
+}
+
 export async function selectOptionByText(page, testId, textFragment) {
   const options = await getSelectOptions(page, testId);
   const match = options.find((option) => option.label.includes(textFragment));
