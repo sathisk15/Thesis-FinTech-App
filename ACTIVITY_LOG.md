@@ -27,6 +27,20 @@
 
 ---
 
+### 2026-04-05 17:30 `[CONFIG]` `[SECURITY]`
+**SonarQube quality profile setup — Thesis-Security-Profile**
+- Created `scripts/setupSonarProfile.js` — automates SonarQube quality profile creation and rule activation via API; idempotent (safe to re-run)
+- Profile: `Thesis-Security-Profile` (JavaScript, 16 rules activated at MAJOR severity)
+- Rules cover: XSS (S5131, S6105), SQL injection (S3649), NoSQL injection (S5334), auth/JWT (S5527, S5659, S5247), hardcoded secrets (S2068, S6418), insecure cookies (S2255, S3330, S2092), input validation (S5146, S2631), cryptography (S4426, S5542)
+- Script assigns the profile to all 3 variant projects after creation
+- Updated `scripts/sonar-analysis.js` — added `sonar.qualityprofile: 'Thesis-Security-Profile'` so every scan uses the thesis-scoped rule set
+- Added `sonar:setup` script to `package.json`
+- Added section 10 to `PROJECT_REFERENCE.md` — documents all 16 rules, expected violations per variant, and setup instructions
+- **Purpose:** Ensure SonarQube only counts violations relevant to thesis security techniques (S1–S10). V1 should show high violation count (hardcoded secret, no HttpOnly cookie, XSS exposure); V3 should show near-zero after applying all security techniques — this delta is a thesis measurement point.
+- **Files:** `scripts/setupSonarProfile.js` (new), `scripts/sonar-analysis.js`, `package.json`, `PROJECT_REFERENCE.md`
+
+---
+
 ### 2026-04-05 16:35 `[CONFIG]` `[MEASUREMENT]`
 **Audit scripts reviewed, fixed, and extended**
 

@@ -18,6 +18,7 @@
     "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
     "audit:playwright:compare": "node scripts/comparePlaywright.js",
     "audit:sonar": "node scripts/sonar-analysis.js",
+    "sonar:setup": "node scripts/setupSonarProfile.js",
     "audit:all": "npm run audit:lighthouse && npm run audit:playwright && npm run audit:sonar",
     "audit:compare": "node scripts/compareReports.js",
     "audit:pipeline": "node scripts/runPipeline.js",
