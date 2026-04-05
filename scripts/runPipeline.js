@@ -81,8 +81,9 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
   const logPath = path.resolve('ACTIVITY_LOG.md');
   if (!fs.existsSync(logPath)) return;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const time = new Date().toISOString().slice(11, 19) + ' UTC';
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const time = now.toISOString().slice(11, 16) + ' UTC'; // HH:MM UTC
 
   const lhSection = lighthouseLines
     ? `- Lighthouse scores (mean): ${lighthouseLines.join(', ')}`
@@ -97,8 +98,8 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
     : `- SonarQube: project \`fintech-app-${VARIANT}\``;
 
   const entry = `
-### ${today} \`[MEASUREMENT]\`
-**Audit pipeline run — variant: \`${VARIANT}\`** (${time})
+### ${today} ${time} \`[MEASUREMENT]\`
+**Audit pipeline run — variant: \`${VARIANT}\`**
 ${lhSection}
 ${pwSection}
 ${sonarNote}
