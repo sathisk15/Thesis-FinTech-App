@@ -218,6 +218,7 @@ const SettingsPage = () => {
                 Current Password
               </label>
               <input
+                data-testid="settings-current-password"
                 type="password"
                 name="currentPassword"
                 value={passwordData.currentPassword}
@@ -232,6 +233,7 @@ const SettingsPage = () => {
                 New Password
               </label>
               <input
+                data-testid="settings-new-password"
                 type="password"
                 name="newPassword"
                 value={passwordData.newPassword}
@@ -246,6 +248,7 @@ const SettingsPage = () => {
                 Confirm Password
               </label>
               <input
+                data-testid="settings-confirm-password"
                 type="password"
                 name="confirmPassword"
                 value={passwordData.confirmPassword}
@@ -256,6 +259,7 @@ const SettingsPage = () => {
 
             <div className="flex justify-end pt-6">
               <button
+                data-testid="settings-change-password-submit"
                 type="submit"
                 className="h-10 px-8 rounded-md bg-primary text-white font-medium cursor-pointer"
               >
