@@ -30,6 +30,12 @@ function getStdDev(values) {
   return Math.sqrt(variance);
 }
 
+function getP95(values) {
+  if (values.length < 2) return round(values[0] ?? 0);
+  const sorted = [...values].sort((a, b) => a - b);
+  return round(sorted[Math.ceil(0.95 * sorted.length) - 1]);
+}
+
 function buildSummary(runs) {
   if (!runs || runs.length === 0) return {};
 
@@ -52,6 +58,7 @@ function buildSummary(runs) {
         mean_ms: round(getMean(values)),
         min_ms: round(Math.min(...values)),
         max_ms: round(Math.max(...values)),
+        p95_ms: getP95(values),
         std_dev_ms: round(getStdDev(values)),
       },
     ]),
