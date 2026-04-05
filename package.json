@@ -17,13 +17,10 @@
     "audit:playwright:list": "npx playwright test --config=playwright/playwright.config.js --list",
     "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
     "audit:playwright:compare": "node scripts/comparePlaywright.js",
-    "audit:sonar": "node scripts/sonar-analysis.js",
-    "sonar:setup": "node scripts/setupSonarProfile.js",
-    "audit:all": "npm run audit:lighthouse && npm run audit:playwright && npm run audit:sonar",
+    "audit:all": "npm run audit:lighthouse && npm run audit:playwright",
     "audit:compare": "node scripts/compareReports.js",
     "audit:pipeline": "node scripts/runPipeline.js",
     "light": "npm run audit:lighthouse",
-    "sonar": "npm run audit:sonar",
     "pipeline": "npm run audit:pipeline"
   },
   "devDependencies": {
@@ -32,7 +29,6 @@
     "concurrently": "^9.2.1",
     "lighthouse": "^13.0.3",
     "nodemon": "^3.1.14",
-    "puppeteer": "^24.38.0",
-    "sonarqube-scanner": "^4.3.4"
+    "puppeteer": "^24.38.0"
   }
 }

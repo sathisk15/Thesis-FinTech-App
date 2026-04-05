@@ -1,7 +1,7 @@
 /**
  * runPipeline.js — Master audit pipeline
  *
- * Runs all three audit tools in sequence for the current THESIS_VARIANT,
+ * Runs Lighthouse and Playwright in sequence for the current THESIS_VARIANT,
  * then auto-appends a [MEASUREMENT] entry to ACTIVITY_LOG.md.
  *
  * Usage:
@@ -24,7 +24,6 @@ if (!VARIANT) {
 }
 
 const LABEL = process.env.AUDIT_LABEL || VARIANT;
-const SKIP_SONAR = process.env.PIPELINE_SKIP_SONAR === 'true';
 
 function run(cmd, label) {
   console.log(`\n${'─'.repeat(60)}`);
@@ -83,7 +82,7 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
 
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
-  const time = now.toISOString().slice(11, 16) + ' UTC'; // HH:MM UTC
+  const time = now.toISOString().slice(11, 16) + ' UTC';
 
   const lhSection = lighthouseLines
     ? `- Lighthouse scores (mean): ${lighthouseLines.join(', ')}`
@@ -93,16 +92,11 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
     ? `- Playwright key timings (mean): ${playwrightLines.join(', ')}`
     : '- Playwright: see reports/playwright/summary.json';
 
-  const sonarNote = SKIP_SONAR
-    ? '- SonarQube: skipped (PIPELINE_SKIP_SONAR=true)'
-    : `- SonarQube: project \`fintech-app-${VARIANT}\``;
-
   const entry = `
 ### ${today} ${time} \`[MEASUREMENT]\`
 **Audit pipeline run — variant: \`${VARIANT}\`**
 ${lhSection}
 ${pwSection}
-${sonarNote}
 - Commit: \`${git.hash}\` (branch: \`${git.branch}\`)
 - Reports: \`reports/lighthouse/${LABEL}.json\`, \`reports/playwright/summary.json\`
 - **Purpose:** Measurement run for thesis variant ${VARIANT}
@@ -126,7 +120,7 @@ ${sonarNote}
   console.log(`\n📝  Activity log updated: ACTIVITY_LOG.md`);
 }
 
-async function main() {
+function main() {
   console.log('\n' + '═'.repeat(60));
   console.log(`  AUDIT PIPELINE — variant: ${VARIANT}`);
   console.log('═'.repeat(60));
@@ -146,17 +140,7 @@ async function main() {
   // 3. Playwright summary
   run('node scripts/summarizePlaywrightReports.js', 'Playwright summary');
 
-  // 4. SonarQube
-  if (!SKIP_SONAR) {
-    run(
-      `THESIS_VARIANT=${VARIANT} SONAR_SKIP_TESTS=true node scripts/sonar-analysis.js`,
-      'SonarQube scan',
-    );
-  } else {
-    console.log('\n[skipped] SonarQube (PIPELINE_SKIP_SONAR=true)');
-  }
-
-  // 5. Auto-log results to ACTIVITY_LOG.md
+  // 4. Auto-log results to ACTIVITY_LOG.md
   const git = getGitMeta();
   const lighthouseLines = readLighthouseResults();
   const playwrightLines = readPlaywrightResults();
@@ -167,7 +151,4 @@ async function main() {
   console.log('═'.repeat(60) + '\n');
 }
 
-main().catch((err) => {
-  console.error('\n❌  Pipeline failed:', err.message || err);
-  process.exit(1);
-});
+main();

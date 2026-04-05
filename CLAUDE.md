@@ -10,7 +10,7 @@ This is a **thesis research application**. Stability and measurability come befo
 
 - **Do not add speculative features** not requested by the user
 - **Do not refactor** working code unless explicitly asked
-- **Do not break audit infrastructure** — Lighthouse, Playwright, SonarQube pipelines must stay functional
+- **Do not break audit infrastructure** — Lighthouse and Playwright pipelines must stay functional
 - **Do not change port numbers** — frontend: 5173, backend: 4000, Lighthouse debug: 9222
 
 ---
@@ -90,18 +90,16 @@ When making changes, consider the effect on these audits:
 |-------|------|--------|
 | Page performance | Lighthouse (Puppeteer) | `reports/lighthouse/` |
 | E2E timing | Playwright | `reports/playwright/` |
-| Code quality | SonarQube | External server |
 
 - Lighthouse measures authenticated pages — auth flow must stay working
 - Playwright uses specific `data-testid` selectors — removing/renaming IDs breaks tests
-- SonarQube scans `frontend/` and `backend/` — avoid introducing obvious code smells
 
 ---
 
 ## 7. Git Discipline
 
 - **Small, focused commits** — one logical change per commit
-- **Do not commit `.env`** — it contains a real SonarQube token
+- **Do not commit `.env`** — it contains real credentials
 - **Do not amend pushed commits** — create new commits to fix issues
 - **Branch:** Work on `main` unless user specifies otherwise
 - **Do not force-push** without explicit user instruction
@@ -224,7 +222,6 @@ npm run audit:all
 # Run specific audits
 npm run audit:lighthouse
 npm run audit:playwright
-npm run audit:sonar
 
 # Compare two lighthouse runs
 npm run audit:compare

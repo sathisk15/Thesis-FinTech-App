@@ -9,9 +9,9 @@
 
 A full-stack fintech/banking web application built for **thesis research on the cumulative impact of performance and security optimizations**. The app serves as a realistic banking dashboard used to measure and compare metrics across three implementation variants.
 
-**Research tooling:** Lighthouse audits, Playwright E2E performance tests, SonarQube code quality scans.
+**Research tooling:** Lighthouse audits, Playwright E2E performance tests.
 
-**Research question:** How do layered performance and security optimizations affect Lighthouse scores, Playwright timings, and SonarQube metrics — individually and combined?
+**Research question:** How do layered performance and security optimizations affect Lighthouse scores and Playwright timings — individually and combined?
 
 ---
 
@@ -121,7 +121,6 @@ All security techniques applied on top of V2.
 | @playwright/test | ^1.58.2 |
 | lighthouse | ^13.0.3 |
 | puppeteer | ^24.38.0 |
-| sonarqube-scanner | ^4.3.4 |
 | axios (scripts) | ^1.13.6 |
 
 ---
@@ -134,7 +133,7 @@ thesis-fintech-app/
 ├── backend/                  # Express API server (port 4000)
 ├── frontend/                 # React Vite app (port 5173)
 ├── playwright/               # E2E performance test suite
-├── scripts/                  # Lighthouse, Playwright summary, SonarQube scripts
+├── scripts/                  # Lighthouse, Playwright summary scripts
 ├── config/                   # loadEnv.js
 ├── reports/                  # Generated audit outputs
 │   ├── lighthouse/
@@ -462,19 +461,14 @@ npm run audit:playwright:journey  # Full user journey tests only
 npm run audit:playwright:ops      # Page operations timing tests only
 npm run audit:playwright:list     # List all available Playwright tests
 npm run audit:playwright:summary  # Aggregate Playwright JSON reports → summary.json
-npm run audit:sonar               # SonarQube code quality scan
-npm run audit:all                 # lighthouse + playwright + sonar (no auto-log)
+npm run audit:all                 # lighthouse + playwright (no auto-log)
 npm run light                     # Alias for audit:lighthouse
-npm run sonar                     # Alias for audit:sonar
 
 # Comparisons
 npm run audit:compare base base-performance             # Lighthouse delta
 npm run audit:playwright:compare base base-performance  # Playwright timing delta
 ```
 
-**Pipeline env flags:**
-- `PIPELINE_SKIP_SONAR=true` — skip SonarQube step (faster runs during development)
-- `SONAR_SKIP_TESTS=true` — skip test command inside sonar scan
 
 ---
 
@@ -519,15 +513,6 @@ All configured in `.env` at root. Loaded via `config/loadEnv.js`.
 | `PLAYWRIGHT_REPEAT_EACH` | Times to repeat each test (default: `1`) |
 | `PLAYWRIGHT_RESULTS_LABEL` | Label for JSON report files |
 
-### SonarQube
-| Key | Description |
-|-----|-------------|
-| `SONAR_URL` | SonarQube server URL |
-| `SONAR_TOKEN` | Auth token |
-| `SONAR_PROJECT_KEY` | Project key (default: `fintech-app`) |
-| `SONAR_PROJECT_NAME` | Display name |
-| `SONAR_TEST_COMMAND` | Test command for coverage |
-
 ---
 
 ## 10. Audit & Reporting Infrastructure
@@ -557,65 +542,6 @@ Output: `reports/playwright/{label}.performance.json` + `pw_results.json`
 - Compares two Lighthouse runs by label (e.g., `base` vs `performance`)
 - Shows absolute delta + percentage change per metric
 - Output: `reports/lighthouse/comparison_{A}_vs_{B}.json`
-
-### SonarQube (`scripts/sonar-analysis.js`)
-- Scans `frontend/` and `backend/` dirs
-- Excludes `node_modules`, `dist`, `playwright`, `scripts`, `reports`
-- Auto-creates project if it doesn't exist
-- Applies `Thesis-Security-Profile` quality profile (see section 10)
-
----
-
-## 10. SonarQube Quality Profile
-
-**Profile name:** `Thesis-Security-Profile`
-**Language:** JavaScript (`js`)
-**Purpose:** Restrict SonarQube analysis to only the security rules that map to thesis techniques S1–S10. Eliminates general code-smell noise from results, making cross-variant comparisons clean and thesis-relevant.
-
-### Setup
-
-Run once before the first SonarQube scan (or after a fresh SonarQube install):
-
-```bash
-npm run sonar:setup
-```
-
-This script:
-1. Creates `Thesis-Security-Profile` if it doesn't exist (idempotent)
-2. Activates all 16 rules at `MAJOR` severity
-3. Assigns the profile to all 3 variant projects
-4. Prints a summary of activated/skipped rules
-
-> **Note:** Some rules require the SonarQube Security plugin. If rules are skipped, install it via: Administration → Marketplace → Security
-
-### Activated Rules (16)
-
-| Category | Rule Key | Description | Thesis Technique |
-|----------|----------|-------------|-----------------|
-| XSS | `javascript:S5131` | DOM XSS via innerHTML / document.write | S9 |
-| XSS | `javascript:S6105` | Unsafe dangerouslySetInnerHTML in React | S9 |
-| SQL Injection | `javascript:S3649` | SQL injection risk | Baseline check |
-| NoSQL Injection | `javascript:S5334` | NoSQL injection via unvalidated input | Baseline check |
-| Auth | `javascript:S5527` | Insecure SSL/TLS configuration | S7 |
-| Auth | `javascript:S5659` | JWT signature not verified / algorithm confusion | S5, S6 |
-| Auth | `javascript:S5247` | Disabling certificate validation | S7 |
-| Secrets | `javascript:S2068` | Hardcoded password or credential | S5 |
-| Secrets | `javascript:S6418` | Hardcoded secret or API token | S5 |
-| Cookies | `javascript:S2255` | Cookies written without proper flags | S7 |
-| Cookies | `javascript:S3330` | Cookie missing HttpOnly flag | S7 |
-| Cookies | `javascript:S2092` | Cookie missing Secure flag | S7 |
-| Input Validation | `javascript:S5146` | Open redirect via unvalidated URL | S4 |
-| Input Validation | `javascript:S2631` | Regular expression injection | S4 |
-| Cryptography | `javascript:S4426` | Cryptographic key too short | — |
-| Cryptography | `javascript:S5542` | Insecure cipher mode (ECB, no padding) | — |
-
-### Expected Behaviour Per Variant
-
-| Variant | Expected Violations | Reason |
-|---------|---------------------|--------|
-| V1 `base` | High | Hardcoded JWT secret (S2068, S6418), no HttpOnly cookie (S3330, S2092), XSS exposure (S5131) |
-| V2 `base-performance` | High (same as V1) | No security changes in this variant |
-| V3 `base-performance-security` | Low / zero | All security techniques applied — violations should be resolved |
 
 ---
 

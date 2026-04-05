@@ -27,17 +27,16 @@
 
 ---
 
-### 2026-04-05 17:30 `[CONFIG]` `[SECURITY]`
-**SonarQube quality profile setup — Thesis-Security-Profile**
-- Created `scripts/setupSonarProfile.js` — automates SonarQube quality profile creation and rule activation via API; idempotent (safe to re-run)
-- Profile: `Thesis-Security-Profile` (JavaScript, 16 rules activated at MAJOR severity)
-- Rules cover: XSS (S5131, S6105), SQL injection (S3649), NoSQL injection (S5334), auth/JWT (S5527, S5659, S5247), hardcoded secrets (S2068, S6418), insecure cookies (S2255, S3330, S2092), input validation (S5146, S2631), cryptography (S4426, S5542)
-- Script assigns the profile to all 3 variant projects after creation
-- Updated `scripts/sonar-analysis.js` — added `sonar.qualityprofile: 'Thesis-Security-Profile'` so every scan uses the thesis-scoped rule set
-- Added `sonar:setup` script to `package.json`
-- Added section 10 to `PROJECT_REFERENCE.md` — documents all 16 rules, expected violations per variant, and setup instructions
-- **Purpose:** Ensure SonarQube only counts violations relevant to thesis security techniques (S1–S10). V1 should show high violation count (hardcoded secret, no HttpOnly cookie, XSS exposure); V3 should show near-zero after applying all security techniques — this delta is a thesis measurement point.
-- **Files:** `scripts/setupSonarProfile.js` (new), `scripts/sonar-analysis.js`, `package.json`, `PROJECT_REFERENCE.md`
+### 2026-04-05 19:00 `[CLEANUP]`
+**Removed SonarQube from project**
+- Deleted `scripts/sonar-analysis.js` and `scripts/setupSonarProfile.js`
+- Removed `sonarqube-scanner` npm dependency from `package.json`
+- Removed scripts: `audit:sonar`, `sonar:setup`, `sonar`; updated `audit:all` to Lighthouse + Playwright only
+- Simplified `scripts/runPipeline.js` — removed SonarQube step, axios import, and sonarLine log output; `main()` is now synchronous
+- Removed SonarQube section 10 from `PROJECT_REFERENCE.md` and all other SonarQube references in docs
+- Removed SonarQube env vars from `.env.example`
+- **Purpose:** SonarQube cannot reliably detect most security issues in the base variant (misses absent middleware, architectural decisions, indirect data flows). Thesis measurements will rely on Lighthouse (performance scores) and Playwright (E2E timings) which provide concrete, comparable numbers across variants.
+- **Files:** `scripts/sonar-analysis.js` (deleted), `scripts/setupSonarProfile.js` (deleted), `scripts/runPipeline.js`, `package.json`, `CLAUDE.md`, `PROJECT_REFERENCE.md`, `ACTIVITY_LOG.md`, `.env.example`
 
 ---
 
@@ -49,12 +48,11 @@
 - `scripts/lighthouse.js` — deleted (redundant 4-line wrapper)
 - `scripts/compareReports.js` — fixed confusing duplicate variable name (`meanKeyB` used for both A and B); added improved/degraded/unchanged totals summary line
 - `scripts/summarizePlaywrightReports.js` — excluded `pw_results.json` from aggregation (wrong schema caused silent failures); added console table preview of results
-- `scripts/sonar-analysis.js` — now uses per-variant project keys (`fintech-app-base`, `fintech-app-base-performance`, `fintech-app-base-performance-security`) so each variant has independent SonarQube history; added `SONAR_SKIP_TESTS=true` flag; improved error handling
 - `playwright/utils/metrics.js` — Playwright performance reports now prefixed with `PLAYWRIGHT_RESULTS_LABEL` (e.g. `base.route-readiness.performance.json`) enabling variant-specific files
 
 **New scripts:**
 - `scripts/comparePlaywright.js` — Playwright equivalent of `compareReports.js`; compares operation timings across two variant labels for all 3 suites; shows ▲/▼ delta per operation; saves JSON
-- `scripts/runPipeline.js` — master pipeline; runs Lighthouse → Playwright → summary → SonarQube in sequence; auto-appends `[MEASUREMENT]` entry to `ACTIVITY_LOG.md` with scores, timings, commit hash
+- `scripts/runPipeline.js` — master pipeline; runs Lighthouse → Playwright → summary in sequence; auto-appends `[MEASUREMENT]` entry to `ACTIVITY_LOG.md` with scores, timings, commit hash
 
 **`package.json` changes:**
 - Removed `audit:lighthouse:legacy` (script deleted)
@@ -63,7 +61,7 @@
 
 **Purpose:** Complete the measurement infrastructure. One command (`THESIS_VARIANT=base npm run pipeline`) now runs all audits and logs results automatically — no manual ACTIVITY_LOG entries needed after audit runs.
 
-**Files:** `scripts/runLighthouse.js`, `scripts/compareReports.js`, `scripts/summarizePlaywrightReports.js`, `scripts/sonar-analysis.js`, `scripts/comparePlaywright.js` (new), `scripts/runPipeline.js` (new), `playwright/utils/metrics.js`, `package.json`
+**Files:** `scripts/runLighthouse.js`, `scripts/compareReports.js`, `scripts/summarizePlaywrightReports.js`, `scripts/comparePlaywright.js` (new), `scripts/runPipeline.js` (new), `playwright/utils/metrics.js`, `package.json`
 
 ---
 
@@ -114,12 +112,6 @@
 
 ---
 
-### 2026-03-30 18:51 `[CONFIG]`
-**Code coverage excluded from SonarQube**
-- Updated SonarQube config to exclude code coverage reporting (not relevant for thesis scope)
-- **Commit:** `9bf0edb`
-
----
 
 ### 2026-03-30 12:29 `[MEASUREMENT]`
 **Labeled reports, comparison tooling, std dev fix**
@@ -163,13 +155,9 @@
 ---
 
 ### 2026-03-06 13:53 `[CONFIG]`
-**Folder structure enhanced + SonarQube config added**
+**Folder structure enhanced**
 - Reorganized project directory structure
-- Added `scripts/sonar-analysis.js` and SonarQube project configuration
-- Added `sonarqube-scanner` as a dependency
-- **Purpose:** Enable automated code quality metrics as a thesis measurement dimension
 - **Commit:** `59c7a7b`
-- **Files:** `scripts/sonar-analysis.js` (new), `package.json`
 
 ---
 
