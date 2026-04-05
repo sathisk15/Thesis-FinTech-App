@@ -27,7 +27,7 @@
 
 ---
 
-### 2026-04-05 `[CONFIG]` `[MEASUREMENT]`
+### 2026-04-05 16:35 `[CONFIG]` `[MEASUREMENT]`
 **Audit scripts reviewed, fixed, and extended**
 
 **Fixes to existing scripts:**
@@ -53,7 +53,7 @@
 
 ---
 
-### 2026-04-05 `[DOCS]` `[CONFIG]`
+### 2026-04-05 13:56 `[DOCS]` `[CONFIG]`
 **Thesis variant plan finalized + project documentation created**
 
 **Variant structure decided:**
@@ -89,7 +89,7 @@
 
 ---
 
-### 2026-03-30 `[TEST]` `[MEASUREMENT]`
+### 2026-03-30 23:04 `[TEST]` `[MEASUREMENT]`
 **Playwright page-operations spec + headless toggle + dashboard test IDs**
 - Added `playwright/tests/performance/page-operations.spec.js` — measures timing of individual UI operations (login, transfer, pay, dashboard filters, transaction filters)
 - Added `PLAYWRIGHT_HEADLESS` env var toggle for running tests with visible browser
@@ -100,14 +100,14 @@
 
 ---
 
-### 2026-03-30 `[CONFIG]`
+### 2026-03-30 18:51 `[CONFIG]`
 **Code coverage excluded from SonarQube**
 - Updated SonarQube config to exclude code coverage reporting (not relevant for thesis scope)
 - **Commit:** `9bf0edb`
 
 ---
 
-### 2026-03-30 `[MEASUREMENT]`
+### 2026-03-30 12:29 `[MEASUREMENT]`
 **Labeled reports, comparison tooling, std dev fix**
 - Added labeled report output — Lighthouse and Playwright reports now tagged by `THESIS_VARIANT` / `PLAYWRIGHT_RESULTS_LABEL`
 - Added `scripts/compareReports.js` — compares two Lighthouse run outputs side-by-side (absolute delta + percentage)
@@ -119,7 +119,7 @@
 
 ---
 
-### 2026-03-30 `[TEST]`
+### 2026-03-30 11:10 `[TEST]`
 **Test IDs added across all pages**
 - Added `data-testid` attributes to all interactive elements across all pages
 - Enables Playwright to reliably select elements without fragile CSS selectors
@@ -129,7 +129,7 @@
 
 ---
 
-### 2026-03-24 `[MEASUREMENT]` `[CONFIG]`
+### 2026-03-24 20:13 `[MEASUREMENT]` `[CONFIG]`
 **Deterministic seed data + env-driven audit scripts**
 - Improved `backend/config/seed_db.js` to be fully deterministic — same seed key always produces identical data
 - Seed key controlled by `SEED_DB_SEED` env var (default: `thesis-fintech-base-v1`)
@@ -141,14 +141,14 @@
 
 ---
 
-### 2026-03-24 `[REFACTOR]`
+### 2026-03-24 19:13 `[REFACTOR]`
 **Minor enhancements and cleanup**
 - Small fixes across frontend and backend
 - **Commit:** `5203733`
 
 ---
 
-### 2026-03-06 `[CONFIG]`
+### 2026-03-06 13:53 `[CONFIG]`
 **Folder structure enhanced + SonarQube config added**
 - Reorganized project directory structure
 - Added `scripts/sonar-analysis.js` and SonarQube project configuration
@@ -159,14 +159,14 @@
 
 ---
 
-### 2026-03-05 `[MEASUREMENT]`
+### 2026-03-05 10:53 `[MEASUREMENT]`
 **Lighthouse script updated**
 - Updated `scripts/runLighthouse.js` with improved page navigation and metric capture
 - **Commit:** `274b7c5`
 
 ---
 
-### 2026-03-04 `[MEASUREMENT]`
+### 2026-03-04 09:06 `[MEASUREMENT]`
 **Lighthouse statistical calculations added**
 - Added mean, min, max, std dev statistics to Lighthouse output
 - Initial and iterative setup of `scripts/runLighthouse.js` using Puppeteer + Lighthouse
@@ -177,7 +177,7 @@
 
 ---
 
-### 2026-02-27 `[FIX]` `[FEATURE]`
+### 2026-02-27 14:23 `[FIX]` `[FEATURE]`
 **Dashboard line chart fixed + time range filter + activity filter**
 - Fixed rendering bug in `CustomLineChart.jsx` — chart was not displaying correctly
 - Added time range filter chips to Dashboard (1m, 3m, 6m, 1y, 3y, 6y, all-time)
@@ -188,7 +188,7 @@
 
 ---
 
-### 2026-02-26 `[FEATURE]`
+### 2026-02-26 16:57 `[FEATURE]`
 **Dashboard complete — KPI grid, charts, health metrics, layout finalized**
 - KPI grid showing total income, total expense, net savings, account totals
 - Line chart for income/expense trends over time
@@ -204,7 +204,7 @@
 
 ---
 
-### 2026-02-26 `[FEATURE]`
+### 2026-02-26 21:21 `[FEATURE]`
 **Account management — create account, deposit, transfer, link**
 - Account page fully built — list accounts, create new account, deposit money
 - Transfer between accounts implemented (frontend + backend)
@@ -215,7 +215,7 @@
 
 ---
 
-### 2026-02-24 `[FEATURE]`
+### 2026-02-24 08:47 `[FEATURE]`
 **Account page + store setup**
 - Created `AccountsPage.jsx` and account Zustand store
 - Implemented `AccountCard`, `AddAccount`, `DepositMoney` components
@@ -225,7 +225,7 @@
 
 ---
 
-### 2026-02-24 `[FEATURE]`
+### 2026-02-24 06:21 `[FEATURE]`
 **Authentication — full auth flow implemented**
 - Login and registration UI built
 - Backend: register + login routes with bcrypt password hashing and JWT generation
@@ -239,7 +239,7 @@
 
 ---
 
-### 2026-02-24 `[FEATURE]`
+### 2026-02-24 05:55 `[FEATURE]`
 **Backend database initialization**
 - SQLite database setup with `better-sqlite3`
 - Schema creation script: `tbluser`, `tblaccount`, `tbltransaction` tables
@@ -250,7 +250,7 @@
 
 ---
 
-### 2026-02-24 `[FEATURE]`
+### 2026-02-24 05:25 `[FEATURE]`
 **Dashboard pages + routing + sidebar**
 - Dashboard, Accounts, Transactions, Transfer, Pay, Settings page stubs created
 - React Router setup with protected routes
@@ -260,7 +260,7 @@
 
 ---
 
-### 2026-02-23 `[CONFIG]`
+### 2026-02-23 00:24 `[CONFIG]`
 **Initial project setup**
 - Frontend: React + Vite + Tailwind CSS + React Router + Zustand (basic architecture)
 - Backend: Express server on port 4000
@@ -275,7 +275,7 @@
 Copy this when adding a new entry:
 
 ```
-### YYYY-MM-DD `[CATEGORY]`
+### YYYY-MM-DD HH:MM `[CATEGORY]`
 **Short description of what changed**
 - Bullet point detail
 - Bullet point detail
