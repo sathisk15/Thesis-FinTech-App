@@ -1,0 +1,233 @@
+# Activity Log — Thesis Fintech App
+
+> Record of every significant change made to the project.
+> Used as a reference for thesis writing — tracks what was built, why, and when.
+> Update this file after every session or meaningful change.
+
+---
+
+## How to Use This Log
+
+- **Add a new entry at the top** (most recent first)
+- Each entry should answer: what changed, why it was done, what files were affected
+- Use the **Category tags** to classify the type of work:
+  - `[FEATURE]` — new functionality added
+  - `[FIX]` — bug or error corrected
+  - `[MEASUREMENT]` — audit tooling, metrics, or reporting changes
+  - `[TEST]` — test additions or changes
+  - `[REFACTOR]` — code restructured without behavior change
+  - `[CONFIG]` — configuration, env, or tooling setup
+  - `[DOCS]` — documentation changes (including this file)
+  - `[SECURITY]` — security-related changes
+  - `[CLEANUP]` — dead code removal, formatting
+
+---
+
+## 2026
+
+---
+
+### 2026-04-05 `[DOCS]`
+**Created project documentation files**
+- Created `PROJECT_REFERENCE.md` — full technical snapshot of the codebase (tech stack, architecture, schema, API routes, test IDs, scripts, env vars, known issues, roadmap)
+- Created `CLAUDE.md` — coding assistant rules file (auto-loaded by Claude Code each session)
+- Created `ACTIVITY_LOG.md` — this file, for tracking all project changes for thesis writing
+- **Purpose:** Avoid re-analyzing the project every session; provide thesis writing reference
+- **Files:** `PROJECT_REFERENCE.md`, `CLAUDE.md`, `ACTIVITY_LOG.md` (all new, root level)
+
+---
+
+### 2026-03-30 `[TEST]` `[MEASUREMENT]`
+**Playwright page-operations spec + headless toggle + dashboard test IDs**
+- Added `playwright/tests/performance/page-operations.spec.js` — measures timing of individual UI operations (login, transfer, pay, dashboard filters, transaction filters)
+- Added `PLAYWRIGHT_HEADLESS` env var toggle for running tests with visible browser
+- Added `data-testid` attributes to dashboard sections and filter elements for Playwright targeting
+- **Purpose:** Capture granular operation-level performance data for thesis measurement (complement to route-readiness and journey tests)
+- **Commit:** `d15569c`
+- **Files:** `playwright/tests/performance/page-operations.spec.js`, `frontend/src/features/dashboard/DashboardPage.jsx`, various page components
+
+---
+
+### 2026-03-30 `[CONFIG]`
+**Code coverage excluded from SonarQube**
+- Updated SonarQube config to exclude code coverage reporting (not relevant for thesis scope)
+- **Commit:** `9bf0edb`
+
+---
+
+### 2026-03-30 `[MEASUREMENT]`
+**Labeled reports, comparison tooling, std dev fix**
+- Added labeled report output — Lighthouse and Playwright reports now tagged by `THESIS_VARIANT` / `PLAYWRIGHT_RESULTS_LABEL`
+- Added `scripts/compareReports.js` — compares two Lighthouse run outputs side-by-side (absolute delta + percentage)
+- Fixed standard deviation calculation in `playwright/utils/metrics.js`
+- Added report history archiving to `reports/lighthouse/history/`
+- **Purpose:** Enable controlled comparison between thesis variants (base vs performance vs security)
+- **Commit:** `87e648f`
+- **Files:** `scripts/compareReports.js` (new), `scripts/runLighthouse.js`, `playwright/utils/metrics.js`
+
+---
+
+### 2026-03-30 `[TEST]`
+**Test IDs added across all pages**
+- Added `data-testid` attributes to all interactive elements across all pages
+- Enables Playwright to reliably select elements without fragile CSS selectors
+- **Coverage:** Login, Register, Dashboard (filters, sections), Accounts (list, modals), Transactions (filters, table), Transfer, Pay, Settings, NavBar
+- **Convention established:** `{feature}-{element}` in kebab-case
+- **Commit:** `f896609`
+
+---
+
+### 2026-03-24 `[MEASUREMENT]` `[CONFIG]`
+**Deterministic seed data + env-driven audit scripts**
+- Improved `backend/config/seed_db.js` to be fully deterministic — same seed key always produces identical data
+- Seed key controlled by `SEED_DB_SEED` env var (default: `thesis-fintech-base-v1`)
+- All audit scripts now read configuration from `.env` (no hardcoded values in scripts)
+- Added `THESIS_VARIANT`, `PLAYWRIGHT_RESULTS_LABEL`, `PLAYWRIGHT_REPEAT_EACH` env support
+- **Purpose:** Ensures repeatable, comparable measurements across thesis variants
+- **Commit:** `0b27902`
+- **Files:** `backend/config/seed_db.js`, `scripts/runLighthouse.js`, `playwright/utils/config.js`, `.env`
+
+---
+
+### 2026-03-24 `[REFACTOR]`
+**Minor enhancements and cleanup**
+- Small fixes across frontend and backend
+- **Commit:** `5203733`
+
+---
+
+### 2026-03-06 `[CONFIG]`
+**Folder structure enhanced + SonarQube config added**
+- Reorganized project directory structure
+- Added `scripts/sonar-analysis.js` and SonarQube project configuration
+- Added `sonarqube-scanner` as a dependency
+- **Purpose:** Enable automated code quality metrics as a thesis measurement dimension
+- **Commit:** `59c7a7b`
+- **Files:** `scripts/sonar-analysis.js` (new), `package.json`
+
+---
+
+### 2026-03-05 `[MEASUREMENT]`
+**Lighthouse script updated**
+- Updated `scripts/runLighthouse.js` with improved page navigation and metric capture
+- **Commit:** `274b7c5`
+
+---
+
+### 2026-03-04 `[MEASUREMENT]`
+**Lighthouse statistical calculations added**
+- Added mean, min, max, std dev statistics to Lighthouse output
+- Initial and iterative setup of `scripts/runLighthouse.js` using Puppeteer + Lighthouse
+- Captures: Performance score, FCP, LCP, Speed Index, TBT, CLS for each page
+- **Purpose:** Core performance measurement tool for thesis — provides Lighthouse-based metrics per variant
+- **Commits:** `11e1480`, `45b5bbc`, `01760e5`
+- **Files:** `scripts/runLighthouse.js`, `scripts/lighthouse.js` (legacy)
+
+---
+
+### 2026-02-27 `[FIX]` `[FEATURE]`
+**Dashboard line chart fixed + time range filter + activity filter**
+- Fixed rendering bug in `CustomLineChart.jsx` — chart was not displaying correctly
+- Added time range filter chips to Dashboard (1m, 3m, 6m, 1y, 3y, 6y, all-time)
+- Added account activity filter dropdown to Dashboard
+- Label aggregation logic added — auto-adjusts label density based on selected time range to prevent chart clutter
+- **Commits:** `d0c6348`, `5d634b6`, `5d9f562`, `ddb3d54`
+- **Files:** `frontend/src/features/dashboard/DashboardPage.jsx`, `frontend/src/features/dashboard/components/CustomLineChart.jsx`, `frontend/src/features/dashboard/components/TimeRangeFilterChips.jsx`, `frontend/src/features/dashboard/components/AccountFilterDropdown.jsx`
+
+---
+
+### 2026-02-26 `[FEATURE]`
+**Dashboard complete — KPI grid, charts, health metrics, layout finalized**
+- KPI grid showing total income, total expense, net savings, account totals
+- Line chart for income/expense trends over time
+- Pie chart for expense breakdown by category
+- Financial health score, budget health, savings rate, monthly comparison components
+- Latest transactions section on dashboard
+- Advanced transaction filters (date range, amount, flow, sort)
+- Overall dashboard layout finalized
+- UI sign-in and sign-up pages modernized
+- Account pay popup added
+- **Commits:** `2b39bd3`, `7c37ca3`, `0d49574`, `5f522c2`, `9a03342`, `9c1a5a3`, `1a1b5ff`, `c55bf1f`
+- **Files:** `frontend/src/features/dashboard/DashboardPage.jsx` and all components under `dashboard/components/`
+
+---
+
+### 2026-02-26 `[FEATURE]`
+**Account management — create account, deposit, transfer, link**
+- Account page fully built — list accounts, create new account, deposit money
+- Transfer between accounts implemented (frontend + backend)
+- Account name column added to backend (renamed from `account_type`)
+- Business logic for linking accounts updated
+- **Commits:** `3e0fbb6`, `50dd10a`, `36b3bb8`, `aa979b4`, `2941227`
+- **Files:** `backend/controllers/account.controller.js`, `frontend/src/features/accounts/`, `frontend/src/store/useAccountStore.js`
+
+---
+
+### 2026-02-24 `[FEATURE]`
+**Account page + store setup**
+- Created `AccountsPage.jsx` and account Zustand store
+- Implemented `AccountCard`, `AddAccount`, `DepositMoney` components
+- Create account and deposit money features working end-to-end
+- **Commits:** `2375e8f`, `e705223`, `484484f`
+- **Files:** `frontend/src/features/accounts/`, `frontend/src/store/useAccountStore.js`
+
+---
+
+### 2026-02-24 `[FEATURE]`
+**Authentication — full auth flow implemented**
+- Login and registration UI built
+- Backend: register + login routes with bcrypt password hashing and JWT generation
+- Auth middleware added — protects all API routes requiring authentication
+- `GET /api/auth/me` — returns current user from token
+- Profile update and change password features added
+- Auth store (Zustand) with localStorage persistence
+- Axios interceptors: adds token to requests, redirects to `/login` on 401
+- **Commits:** `a2fce62`, `9cfafd0`, `a22952c`, `01ffb6f`, `415e7e3`, `74e6bc9`, `7941669`, `95e5f72`, `f066eb3`, `7bb0c0b`, `b1005a7`
+- **Files:** `backend/controllers/auth.controller.js`, `backend/routes/auth.routes.js`, `backend/middleware/auth.middleware.js`, `frontend/src/features/auth/`, `frontend/src/store/useAuthStore.js`, `frontend/src/api/axios.js`, `frontend/src/shared/routes/ProtectedRoute.jsx`
+
+---
+
+### 2026-02-24 `[FEATURE]`
+**Backend database initialization**
+- SQLite database setup with `better-sqlite3`
+- Schema creation script: `tbluser`, `tblaccount`, `tbltransaction` tables
+- Indexes on user_id, account_id, and transaction date
+- Foreign keys enabled with cascade delete
+- **Commit:** `a180c69`
+- **Files:** `backend/db/db.js`, `backend/config/init_db.js`
+
+---
+
+### 2026-02-24 `[FEATURE]`
+**Dashboard pages + routing + sidebar**
+- Dashboard, Accounts, Transactions, Transfer, Pay, Settings page stubs created
+- React Router setup with protected routes
+- AppLayout with SideBar and NavBar components
+- **Commit:** `6169e08`
+- **Files:** `frontend/src/app/router.jsx`, `frontend/src/shared/layouts/AppLayout.jsx`, `frontend/src/shared/componenets/SideBar.jsx`, `frontend/src/shared/componenets/NavBar.jsx`
+
+---
+
+### 2026-02-23 `[CONFIG]`
+**Initial project setup**
+- Frontend: React + Vite + Tailwind CSS + React Router + Zustand (basic architecture)
+- Backend: Express server on port 4000
+- NavBar and SideBar created, app theme/CSS variables defined
+- **Commits:** `c70df26`, `72246e1`, `77f1cf6`, `43807b7`
+- **Files:** `frontend/`, `backend/server.js`, `backend/app.js`, `frontend/src/index.css`
+
+---
+
+## Entry Template
+
+Copy this when adding a new entry:
+
+```
+### YYYY-MM-DD `[CATEGORY]`
+**Short description of what changed**
+- Bullet point detail
+- Bullet point detail
+- **Purpose:** Why this was done / thesis relevance
+- **Commit:** `abc1234` (if applicable)
+- **Files:** list of key files added/changed
+```
