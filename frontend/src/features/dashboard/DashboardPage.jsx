@@ -383,6 +383,27 @@ const DashboardPage = () => {
   const latestTransactions = [...filteredTransActiviyTransactions]
     .sort((a, b) => new Date(b.createdat) - new Date(a.createdat))
     .slice(0, 5);
+
+  // V1 baseline: no memoisation — these run on every render.
+  // Every filter chip click re-derives sorted order and lookup map from scratch.
+  // In V2, these are removed (replaced by useMemo — technique P2).
+  const _allTxSorted = [...transactions].sort(
+    (a, b) => new Date(b.createdat) - new Date(a.createdat),
+  );
+  const _txById = transactions.reduce((acc, tx) => {
+    acc[tx.id] = tx;
+    return acc;
+  }, {});
+
+  // V1 baseline: debug logging left in — forces string construction on every render.
+  // Removed in V2 cleanup.
+  console.log(
+    '[V1 Dashboard] render — total tx:', transactions.length,
+    '| kpi:', finalKpiTransactions.length,
+    '| chart pts:', chartData.length,
+    '| health tx:', finalHealthCardTransactions.length,
+  );
+
   /* ================= UI RENDERING ================= */
   return (
     <div className="w-full px-4 md:px-6 py-8 space-y-10">

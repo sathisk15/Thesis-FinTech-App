@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
 
@@ -54,47 +54,37 @@ const TransactionPage = () => {
     flow !== 'all' ||
     sortBy !== 'date-desc';
 
-  const filteredTransactions = useMemo(() => {
-    let data = [...transactions];
+  // V1 baseline: no memoisation — filter + sort runs on every render.
+  // Every keystroke re-runs the full O(n) filter pass and O(n log n) sort.
+  // V2 wraps this in useMemo (technique P2).
+  let filteredTransactions = [...transactions];
 
-    data = data.filter((tx) => {
-      const txDate = new Date(tx.createdAt || tx.createdat);
-      const amount = Number(tx.amount);
-      const isIncoming = tx.type === 'deposit' || tx.type === 'credit';
+  filteredTransactions = filteredTransactions.filter((tx) => {
+    const txDate = new Date(tx.createdAt || tx.createdat);
+    const amount = Number(tx.amount);
+    const isIncoming = tx.type === 'deposit' || tx.type === 'credit';
 
-      return (
-        (!fromDate || txDate >= new Date(fromDate)) &&
-        (!toDate || txDate <= new Date(toDate)) &&
-        (!search ||
-          tx.description?.toLowerCase().includes(search.toLowerCase())) &&
-        (!minAmount || amount >= Number(minAmount)) &&
-        (!maxAmount || amount <= Number(maxAmount)) &&
-        (flow === 'all' || (flow === 'incoming' ? isIncoming : !isIncoming))
-      );
-    });
+    return (
+      (!fromDate || txDate >= new Date(fromDate)) &&
+      (!toDate || txDate <= new Date(toDate)) &&
+      (!search ||
+        tx.description?.toLowerCase().includes(search.toLowerCase())) &&
+      (!minAmount || amount >= Number(minAmount)) &&
+      (!maxAmount || amount <= Number(maxAmount)) &&
+      (flow === 'all' || (flow === 'incoming' ? isIncoming : !isIncoming))
+    );
+  });
 
-    data.sort((a, b) => {
-      const da = new Date(a.createdAt || a.createdat).getTime();
-      const db = new Date(b.createdAt || b.createdat).getTime();
+  filteredTransactions.sort((a, b) => {
+    const da = new Date(a.createdAt || a.createdat).getTime();
+    const db = new Date(b.createdAt || b.createdat).getTime();
 
-      if (sortBy === 'date-desc') return db - da;
-      if (sortBy === 'date-asc') return da - db;
-      if (sortBy === 'amount-desc') return b.amount - a.amount;
-      if (sortBy === 'amount-asc') return a.amount - b.amount;
-      return 0;
-    });
-
-    return data;
-  }, [
-    transactions,
-    fromDate,
-    toDate,
-    search,
-    minAmount,
-    maxAmount,
-    flow,
-    sortBy,
-  ]);
+    if (sortBy === 'date-desc') return db - da;
+    if (sortBy === 'date-asc') return da - db;
+    if (sortBy === 'amount-desc') return b.amount - a.amount;
+    if (sortBy === 'amount-asc') return a.amount - b.amount;
+    return 0;
+  });
 
   return (
     <div data-testid="transactions-page" className="w-full py-10 space-y-8">

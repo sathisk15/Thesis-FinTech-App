@@ -27,6 +27,30 @@
 
 ---
 
+### 2026-04-06 `[BASELINE]` V1 `base` branch established
+
+**Branch:** `base` (created from `main`)
+
+**What changed:**
+- `frontend/src/features/transations/TransactionsPage.jsx` — removed `useMemo` from `filteredTransactions`; filter + sort now runs synchronously on every render (every keystroke, every dropdown change)
+- `frontend/src/features/dashboard/DashboardPage.jsx` — added `_allTxSorted` (O(n log n) spread + sort on every render), `_txById` (O(n) reduce on every render), and `console.log` with render-time stats; all run without caching on every state change
+
+**Anti-patterns confirmed absent (V1 is clean of all optimisations):**
+- P1–P3: No `React.memo`, `useMemo`, or `useCallback` on dashboard components
+- P4/P5: No `React.lazy` or `Suspense` in router.jsx (all imports static)
+- P6: No `react-window` virtualization in TransactionsPage
+- P7: No debounce on search input
+- P8: No dynamic `import()` calls
+- S1–S10: No `helmet`, rate limiting, `express-validator`, env JWT secret, short expiry, HttpOnly cookie, CSRF, `DOMPurify`, or restricted CORS
+
+**Purpose:** Establishes the deliberate worst-case measurement baseline (V1). The explicit anti-patterns in TransactionsPage and DashboardPage ensure Playwright timing tests (`transactions_search_filter_ms`, `transactions_sort_ms`, all `dashboard_*_filter_ms`) and Lighthouse TBT scores are measurably worse than V2/V3, providing a clear before/after comparison for thesis results.
+
+**Key files modified:**
+- `frontend/src/features/transations/TransactionsPage.jsx`
+- `frontend/src/features/dashboard/DashboardPage.jsx`
+
+---
+
 ### 2026-04-05 20:00 `[TEST]` `[MEASUREMENT]`
 **Playwright test suite reorganized and expanded**
 

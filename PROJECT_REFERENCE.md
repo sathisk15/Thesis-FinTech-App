@@ -20,20 +20,30 @@ A full-stack fintech/banking web application built for **thesis research on the 
 Controlled via `THESIS_VARIANT` env var. **Cumulative** — each variant builds on top of the previous.
 
 #### V1 — `base` (Baseline / Bad Version)
-The current unoptimized application. No performance or security techniques applied. Used as the **worst-case measurement baseline**.
+The deliberately unoptimized application. No performance or security techniques applied. Used as the **worst-case measurement baseline**.
 
-- No component memoization
-- No computation caching
-- All routes loaded eagerly (no code splitting)
-- No debouncing on inputs
-- No list virtualization
-- JWT stored in localStorage, secret hardcoded
-- No HTTP security headers
-- No rate limiting
-- No input validation
-- No sanitization
+**Absent optimisations (confirmed):**
+- No `React.memo` on any component (P1)
+- No `useMemo` — all derived data recomputed on every render (P2)
+- No `useCallback` — filter handlers recreated on every render (P3)
+- All routes loaded eagerly via static imports — no code splitting (P4/P5)
+- No `react-window` list virtualization in TransactionsPage (P6)
+- No debounce on search input — every keystroke triggers full filter+sort (P7)
+- No dynamic `import()` (P8)
+- No `helmet()` security headers (S1/S2)
+- No rate limiting (S3)
+- No `express-validator` (S4)
+- JWT secret hardcoded as `'supersecret'` (S5)
+- JWT expiry `1d`, no refresh token (S6)
+- JWT in `localStorage` via Bearer header, not HttpOnly cookie (S7/S8)
+- No `DOMPurify` sanitization (S9)
+- CORS hardcoded to `http://localhost:5173`, not env var (S10)
 
-**Status:** Current codebase as-is. `THESIS_VARIANT=base`
+**Deliberate anti-patterns added on `base` branch:**
+- `TransactionsPage.jsx`: `useMemo` removed — full O(n) filter + O(n log n) sort runs synchronously on every render
+- `DashboardPage.jsx`: `_allTxSorted` (spread + sort all transactions), `_txById` (full reduce), and `console.log` added — all execute on every render without caching
+
+**Status:** Done — branch `base`. `THESIS_VARIANT=base`
 
 ---
 
