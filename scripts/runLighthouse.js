@@ -159,10 +159,16 @@ function computeStatistics(results) {
 
 async function runSingleTest(pageConfig, runs) {
   const results = [];
-  const browser = await setupLoggedInBrowser();
 
   for (let i = 0; i < runs; i++) {
     console.log(`🔁 Run ${i + 1} for ${pageConfig.name}`);
+
+    // Fresh browser per run — eliminates residual state (network conditions,
+    // trace listeners, cached assets) that causes NO_NAVSTART on runs 2+.
+    // In prod mode pages load fast enough that Lighthouse's setup on a reused
+    // browser completes in ~5ms, creating a race where navigationStart is
+    // missed. A cold browser restores reliable timing on every run.
+    const browser = await setupLoggedInBrowser();
 
     const report = await runLighthouseAudit(
       BASE_URL + pageConfig.url,
@@ -175,9 +181,9 @@ async function runSingleTest(pageConfig, runs) {
     );
 
     results.push(metrics);
+    await browser.close();
   }
 
-  await browser.close();
   return results;
 }
 
