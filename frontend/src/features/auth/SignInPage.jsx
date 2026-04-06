@@ -29,9 +29,10 @@ const SignInPage = () => {
 
     try {
       const response = await api.post('/auth/login', formData);
-      const { user, token } = response.data;
+      const { user } = response.data;
 
-      login({ user, token });
+      // S7: token lives in HttpOnly cookie set by server — not in response body
+      login({ user });
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
