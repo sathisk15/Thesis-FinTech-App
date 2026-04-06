@@ -25,6 +25,48 @@
 
 ## 2026
 
+### 2026-04-06 `[FEATURE]` V2 `base-performance` — all P1–P8 techniques implemented
+
+**Branch:** `base-performance` (from `base`)
+
+**Techniques applied:**
+
+| ID | Technique | Files changed |
+|----|-----------|---------------|
+| P1 | `React.memo` on all 14 dashboard sub-components | All 14 files in `frontend/src/features/dashboard/components/` |
+| P2 | `useMemo` for all derived data in DashboardPage | `DashboardPage.jsx` |
+| P3 | `useCallback` for all clear-filter handlers | `DashboardPage.jsx` |
+| P4/P5 | `React.lazy` + `Suspense` on all 8 route imports | `frontend/src/app/router.jsx` |
+| P6 | `react-window` `FixedSizeList` replaces flat table | `TransactionsPage.jsx` |
+| P7 | 300ms `useDebounce` hook on search input | `TransactionsPage.jsx` |
+| P8 | `lazy()` dynamic import for `CustomPieChart` | `DashboardPage.jsx` |
+
+**Other changes:**
+- `react-window ^2.2.7` installed in `frontend/`
+- V1 anti-patterns removed from `DashboardPage.jsx` (`_allTxSorted`, `_txById`, `console.log`)
+- `parseDate`, `isInTimeRange`, `getChartData` moved outside component (stable, never recreated)
+
+**Purpose:** V2 measures the isolated impact of React performance optimisations on Lighthouse scores and Playwright timings. Compare `base` vs `base-performance` reports to quantify P1–P8 gains.
+
+**Key files modified:**
+- `frontend/src/features/dashboard/DashboardPage.jsx`
+- `frontend/src/features/dashboard/components/` (all 14 files)
+- `frontend/src/app/router.jsx`
+- `frontend/src/features/transations/TransactionsPage.jsx`
+- `frontend/package.json` (react-window added)
+
+---
+
+### 2026-04-06 11:13 UTC `[MEASUREMENT]`
+**Audit pipeline run — variant: `base`**
+- Lighthouse scores (mean): dashboard 46.0, accounts 55.0, transactions 25.0, transfer 55.0, pay 55.0, settings 55.0
+- Playwright: see reports/playwright/summary.json
+- Commit: `d3e8cd7` (branch: `base`)
+- Reports: `reports/lighthouse/base.json`, `reports/playwright/summary.json`
+- **Purpose:** Measurement run for thesis variant base
+
+---
+
 ---
 
 ### 2026-04-06 `[BASELINE]` V1 `base` branch established

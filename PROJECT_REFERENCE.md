@@ -61,7 +61,16 @@ All performance techniques applied on top of V1.
 | P7 | Debouncing | `TransactionsPage.jsx` search input | 300ms debounce on the `transactions-search` input handler |
 | P8 | Dynamic imports | Large icon/chart imports | Use dynamic `import()` for any non-critical heavy modules |
 
-**Status:** Not started. `THESIS_VARIANT=base-performance`
+**Status:** Done — branch `base-performance`. `THESIS_VARIANT=base-performance`
+
+**What was implemented:**
+- P1: All 14 dashboard components in `frontend/src/features/dashboard/components/` wrapped with `memo()` — prevents re-renders when parent re-renders but props are unchanged
+- P2: All derived data in `DashboardPage.jsx` wrapped in `useMemo` — `finalKpiTransactions`, `filteredLineChartTransactions`, `chartData`, `finalPieChartTransactions`, all pie/expense/income computations, `finalHealthCardTransactions`, all health card totals, `latestTransactions`; V1 anti-patterns (`_allTxSorted`, `_txById`, `console.log`) removed; helper functions (`parseDate`, `isInTimeRange`, `getChartData`) moved outside component
+- P3: All clear-filter handlers in `DashboardPage.jsx` wrapped in `useCallback` (`clearKpiFilters`, `clearLineChartFilters`, `clearPieChartFilters`, `clearHealthCardFilters`) — stable references prevent unnecessary child re-renders
+- P4/P5: All 8 route imports in `frontend/src/app/router.jsx` converted to `React.lazy()` with `<Suspense fallback>` — each page is a separate chunk loaded on demand
+- P6: `FixedSizeList` from `react-window` replaces flat table in `TransactionsPage.jsx` — only visible rows are rendered regardless of list size
+- P7: `useDebounce(300)` hook added; `debouncedSearch` (not raw `search`) drives the filter — eliminates per-keystroke full filter+sort passes
+- P8: `CustomPieChart` loaded via `lazy(() => import(...))` with `<Suspense>` wrapper — defers Recharts (~200 kB) until below-the-fold chart section mounts
 
 ---
 
