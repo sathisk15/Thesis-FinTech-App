@@ -14,10 +14,15 @@ import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-// S3: rate limiter — max 20 requests per 15 min on auth endpoints
+// S3: rate limiter — max 20 requests per 15 min on auth endpoints.
+// Localhost is skipped so the Lighthouse/Playwright audit pipeline (which logs
+// in once per run × page, up to 30+ times) is never blocked during thesis audits.
+// External traffic (any non-loopback IP) is still fully rate-limited.
+const LOOPBACK = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  skip: (req) => LOOPBACK.has(req.ip),
   message: { success: false, message: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,

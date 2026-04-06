@@ -25,6 +25,16 @@
 
 ## 2026
 
+### 2026-04-06 20:27 UTC `[MEASUREMENT]`
+**Audit pipeline run — variant: `base-performance-security`**
+- Lighthouse scores (mean): dashboard 57.0, accounts 69.0, transactions 64.4, transfer 70.0, pay 70.0, settings 70.0
+- Playwright: see reports/playwright/summary.json
+- Commit: `eec4e15` (branch: `base-performance-security`)
+- Reports: `reports/lighthouse/base-performance-security.json`, `reports/playwright/summary.json`
+- **Purpose:** Measurement run for thesis variant base-performance-security
+
+---
+
 ### 2026-04-06 `[FEATURE]` `[SECURITY]` V3 `base-performance-security` — all S1–S10 techniques implemented
 
 **Branch:** `base-performance-security` (from `base-performance`)
