@@ -631,13 +631,13 @@ Track which techniques have been implemented per variant. Update status as work 
 
 | ID | Technique | File(s) | Status |
 |----|-----------|---------|--------|
-| S1 | `helmet()` middleware — X-Frame-Options, X-Content-Type-Options, Referrer-Policy | `backend/app.js` | Not started |
-| S2 | `helmet.contentSecurityPolicy()` — whitelist origins | `backend/app.js` | Not started |
-| S3 | `express-rate-limit` — 10 req / 15 min on auth endpoints | `backend/app.js` | Not started |
-| S4 | `express-validator` — validate + sanitize all POST/PUT bodies | `backend/routes/*.js` or middleware | Not started |
-| S5 | JWT secret from `process.env.JWT_SECRET` | `backend/middleware/auth.middleware.js`, `backend/controllers/auth.controller.js` | Not started |
-| S6 | JWT expiry: `15m` + refresh token endpoint | `backend/controllers/auth.controller.js`, new refresh route | Not started |
-| S7 | JWT in HttpOnly + Secure + SameSite=Strict cookie | `backend/controllers/auth.controller.js`, `frontend/src/api/axios.js`, `frontend/src/store/useAuthStore.js` | Not started |
-| S8 | CSRF protection via SameSite=Strict (from S7) | Covered by S7 | Not started |
-| S9 | `DOMPurify` sanitization on rendered user strings | `frontend/src/features/transations/TransactionsPage.jsx`, `AccountsPage.jsx`, `DashboardPage.jsx` | Not started |
-| S10 | CORS restricted to `process.env.CORS_ORIGIN` | `backend/app.js` | Not started |
+| S1 | `helmet()` middleware — X-Frame-Options, X-Content-Type-Options, Referrer-Policy | `backend/app.js` | Done |
+| S2 | `helmet.contentSecurityPolicy()` — whitelist origins | `backend/app.js` | Done |
+| S3 | `express-rate-limit` — 20 req / 15 min on auth endpoints | `backend/routes/auth.routes.js` | Done |
+| S4 | `express-validator` — validate + sanitize all POST/PUT bodies | `backend/routes/auth.routes.js`, `account.routes.js`, `payments.routes.js` | Done |
+| S5 | JWT secret from `process.env.JWT_SECRET` | `backend/middleware/auth.middleware.js`, `backend/controllers/auth.controller.js` | Done |
+| S6 | JWT expiry: `15m` + refresh token endpoint (7d) | `backend/controllers/auth.controller.js`, `backend/routes/auth.routes.js` | Done |
+| S7 | JWT in HttpOnly + Secure + SameSite=Strict cookie | `backend/controllers/auth.controller.js`, `frontend/src/api/axios.js`, `frontend/src/store/useAuthStore.js`, `SignInPage.jsx` | Done |
+| S8 | CSRF protection via SameSite=Strict (from S7) | Covered by S7 | Done |
+| S9 | `DOMPurify` sanitization on rendered user strings | `frontend/src/features/transations/TransactionsPage.jsx`, `AccountsPage.jsx`, `DashboardPage.jsx` | Done |
+| S10 | CORS restricted to `process.env.CORS_ORIGIN` | `backend/app.js` | Done |

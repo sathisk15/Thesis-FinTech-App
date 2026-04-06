@@ -25,6 +25,48 @@
 
 ## 2026
 
+### 2026-04-06 `[FEATURE]` `[SECURITY]` V3 `base-performance-security` — all S1–S10 techniques implemented
+
+**Branch:** `base-performance-security` (from `base-performance`)
+
+**Techniques applied:**
+
+| ID | Technique | Files changed |
+|----|-----------|---------------|
+| S1 | `helmet()` — secure HTTP headers | `backend/app.js` |
+| S2 | `helmet.contentSecurityPolicy()` — CSP directives | `backend/app.js` |
+| S3 | `express-rate-limit` — 20 req/15 min on login + register | `backend/routes/auth.routes.js` |
+| S4 | `express-validator` — input validation on all POST/PUT routes | `backend/routes/auth.routes.js`, `account.routes.js`, `payments.routes.js` |
+| S5 | JWT secret from `process.env.JWT_SECRET` | `backend/controllers/auth.controller.js`, `backend/middleware/auth.middleware.js` |
+| S6 | JWT expiry 15m + refresh token 7d + `/api/auth/refresh` endpoint | `backend/controllers/auth.controller.js`, `backend/routes/auth.routes.js` |
+| S7 | JWT in HttpOnly + SameSite=Strict cookie; token removed from localStorage | `backend/controllers/auth.controller.js`, `backend/middleware/auth.middleware.js`, `backend/app.js` (cookie-parser), `frontend/src/api/axios.js`, `frontend/src/store/useAuthStore.js`, `frontend/src/features/auth/SignInPage.jsx` |
+| S8 | CSRF protection — covered by SameSite=Strict from S7 | No additional code |
+| S9 | `DOMPurify` on all user-rendered strings | `frontend/src/features/transations/TransactionsPage.jsx`, `frontend/src/features/accounts/AccountsPage.jsx`, `frontend/src/features/dashboard/DashboardPage.jsx` |
+| S10 | CORS restricted to `process.env.CORS_ORIGIN` | `backend/app.js` |
+
+**New packages installed:**
+- Backend: `helmet`, `express-rate-limit`, `express-validator`, `cookie-parser`
+- Frontend: `dompurify`
+
+**Purpose:** V3 measures the combined impact of security hardening on top of V2 performance. Compare `base-performance` vs `base-performance-security` Lighthouse/Playwright reports to quantify security overhead (or confirm no measurable overhead).
+
+**Key files modified:**
+- `backend/app.js`
+- `backend/controllers/auth.controller.js`
+- `backend/middleware/auth.middleware.js`
+- `backend/routes/auth.routes.js`, `account.routes.js`, `payments.routes.js`
+- `backend/package.json`
+- `frontend/src/api/axios.js`
+- `frontend/src/store/useAuthStore.js`
+- `frontend/src/features/auth/SignInPage.jsx`
+- `frontend/src/features/transations/TransactionsPage.jsx`
+- `frontend/src/features/accounts/AccountsPage.jsx`
+- `frontend/src/features/dashboard/DashboardPage.jsx`
+- `frontend/package.json`
+- `.env`, `.env.example`
+
+---
+
 ### 2026-04-06 `[FEATURE]` V2 `base-performance` — all P1–P8 techniques implemented
 
 **Branch:** `base-performance` (from `base`)
