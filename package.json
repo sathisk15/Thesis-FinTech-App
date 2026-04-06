@@ -10,7 +10,7 @@
     "dev": "concurrently \"npm run client\" \"npm run server\" ",
     "seed:db": "node backend/config/seed_db.js",
     "audit:lighthouse": "node scripts/runLighthouse.js",
-    "audit:playwright": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance",
+    "audit:playwright": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance --headed",
     "audit:playwright:auth": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/auth.spec.js",
     "audit:playwright:routes": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/route-readiness.spec.js",
     "audit:playwright:dashboard": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/dashboard.spec.js",

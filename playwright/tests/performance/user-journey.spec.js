@@ -119,7 +119,7 @@ test('full realistic user journey', async ({ page }, testInfo) => {
     await page.getByTestId('pay-from-account').selectOption(payOption.value);
     await page.getByTestId('pay-recipient-name').fill('Journey Recipient');
     await page.getByTestId('pay-bank-name').fill('Demo Bank');
-    await page.getByTestId('pay-recipient-account').fill('DE89370400440532013000');
+    await page.getByTestId('pay-recipient-account').fill('DE12345678');
     await page.getByTestId('pay-amount').fill('15');
     await page.getByTestId('pay-description').fill('Journey payment');
     await page.getByTestId('pay-submit').click();

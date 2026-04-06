@@ -51,7 +51,8 @@ const TransactionPage = () => {
     search ||
     minAmount ||
     maxAmount ||
-    flow !== 'all';
+    flow !== 'all' ||
+    sortBy !== 'date-desc';
 
   const filteredTransactions = useMemo(() => {
     let data = [...transactions];
