@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   CartesianGrid,
   Legend,
@@ -55,7 +56,7 @@ const CustomLineChart = ({ chartData, labelFilter }) => {
   );
 };
 
-export default CustomLineChart;
+export default memo(CustomLineChart);
 
 const RANGE_FILTERS = [
   { label: '1M', value: '1m' },
@@ -67,7 +68,7 @@ const RANGE_FILTERS = [
   // { label: 'ALL', value: 'all' },
 ];
 
-export const RangeFilterChips = ({ value, onChange }) => {
+export const RangeFilterChips = memo(({ value, onChange }) => {
   return (
     <div className="flex gap-2 flex-wrap">
       {RANGE_FILTERS.map((range) => {
@@ -94,7 +95,7 @@ export const RangeFilterChips = ({ value, onChange }) => {
       })}
     </div>
   );
-};
+});
 
 const LABEL_FILTERS = [
   { label: '1D', value: '1d' },
@@ -105,7 +106,7 @@ const LABEL_FILTERS = [
   { label: '6M', value: '6m' },
 ];
 
-export const LabelFilterChips = ({ value, onChange }) => {
+export const LabelFilterChips = memo(({ value, onChange }) => {
   return (
     <div className="flex gap-2 flex-wrap">
       {LABEL_FILTERS.map((labelItem) => {
@@ -131,4 +132,4 @@ export const LabelFilterChips = ({ value, onChange }) => {
       })}
     </div>
   );
-};
+});

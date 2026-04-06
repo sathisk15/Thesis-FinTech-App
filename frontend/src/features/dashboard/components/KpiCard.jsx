@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * KpiCard
@@ -54,4 +54,4 @@ const KpiCard = ({ label, value, change, icon }) => {
   );
 };
 
-export default KpiCard;
+export default memo(KpiCard);

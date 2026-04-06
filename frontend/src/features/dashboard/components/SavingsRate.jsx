@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * SavingsRate
@@ -67,4 +67,4 @@ const SavingsRate = ({ totalIncome, totalExpense }) => {
   );
 };
 
-export default SavingsRate;
+export default memo(SavingsRate);

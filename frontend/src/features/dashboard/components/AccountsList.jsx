@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * AccountsList
@@ -60,4 +60,4 @@ const AccountsList = ({ accounts }) => {
   );
 };
 
-export default AccountsList;
+export default memo(AccountsList);

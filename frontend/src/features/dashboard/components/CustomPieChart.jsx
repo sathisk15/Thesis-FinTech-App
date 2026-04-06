@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Sector } from 'recharts';
 const CustomPieChart = ({ data, title }) => {
@@ -80,4 +80,4 @@ const CustomPieChart = ({ data, title }) => {
   );
 };
 
-export default CustomPieChart;
+export default memo(CustomPieChart);

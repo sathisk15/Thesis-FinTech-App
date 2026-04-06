@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BsArrowUpRight, BsArrowDownRight, BsGraphUp } from 'react-icons/bs';
 import {
   GiExpense,
@@ -438,4 +439,4 @@ const KpiGrid = ({ transactions }) => {
   );
 };
 
-export default KpiGrid;
+export default memo(KpiGrid);

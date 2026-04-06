@@ -1,4 +1,6 @@
-export const AccountFilterDropdown = ({
+import { memo } from 'react';
+
+export const AccountFilterDropdown = memo(({
   accounts,
   selectedAccountId,
   onChange,
@@ -27,4 +29,4 @@ export const AccountFilterDropdown = ({
       ))}
     </select>
   );
-};
+});

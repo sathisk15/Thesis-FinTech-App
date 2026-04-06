@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * LatestTransactions
@@ -53,4 +53,4 @@ const LatestTransactions = ({ transactions }) => {
   );
 };
 
-export default LatestTransactions;
+export default memo(LatestTransactions);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 const TIME_RANGES = [
   { label: 'All', value: 'all_time' },
   { label: 'This Month', value: 'this_month' },
@@ -36,4 +37,4 @@ const TimeRangeFilterChips = ({ value, onChange }) => {
   );
 };
 
-export default TimeRangeFilterChips;
+export default memo(TimeRangeFilterChips);

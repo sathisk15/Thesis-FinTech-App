@@ -1,3 +1,4 @@
+import { memo } from 'react';
 const DashboardHeader = ({
   accounts,
   setSelectedAccountId,
@@ -49,4 +50,4 @@ const DashboardHeader = ({
   );
 };
 
-export default DashboardHeader;
+export default memo(DashboardHeader);

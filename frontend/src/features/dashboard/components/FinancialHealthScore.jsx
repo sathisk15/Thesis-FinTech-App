@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * Financial Health Score
@@ -118,4 +118,4 @@ const FinancialHealthScore = ({
   );
 };
 
-export default FinancialHealthScore;
+export default memo(FinancialHealthScore);

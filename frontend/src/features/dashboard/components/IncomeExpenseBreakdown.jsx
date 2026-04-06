@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * IncomeExpenseBreakdown
@@ -50,4 +50,4 @@ const IncomeExpenseBreakdown = ({
   );
 };
 
-export default IncomeExpenseBreakdown;
+export default memo(IncomeExpenseBreakdown);

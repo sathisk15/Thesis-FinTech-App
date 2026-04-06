@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 /**
  * MonthlyComparison
@@ -86,4 +86,4 @@ const MonthlyComparison = ({
   );
 };
 
-export default MonthlyComparison;
+export default memo(MonthlyComparison);
