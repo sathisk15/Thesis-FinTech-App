@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
 import { FiX } from 'react-icons/fi';
@@ -167,7 +168,8 @@ const DashboardPage = () => {
   } = useMemo(() => {
     const expenseByCategory = finalPieChartTransactions.reduce((acc, tx) => {
       if (!(tx.type === 'debit' || tx.type === 'withdrawal')) return acc;
-      const category = tx.description || 'Others';
+      // S9: sanitize description used as chart category label
+      const category = DOMPurify.sanitize(tx.description || 'Others');
       acc[category] = (acc[category] || 0) + Number(tx.amount);
       return acc;
     }, {});
@@ -256,7 +258,11 @@ const DashboardPage = () => {
     const filtered = selectedTransActiviyAccountId === 'all'
       ? transactions
       : transactions.filter((tx) => tx.account_id === Number(selectedTransActiviyAccountId));
-    return [...filtered].sort((a, b) => new Date(b.createdat) - new Date(a.createdat)).slice(0, 5);
+    return [...filtered]
+      .sort((a, b) => new Date(b.createdat) - new Date(a.createdat))
+      .slice(0, 5)
+      // S9: sanitize description before passing to LatestTransactions for rendering
+      .map((tx) => ({ ...tx, description: DOMPurify.sanitize(tx.description || '') }));
   }, [transactions, selectedTransActiviyAccountId]);
 
   /* ================= UI RENDERING ================= */

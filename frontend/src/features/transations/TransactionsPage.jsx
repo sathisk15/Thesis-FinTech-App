@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FixedSizeList } from 'react-window';
+import DOMPurify from 'dompurify';
 import { useAccountStore } from '../../store/useAccountStore';
 import { useTransactionStore } from '../../store/useTransactionStore';
 
@@ -37,7 +38,8 @@ const TransactionRow = ({ index, style, data }) => {
         {account ? `${account.account_type} •••• ${account.account_number?.slice(-4)}` : '—'}
       </div>
       <div className="px-4 flex items-center text-sm text-text/80 truncate">
-        {tx.description || '—'}
+        {/* S9: sanitize description before rendering to prevent stored XSS */}
+        {DOMPurify.sanitize(tx.description || '—')}
       </div>
       <div className="px-4 flex items-center text-sm capitalize">{tx.type}</div>
       <div className={`px-4 flex items-center justify-end text-sm font-medium ${isIncoming ? 'text-green-500' : 'text-red-500'}`}>

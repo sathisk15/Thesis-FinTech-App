@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { useAccountStore } from '../../store/useAccountStore';
 import AddAccount from './components/AddAccount';
 import AccountCard from './components/AccountCard';
@@ -113,7 +114,12 @@ const AccountsPage = () => {
             {accounts.map((account) => (
               <AccountCard
                 key={account.id}
-                account={account}
+                account={{
+                  ...account,
+                  // S9: sanitize user-controlled strings before rendering
+                  account_name: DOMPurify.sanitize(account.account_name || ''),
+                  account_type: DOMPurify.sanitize(account.account_type || ''),
+                }}
                 setTransferFrom={setTransferFrom}
                 setShowTransferModal={setShowTransferModal}
                 setPayForm={setPayForm}
