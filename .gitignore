@@ -11,3 +11,4 @@ frontend/dist
 backend/db/banking_app.db
 performance-reports
 playwright/test-results
+ACTIVITY_LOG.md
