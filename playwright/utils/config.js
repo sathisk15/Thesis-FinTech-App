@@ -23,6 +23,6 @@ export const resultsLabel =
 
 export const playwrightReportDir = path.resolve(
   process.cwd(),
-  'reports',
+  'performance-reports',
   'playwright',
 );
