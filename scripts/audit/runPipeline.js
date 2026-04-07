@@ -10,7 +10,7 @@
  *   THESIS_VARIANT=base-performance-security npm run audit:pipeline
  */
 
-import '../config/loadEnv.js';
+import '../../config/loadEnv.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -127,7 +127,7 @@ function main() {
 
   // 1. Lighthouse
   run(
-    `AUDIT_LABEL=${LABEL} THESIS_VARIANT=${VARIANT} node scripts/runLighthouse.js`,
+    `AUDIT_LABEL=${LABEL} THESIS_VARIANT=${VARIANT} node scripts/audit/runLighthouse.js`,
     'Lighthouse audit',
   );
 
@@ -138,7 +138,7 @@ function main() {
   );
 
   // 3. Playwright summary
-  run('node scripts/summarizePlaywrightReports.js', 'Playwright summary');
+  run('node scripts/audit/summarizePlaywrightReports.js', 'Playwright summary');
 
   // 4. Auto-log results to ACTIVITY_LOG.md
   const git = getGitMeta();

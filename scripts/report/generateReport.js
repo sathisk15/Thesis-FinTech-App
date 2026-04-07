@@ -9,7 +9,7 @@
  *   node scripts/generateReport.js
  */
 
-import '../config/loadEnv.js';
+import '../../config/loadEnv.js';
 import fs from 'fs';
 import path from 'path';
 
