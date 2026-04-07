@@ -63,6 +63,7 @@ function buildMetrics(report, measurements) {
       max: round(Math.max(...values)),
       std: round(getStdDev(values)),
       p95: getP95(values),
+      n: values.length,
     };
   }
 }
