@@ -154,6 +154,8 @@ function computeStatistics(results) {
     statistics[`${metric}_std`]  = std(values);
   });
 
+  statistics['n'] = results.length;
+
   return statistics;
 }
 

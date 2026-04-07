@@ -472,17 +472,16 @@ const errorBarPlugin = {
         if (std == null || std === 0 || val == null) return;
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(71,85,105,0.65)';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(30,41,59,0.75)';
+        ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.beginPath();
 
         if (isHoriz) {
           const cy   = bar.y;
-          const xVal = vScale.getPixelForValue(val);
           const xHi  = vScale.getPixelForValue(val + std);
           const xLo  = vScale.getPixelForValue(Math.max(0, val - std));
-          const cap  = 4;
+          const cap  = 6;
           ctx.moveTo(xLo, cy - cap); ctx.lineTo(xLo, cy + cap);
           ctx.moveTo(xLo, cy);       ctx.lineTo(xHi, cy);
           ctx.moveTo(xHi, cy - cap); ctx.lineTo(xHi, cy + cap);
@@ -490,7 +489,7 @@ const errorBarPlugin = {
           const cx  = bar.x;
           const yHi = vScale.getPixelForValue(val + std);
           const yLo = vScale.getPixelForValue(Math.max(0, val - std));
-          const cap = 5;
+          const cap = 6;
           ctx.moveTo(cx, yHi);       ctx.lineTo(cx, yLo);
           ctx.moveTo(cx - cap, yHi); ctx.lineTo(cx + cap, yHi);
           ctx.moveTo(cx - cap, yLo); ctx.lineTo(cx + cap, yLo);
@@ -515,9 +514,18 @@ function buildVariantCards() {
     const barW = avg != null ? Math.min(100, avg) : 0;
     const barC = avg != null ? scoreColor(avg) : '#94a3b8';
 
-    // PW journey time
+    // n runs from LH data (stored at statistics level)
+    const firstPageStats = pages[0];
+    const lhN = firstPageStats?.n ?? null;
+
+    // PW journey time + n runs
     const journey = PW_DATA['full-finance-user-journey']?.[v]?.['full_user_journey_ms'];
     const journeyStr = journey ? fmtMs(journey.mean) : '—';
+    const pwN = journey?.n ?? null;
+
+    const nBadge = lhN != null
+      ? \`<span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:\${vc.bg};color:\${vc.solid}">n = \${lhN} runs</span>\`
+      : '';
 
     return \`
     <div class="variant-card \${vc.cls}">
@@ -526,10 +534,12 @@ function buildVariantCards() {
           <div class="vc-label \${vc.cls}">\${vc.label} — \${VARIANT_LABELS[v].split('— ')[1]}</div>
           <div class="vc-score \${vc.cls}">\${avg != null ? avg.toFixed(1) : '—'}</div>
           <div class="vc-score-label">avg Lighthouse score</div>
+          \${nBadge}
         </div>
         <div style="text-align:right">
           <div style="font-size:11px;color:#64748b;margin-bottom:2px">Full Journey</div>
           <div style="font-size:17px;font-weight:700;color:\${vc.solid}">\${journeyStr}</div>
+          \${pwN != null ? \`<div style="font-size:10px;color:#94a3b8;margin-top:2px">n = \${pwN} runs</div>\` : ''}
         </div>
       </div>
       <div class="vc-desc">\${VARIANT_DESC[v]}</div>
@@ -621,6 +631,17 @@ function buildLhChart() {
     borderSkipped:   false,
   }));
 
+  // Derive n for subtitle
+  const lhNSample = (() => {
+    for (const v of VARIANTS) {
+      const pages2 = LH_DATA[v] ? Object.values(LH_DATA[v]) : [];
+      if (pages2[0]?.n != null) return pages2[0].n;
+    }
+    return null;
+  })();
+  document.querySelector('#lh-chart-panel .panel-title').textContent =
+    \`All pages — grouped by variant\${lhNSample != null ? \`  ·  n = \${lhNSample} runs per page  ·  whiskers = ±1σ\` : '  ·  whiskers = ±1σ'}\`;
+
   if (lhChart) lhChart.destroy();
   lhChart = new Chart(document.getElementById('lh-chart'), {
     type: 'bar',
@@ -637,7 +658,7 @@ function buildLhChart() {
               const d   = LH_DATA[v]?.[page];
               if (!d) return null;
               const val = fmt(ctx.raw, lhMetric);
-              const rng = \` (min \${fmt(d[\`\${lhMetric}_min\`], lhMetric)} – max \${fmt(d[\`\${lhMetric}_max\`], lhMetric)})\`;
+              const rng = \` (min \${fmt(d[\`\${lhMetric}_min\`], lhMetric)} – max \${fmt(d[\`\${lhMetric}_max\`], lhMetric)} · σ \${fmt(d[\`\${lhMetric}_std\`], lhMetric)})\`;
               return \` \${VARIANT_LABELS[v]}: \${val}\${rng}\`;
             }
           }
@@ -677,7 +698,7 @@ function buildLhTable() {
 
     // sub-stats for tooltip-like display
     const v1d = LH_DATA['base']?.[page];
-    const subV1 = v1d ? \`min \${fmt(v1d[\`\${lhMetric}_min\`],lhMetric)} · max \${fmt(v1d[\`\${lhMetric}_max\`],lhMetric)} · p95 \${fmt(v1d[\`\${lhMetric}_p95\`]??v1d[\`\${lhMetric}_max\`],lhMetric)}\` : '';
+    const subV1 = v1d ? \`min \${fmt(v1d[\`\${lhMetric}_min\`],lhMetric)} · max \${fmt(v1d[\`\${lhMetric}_max\`],lhMetric)} · σ \${fmt(v1d[\`\${lhMetric}_std\`],lhMetric)}\` : '';
 
     const scoreBar = (val) => {
       if (lhMetric !== 'performance' || val == null) return '';
@@ -762,8 +783,16 @@ function buildPwChart() {
   }));
 
   const isHoriz = metrics.length > 4;
+  const pwNSample = (() => {
+    for (const v of VARIANTS) {
+      const firstMetric = metrics[0];
+      const n = suiteData[v]?.[firstMetric]?.n;
+      if (n != null) return n;
+    }
+    return null;
+  })();
   document.getElementById('pw-panel-title').textContent =
-    \`\${SUITE_LABELS[pwSuite]||pwSuite} — \${pwStat.toUpperCase()} durations\`;
+    \`\${SUITE_LABELS[pwSuite]||pwSuite} — \${pwStat.toUpperCase()} durations\${pwNSample != null ? \`  ·  n = \${pwNSample} runs  ·  whiskers = ±1σ\` : '  ·  whiskers = ±1σ'}\`;
 
   if (pwChart) pwChart.destroy();
   pwChart = new Chart(document.getElementById('pw-chart'), {
@@ -829,7 +858,7 @@ function buildPwTable() {
     const s3 = suiteData['base-performance-security']?.[m];
 
     const subStats = (s) => s
-      ? \`min \${fmtMs(s.min)} · max \${fmtMs(s.max)} · σ \${fmtMs(s.std)}\`
+      ? \`min \${fmtMs(s.min)} · max \${fmtMs(s.max)} · σ \${fmtMs(s.std)}\${s.n != null ? \` · n=\${s.n}\` : ''}\`
       : '';
 
     html += \`<tr>
