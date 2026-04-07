@@ -4,8 +4,8 @@
 # in dev mode, then commits the generated reports back to the `base` branch.
 #
 # Usage (from repo root):
-#   chmod +x scripts/run-base-audit.sh   # first time only
-#   ./scripts/run-base-audit.sh
+#   chmod +x scripts/runners/run-base-audit.sh   # first time only
+#   ./scripts/runners/run-base-audit.sh
 
 set -e
 

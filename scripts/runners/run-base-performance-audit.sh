@@ -4,8 +4,8 @@
 # using a production build served via `vite preview` on port 5173.
 #
 # Usage (from repo root):
-#   chmod +x scripts/run-base-performance-audit.sh   # first time only
-#   ./scripts/run-base-performance-audit.sh
+#   chmod +x scripts/runners/run-base-performance-audit.sh   # first time only
+#   ./scripts/runners/run-base-performance-audit.sh
 
 set -e
 
