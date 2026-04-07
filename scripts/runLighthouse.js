@@ -211,7 +211,7 @@ function saveReport(metrics) {
     ...metrics,
   };
 
-  const lighthouseDir = path.resolve('reports', 'lighthouse');
+  const lighthouseDir = path.resolve('performance-reports', 'lighthouse');
   const historyDir = path.join(lighthouseDir, 'history');
 
   fs.mkdirSync(historyDir, { recursive: true });

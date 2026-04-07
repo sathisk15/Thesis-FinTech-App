@@ -17,7 +17,7 @@ export default defineConfig({
   outputDir: './test-results',
   reporter: [
     ['list'],
-    ['json', { outputFile: '../reports/playwright/pw_results.json' }],
+    ['json', { outputFile: '../performance-reports/playwright/pw_results.json' }],
   ],
   repeatEach: Number(process.env.PLAYWRIGHT_REPEAT_EACH || 3),
   use: {

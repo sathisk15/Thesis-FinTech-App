@@ -21,6 +21,7 @@
     "audit:playwright:journey": "npx playwright test --config=playwright/playwright.config.js playwright/tests/performance/user-journey.spec.js",
     "audit:playwright:list": "npx playwright test --config=playwright/playwright.config.js --list",
     "audit:playwright:summary": "node scripts/summarizePlaywrightReports.js",
+    "audit:report": "node scripts/generateReport.js",
     "audit:playwright:compare": "node scripts/comparePlaywright.js",
     "audit:all": "npm run audit:lighthouse && npm run audit:playwright",
     "audit:compare": "node scripts/compareReports.js",
