@@ -9,7 +9,7 @@
 
 set -e
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
 BACKEND_PID=""
@@ -135,7 +135,7 @@ BACKEND_PID=""
 echo ""
 echo "── Committing reports to base-performance-security branch ──────────"
 
-git add reports/
+git add performance-reports/
 
 if git diff --cached --quiet; then
   echo "  No report changes to commit (reports unchanged)."
@@ -154,6 +154,8 @@ performance-reports/playwright/summary.json
 
 ACTIVITY_LOG.md
 - Auto-updated by runPipeline.js with [MEASUREMENT] entry
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 EOF
 )"
   echo "  ✓ Reports committed on base-performance-security branch"
