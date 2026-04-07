@@ -319,6 +319,7 @@ const html = `<!DOCTYPE html>
           <button class="pill active" data-stat="mean">Mean</button>
           <button class="pill" data-stat="min">Min</button>
           <button class="pill" data-stat="max">Max</button>
+          <button class="pill" data-stat="std">Std σ</button>
         </div>
       </div>
       <div class="ctrl-group" style="margin-left:auto">
@@ -365,6 +366,7 @@ const html = `<!DOCTYPE html>
           <button class="pill" data-stat="min">Min</button>
           <button class="pill" data-stat="max">Max</button>
           <button class="pill" data-stat="p95">P95</button>
+          <button class="pill" data-stat="std">Std σ</button>
         </div>
       </div>
       <div class="ctrl-group" style="margin-left:auto">
