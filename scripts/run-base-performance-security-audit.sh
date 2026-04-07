@@ -143,13 +143,13 @@ else
   git commit -m "$(cat <<'EOF'
 measurement(base-performance-security): audit pipeline run — Lighthouse + Playwright
 
-reports/lighthouse/base-performance-security.json
+performance-reports/lighthouse/base-performance-security.json
 - Updated Lighthouse performance scores for V3 (prod build, vite preview)
 
-reports/playwright/base-performance-security.*.performance.json
+performance-reports/playwright/base-performance-security.*.performance.json
 - Updated Playwright timing metrics for all 8 spec suites
 
-reports/playwright/summary.json
+performance-reports/playwright/summary.json
 - Aggregated summary across all Playwright specs
 
 ACTIVITY_LOG.md
@@ -162,7 +162,7 @@ fi
 echo ""
 echo "══════════════════════════════════════════════════════════════"
 echo "  DONE — base-performance-security audit complete (prod build)"
-echo "  Reports: reports/lighthouse/base-performance-security.json"
-echo "           reports/playwright/base-performance-security.*.performance.json"
+echo "  Reports: performance-reports/lighthouse/base-performance-security.json"
+echo "           performance-reports/playwright/base-performance-security.*.performance.json"
 echo "══════════════════════════════════════════════════════════════"
 echo ""
