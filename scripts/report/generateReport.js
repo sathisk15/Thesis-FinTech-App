@@ -87,78 +87,102 @@ const html = `<!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"><\/script>
 <style>
   :root {
-    --bg:        #0f172a;
-    --surface:   #1e293b;
-    --border:    #334155;
-    --text:      #e2e8f0;
-    --muted:     #94a3b8;
-    --accent:    #38bdf8;
-    --v1:        #f87171;
-    --v2:        #60a5fa;
-    --v3:        #34d399;
-    --v1-dim:    rgba(248,113,113,0.15);
-    --v2-dim:    rgba(96,165,250,0.15);
-    --v3-dim:    rgba(52,211,153,0.15);
-    --radius:    10px;
+    --bg:        #f8fafc;
+    --surface:   #ffffff;
+    --border:    #e2e8f0;
+    --text:      #0f172a;
+    --muted:     #64748b;
+    --accent:    #2563eb;
+    --v1:        #dc2626;
+    --v2:        #2563eb;
+    --v3:        #16a34a;
+    --v1-dim:    rgba(220,38,38,0.10);
+    --v2-dim:    rgba(37,99,235,0.10);
+    --v3-dim:    rgba(22,163,74,0.10);
+    --radius:    12px;
+    --shadow:    0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
   a { color: var(--accent); }
 
+  /* ── top navbar (mirrors app header) ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: rgba(248,250,252,0.85); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(37,99,235,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--accent);
+  }
+  .topbar-title { font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: var(--text); }
+  .topbar-title span { color: var(--accent); }
+  .topbar-meta { font-size: 12px; color: var(--muted); }
+
   /* layout */
-  .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
-  .header { margin-bottom: 32px; }
-  .header h1 { font-size: 26px; font-weight: 700; color: #f8fafc; }
-  .header p  { color: var(--muted); margin-top: 6px; font-size: 13px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 24px 48px; }
 
   /* legend */
-  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
   /* summary cards */
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow); transition: border-color .2s;
+  }
+  .card:hover { border-color: rgba(37,99,235,0.3); }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
   .card-value { font-size: 28px; font-weight: 700; }
   .card-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .card-delta { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-  .delta-good { background: rgba(52,211,153,.15); color: #34d399; }
-  .delta-bad  { background: rgba(248,113,113,.15); color: #f87171; }
+  .delta-good { background: rgba(22,163,74,.12); color: #16a34a; }
+  .delta-bad  { background: rgba(220,38,38,.12); color: #dc2626; }
 
   /* section */
   .section { margin-bottom: 48px; }
-  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .section-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; color: var(--text); }
   .section-title span { font-size: 13px; font-weight: 400; color: var(--muted); }
 
   /* controls */
   .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; align-items: center; }
   .control-group { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; transition: all .15s; }
-  .pill:hover { border-color: var(--accent); color: var(--text); }
-  .pill.active { background: var(--accent); border-color: var(--accent); color: #0f172a; font-weight: 600; }
-  label.ctrl-label { font-size: 12px; color: var(--muted); align-self: center; }
+  .pill { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 13px; transition: all .15s; }
+  .pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(37,99,235,0.05); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  .ctrl-label { font-size: 12px; color: var(--muted); align-self: center; }
 
   /* chart wrapper */
-  .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+  .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); }
   .chart-container { position: relative; }
 
   /* table */
   .tbl-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td { padding: 10px 14px; border-bottom: 1px solid rgba(51,65,85,.5); white-space: nowrap; }
+  th { padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--bg); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-  .val-v1 { color: var(--v1); }
-  .val-v2 { color: var(--v2); }
-  .val-v3 { color: var(--v3); }
-  .delta { font-size: 12px; padding: 2px 7px; border-radius: 999px; }
-  .better { background: rgba(52,211,153,.12); color: #34d399; }
-  .worse  { background: rgba(248,113,113,.12); color: #f87171; }
+  tr:hover td { background: rgba(37,99,235,0.03); }
+  .val-v1 { color: var(--v1); font-weight: 600; }
+  .val-v2 { color: var(--v2); font-weight: 600; }
+  .val-v3 { color: var(--v3); font-weight: 600; }
+  .delta { font-size: 12px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+  .better { background: rgba(22,163,74,.10); color: #16a34a; }
+  .worse  { background: rgba(220,38,38,.10); color: #dc2626; }
   .same   { color: var(--muted); }
   .metric-name { color: var(--text); font-weight: 500; }
-  .page-name { font-weight: 600; color: #f8fafc; }
+  .page-name { font-weight: 600; color: var(--text); }
 
   /* toggle show table */
   .tbl-toggle { font-size: 12px; color: var(--muted); cursor: pointer; margin-bottom: 12px; user-select: none; }
@@ -167,18 +191,24 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-<div class="container">
 
-  <!-- Header -->
-  <div class="header">
-    <h1>Thesis Performance Report</h1>
-    <p>V1 (Base) → V2 (Performance Optimisations) → V3 (Security Hardening) &nbsp;·&nbsp; Generated ${generated.slice(0,10)} ${generated.slice(11,16)} UTC</p>
+  <!-- Top Navbar (mirrors app header) -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">&#9684;</div>
+      <div>
+        <div class="topbar-title">E<span>-</span>Wallet &nbsp;<span style="color:var(--muted);font-weight:400;font-size:13px">·</span>&nbsp; Performance Report</div>
+      </div>
+    </div>
+    <div class="topbar-meta">V1 → V2 → V3 &nbsp;·&nbsp; Generated ${generated.slice(0,10)} ${generated.slice(11,16)} UTC</div>
   </div>
+
+<div class="container">
 
   <!-- Legend -->
   <div class="legend">
     <div class="legend-item"><div class="dot" style="background:var(--v1)"></div> V1 — Base (no optimisations)</div>
-    <div class="legend-item"><div class="dot" style="background:var(--v2)"></div> V2 — Performance (P1–P8)</div>
+    <div class="legend-item"><div class="dot" style="background:var(--v2)"></div> V2 — Performance (P1–P7)</div>
     <div class="legend-item"><div class="dot" style="background:var(--v3)"></div> V3 — Security (S1–S10)</div>
   </div>
 
@@ -262,8 +292,8 @@ const METRIC_LABELS  = ${JSON.stringify(METRIC_LABELS)};
 const LH_DATA = ${JSON.stringify(lhData)};
 const PW_DATA = ${JSON.stringify(pwData)};
 
-const V_COLORS       = { 'base': '#f87171', 'base-performance': '#60a5fa', 'base-performance-security': '#34d399' };
-const V_COLORS_ALPHA = { 'base': 'rgba(248,113,113,.18)', 'base-performance': 'rgba(96,165,250,.18)', 'base-performance-security': 'rgba(52,211,153,.18)' };
+const V_COLORS       = { 'base': '#dc2626', 'base-performance': '#2563eb', 'base-performance-security': '#16a34a' };
+const V_COLORS_ALPHA = { 'base': 'rgba(220,38,38,.12)', 'base-performance': 'rgba(37,99,235,.12)', 'base-performance-security': 'rgba(22,163,74,.12)' };
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function fmt(v, metric) {
@@ -307,7 +337,7 @@ function buildSummaryCards() {
   const jV3   = PW_DATA[jSuite]?.['base-performance-security']?.['full_user_journey_ms'];
   if (jBase && jV3) {
     const pct = ((jBase.mean - jV3.mean) / jBase.mean * 100).toFixed(1);
-    cards.push({ label: 'Full Journey Speedup (V1→V3)', value: pct + '%', sub: \`\${(jBase.mean/1000).toFixed(1)}s → \${(jV3.mean/1000).toFixed(1)}s\`, color: '#34d399' });
+    cards.push({ label: 'Full Journey Speedup (V1→V3)', value: pct + '%', sub: \`\${(jBase.mean/1000).toFixed(1)}s → \${(jV3.mean/1000).toFixed(1)}s\`, color: '#16a34a' });
   }
 
   // Transactions initial load improvement
@@ -316,7 +346,7 @@ function buildSummaryCards() {
   const txV2   = PW_DATA[txSuite]?.['base-performance']?.['transactions_initial_load_ms'];
   if (txBase && txV2) {
     const pct = ((txBase.mean - txV2.mean) / txBase.mean * 100).toFixed(1);
-    cards.push({ label: 'Transactions Load (V1→V2)', value: pct + '%', sub: \`\${txBase.mean.toFixed(0)}ms → \${txV2.mean.toFixed(0)}ms\`, color: '#60a5fa' });
+    cards.push({ label: 'Transactions Load (V1→V2)', value: pct + '%', sub: \`\${txBase.mean.toFixed(0)}ms → \${txV2.mean.toFixed(0)}ms\`, color: '#2563eb' });
   }
 
   el.innerHTML = cards.map(c => \`
@@ -371,7 +401,7 @@ function buildLhChart() {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#94a3b8', font: { size: 12 } } },
+        legend: { labels: { color: '#64748b', font: { size: 12 } } },
         tooltip: {
           callbacks: {
             label: ctx => \` \${ctx.dataset.label}: \${fmt(ctx.raw, lhMetric)}\`
@@ -379,10 +409,10 @@ function buildLhChart() {
         }
       },
       scales: {
-        x: { grid: { color: 'rgba(51,65,85,.5)' }, ticks: { color: '#94a3b8' } },
+        x: { grid: { color: 'rgba(226,232,240,1)' }, ticks: { color: '#64748b' } },
         y: {
-          grid:  { color: 'rgba(51,65,85,.5)' },
-          ticks: { color: '#94a3b8', callback: v => fmt(v, lhMetric) },
+          grid:  { color: 'rgba(226,232,240,1)' },
+          ticks: { color: '#64748b', callback: v => fmt(v, lhMetric) },
           title: { display: true, text: METRIC_LABELS[lhMetric] || lhMetric, color: '#64748b', font: { size: 11 } },
         }
       }
@@ -466,7 +496,7 @@ function buildPwChart() {
       responsive: true, maintainAspectRatio: false,
       indexAxis: mArr.length > 5 ? 'y' : 'x',
       plugins: {
-        legend: { labels: { color: '#94a3b8', font: { size: 12 } } },
+        legend: { labels: { color: '#64748b', font: { size: 12 } } },
         tooltip: {
           callbacks: {
             label: ctx => {
@@ -478,8 +508,8 @@ function buildPwChart() {
         }
       },
       scales: {
-        x: { grid: { color: 'rgba(51,65,85,.5)' }, ticks: { color: '#94a3b8' } },
-        y: { grid: { color: 'rgba(51,65,85,.5)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+        x: { grid: { color: 'rgba(226,232,240,1)' }, ticks: { color: '#64748b' } },
+        y: { grid: { color: 'rgba(226,232,240,1)' }, ticks: { color: '#64748b', font: { size: 11 } } }
       }
     }
   });
