@@ -319,7 +319,6 @@ const html = `<!DOCTYPE html>
           <button class="pill active" data-stat="mean">Mean</button>
           <button class="pill" data-stat="min">Min</button>
           <button class="pill" data-stat="max">Max</button>
-          <button class="pill" data-stat="p95">P95</button>
         </div>
       </div>
       <div class="ctrl-group" style="margin-left:auto">
@@ -403,9 +402,10 @@ const PW_DATA        = ${JSON.stringify(pwData)};
 
 // ── Colors (solid) ───────────────────────────────────────────────────────
 const VC = {
-  'base':                       { solid: '#dc2626', light: '#fca5a5', bg: '#fee2e2', label: 'V1', cls: 'v1' },
-  'base-performance':           { solid: '#2563eb', light: '#93c5fd', bg: '#dbeafe', label: 'V2', cls: 'v2' },
-  'base-performance-security':  { solid: '#16a34a', light: '#86efac', bg: '#dcfce7', label: 'V3', cls: 'v3' },
+  // solid = text/card accent; bar = chart fill (lighter); border = chart stroke (darker)
+  'base':                       { solid: '#dc2626', bar: '#f87171', border: '#b91c1c', bg: '#fee2e2', label: 'V1', cls: 'v1' },
+  'base-performance':           { solid: '#2563eb', bar: '#60a5fa', border: '#1d4ed8', bg: '#dbeafe', label: 'V2', cls: 'v2' },
+  'base-performance-security':  { solid: '#16a34a', bar: '#4ade80', border: '#15803d', bg: '#dcfce7', label: 'V3', cls: 'v3' },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -454,6 +454,55 @@ const CHART_OPTS = {
   grid:  'rgba(226,232,240,1)',
   ticks: '#94a3b8',
 };
+
+// ── Error-bar plugin (std deviation whiskers on bars) ─────────────────────
+const errorBarPlugin = {
+  id: 'errorBars',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const isHoriz = chart.options.indexAxis === 'y';
+    const vScale  = isHoriz ? chart.scales.x : chart.scales.y;
+
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds.errorBars) return;
+      const meta = chart.getDatasetMeta(i);
+      meta.data.forEach((bar, j) => {
+        const std = ds.errorBars[j];
+        const val = ds.data[j];
+        if (std == null || std === 0 || val == null) return;
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(71,85,105,0.65)';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+
+        if (isHoriz) {
+          const cy   = bar.y;
+          const xVal = vScale.getPixelForValue(val);
+          const xHi  = vScale.getPixelForValue(val + std);
+          const xLo  = vScale.getPixelForValue(Math.max(0, val - std));
+          const cap  = 4;
+          ctx.moveTo(xLo, cy - cap); ctx.lineTo(xLo, cy + cap);
+          ctx.moveTo(xLo, cy);       ctx.lineTo(xHi, cy);
+          ctx.moveTo(xHi, cy - cap); ctx.lineTo(xHi, cy + cap);
+        } else {
+          const cx  = bar.x;
+          const yHi = vScale.getPixelForValue(val + std);
+          const yLo = vScale.getPixelForValue(Math.max(0, val - std));
+          const cap = 5;
+          ctx.moveTo(cx, yHi);       ctx.lineTo(cx, yLo);
+          ctx.moveTo(cx - cap, yHi); ctx.lineTo(cx + cap, yHi);
+          ctx.moveTo(cx - cap, yLo); ctx.lineTo(cx + cap, yLo);
+        }
+
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+  }
+};
+Chart.register(errorBarPlugin);
 
 // ── Variant overview cards ────────────────────────────────────────────────
 function buildVariantCards() {
@@ -564,9 +613,10 @@ function buildLhChart() {
   const datasets = VARIANTS.filter(v => LH_DATA[v]).map(v => ({
     label:           VARIANT_LABELS[v],
     data:            pages.map(p => LH_DATA[v]?.[p]?.[key] ?? null),
-    backgroundColor: VC[v].solid,
-    borderColor:     VC[v].solid,
-    borderWidth:     0,
+    errorBars:       pages.map(p => LH_DATA[v]?.[p]?.[\`\${lhMetric}_std\`] ?? null),
+    backgroundColor: VC[v].bar,
+    borderColor:     VC[v].border,
+    borderWidth:     1.5,
     borderRadius:    5,
     borderSkipped:   false,
   }));
@@ -703,9 +753,10 @@ function buildPwChart() {
   const datasets = VARIANTS.filter(v => suiteData[v]).map(v => ({
     label:           VARIANT_LABELS[v],
     data:            metrics.map(m => suiteData[v]?.[m]?.[pwStat] ?? null),
-    backgroundColor: VC[v].solid,
-    borderColor:     VC[v].solid,
-    borderWidth:     0,
+    errorBars:       metrics.map(m => suiteData[v]?.[m]?.std ?? null),
+    backgroundColor: VC[v].bar,
+    borderColor:     VC[v].border,
+    borderWidth:     1.5,
     borderRadius:    4,
     borderSkipped:   false,
   }));
