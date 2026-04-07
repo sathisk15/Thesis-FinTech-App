@@ -24,14 +24,22 @@ if (reportFiles.length === 0) {
 const reports = reportFiles.map((file) => {
   const fullPath = path.join(reportsDir, file);
   const report = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+  const meta = report._meta || {};
+
+  // Build summary from metric keys (everything except _meta)
+  const summary = {};
+  for (const [key, value] of Object.entries(report)) {
+    if (key === '_meta') continue;
+    summary[key] = value.statistics;
+  }
 
   return {
     file,
-    suite: report.suite,
-    variant: report.variant,
-    report_label: report.report_label,
-    generated_at: report.generated_at,
-    summary: report.summary,
+    suite: meta.suite,
+    variant: meta.variant,
+    label: meta.label,
+    generated_at: meta.timestamp,
+    summary,
   };
 });
 
@@ -50,7 +58,7 @@ for (const r of reports) {
   if (r.summary && Object.keys(r.summary).length > 0) {
     const top = Object.entries(r.summary)
       .slice(0, 5)
-      .map(([name, s]) => `${name}: ${s.mean_ms}ms`)
+      .map(([name, s]) => `${name}: ${s.mean}ms`)
       .join('  |  ');
     console.log(`    ${top}`);
   }
