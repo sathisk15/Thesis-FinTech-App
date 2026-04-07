@@ -43,7 +43,7 @@ function getGitMeta() {
 }
 
 function readLighthouseResults() {
-  const filePath = path.resolve('reports', 'lighthouse', `${LABEL}.json`);
+  const filePath = path.resolve('performance-reports', 'lighthouse', `${LABEL}.json`);
   if (!fs.existsSync(filePath)) return null;
   try {
     const report = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -58,7 +58,7 @@ function readLighthouseResults() {
 }
 
 function readPlaywrightResults() {
-  const summaryPath = path.resolve('reports', 'playwright', 'summary.json');
+  const summaryPath = path.resolve('performance-reports', 'playwright', 'summary.json');
   if (!fs.existsSync(summaryPath)) return null;
   try {
     const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
@@ -86,11 +86,11 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
 
   const lhSection = lighthouseLines
     ? `- Lighthouse scores (mean): ${lighthouseLines.join(', ')}`
-    : '- Lighthouse: see reports/lighthouse/' + LABEL + '.json';
+    : '- Lighthouse: see performance-reports/lighthouse/' + LABEL + '.json';
 
   const pwSection = playwrightLines
     ? `- Playwright key timings (mean): ${playwrightLines.join(', ')}`
-    : '- Playwright: see reports/playwright/summary.json';
+    : '- Playwright: see performance-reports/playwright/summary.json';
 
   const entry = `
 ### ${today} ${time} \`[MEASUREMENT]\`
@@ -98,7 +98,7 @@ function appendActivityLog(git, lighthouseLines, playwrightLines) {
 ${lhSection}
 ${pwSection}
 - Commit: \`${git.hash}\` (branch: \`${git.branch}\`)
-- Reports: \`reports/lighthouse/${LABEL}.json\`, \`reports/playwright/summary.json\`
+- Reports: \`performance-reports/lighthouse/${LABEL}.json\`, \`performance-reports/playwright/summary.json\`
 - **Purpose:** Measurement run for thesis variant ${VARIANT}
 
 ---

@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-const reportsDir = path.resolve('reports', 'playwright');
+const reportsDir = path.resolve('performance-reports', 'playwright');
 const outputPath = path.join(reportsDir, 'summary.json');
 
 const EXCLUDED_FILES = new Set(['summary.json', 'pw_results.json']);
 
 if (!fs.existsSync(reportsDir)) {
-  console.error('No Playwright reports directory found at reports/playwright');
+  console.error('No Playwright reports directory found at performance-reports/playwright');
   process.exit(1);
 }
 

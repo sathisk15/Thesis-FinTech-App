@@ -9,5 +9,5 @@ frontend/.DS_Store
 frontend/lighthouse/.DS_Store
 frontend/dist
 backend/db/banking_app.db
-reports
+performance-reports
 playwright/test-results

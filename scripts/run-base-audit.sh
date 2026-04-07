@@ -123,7 +123,7 @@ BACKEND_PID=""
 echo ""
 echo "── Committing reports to base branch ───────────────────────────────"
 
-git add reports/
+git add performance-reports/
 
 if git diff --cached --quiet; then
   echo "  No report changes to commit (reports unchanged)."
@@ -131,13 +131,13 @@ else
   git commit -m "$(cat <<'EOF'
 measurement(base): audit pipeline run — Lighthouse + Playwright
 
-reports/lighthouse/base.json
+performance-reports/lighthouse/base.json
 - Updated Lighthouse performance scores for V1 baseline (dev mode)
 
-reports/playwright/base.*.performance.json
+performance-reports/playwright/base.*.performance.json
 - Updated Playwright timing metrics for all 8 spec suites
 
-reports/playwright/summary.json
+performance-reports/playwright/summary.json
 - Aggregated summary across all Playwright specs
 
 ACTIVITY_LOG.md
@@ -152,7 +152,7 @@ fi
 echo ""
 echo "══════════════════════════════════════════════════════════════"
 echo "  DONE — base audit complete"
-echo "  Reports: reports/lighthouse/base.json"
-echo "           reports/playwright/base.*.performance.json"
+echo "  Reports: performance-reports/lighthouse/base.json"
+echo "           performance-reports/playwright/base.*.performance.json"
 echo "══════════════════════════════════════════════════════════════"
 echo ""
