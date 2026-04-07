@@ -1,4 +1,4 @@
-import '../config/loadEnv.js';
+import '../../config/loadEnv.js';
 import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import fs from 'fs';

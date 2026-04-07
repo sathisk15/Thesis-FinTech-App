@@ -6,8 +6,8 @@
 # ACTIVITY_LOG.md is gitignored so branch switches don't cause conflicts.
 #
 # Usage (from repo root):
-#   chmod +x scripts/run-all-audits.sh   # first time only
-#   ./scripts/run-all-audits.sh
+#   chmod +x scripts/runners/run-all-audits.sh   # first time only
+#   ./scripts/runners/run-all-audits.sh
 
 set -e
 
@@ -227,7 +227,7 @@ echo "  ✓ base-performance-security audit complete"
 # ═════════════════════════════════════════════════════════════════════════════
 echo ""
 echo "── Generating HTML report ──────────────────────────────────────────"
-node scripts/generateReport.js
+node scripts/report/generateReport.js
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
