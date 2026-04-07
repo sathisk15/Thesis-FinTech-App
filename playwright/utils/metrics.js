@@ -11,6 +11,14 @@ function getGitBranch() {
   }
 }
 
+function getCommitHash() {
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: 'pipe' }).toString().trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
 const AUDIT_LABEL = process.env.AUDIT_LABEL || getGitBranch();
 
 function round(value) {
@@ -26,7 +34,6 @@ function getStdDev(values) {
   const mean = getMean(values);
   const variance =
     values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1);
-
   return Math.sqrt(variance);
 }
 
@@ -36,48 +43,45 @@ function getP95(values) {
   return round(sorted[Math.ceil(0.95 * sorted.length) - 1]);
 }
 
-function buildSummary(runs) {
-  if (!runs || runs.length === 0) return {};
-
-  const grouped = new Map();
-
-  for (const run of runs) {
-    if (!run.measurements) continue;
-    for (const measurement of run.measurements) {
-      const entry = grouped.get(measurement.name) || [];
-      entry.push(measurement.duration_ms);
-      grouped.set(measurement.name, entry);
+// Append measurements from one run into the metric-keyed report structure,
+// then recompute statistics for each updated metric.
+function buildMetrics(report, measurements) {
+  for (const { name, duration_ms } of measurements) {
+    if (!report[name]) {
+      report[name] = { runs: [], statistics: {} };
     }
+    report[name].runs.push(round(duration_ms));
   }
 
-  return Object.fromEntries(
-    [...grouped.entries()].map(([name, values]) => [
-      name,
-      {
-        count: values.length,
-        mean_ms: round(getMean(values)),
-        min_ms: round(Math.min(...values)),
-        max_ms: round(Math.max(...values)),
-        p95_ms: getP95(values),
-        std_dev_ms: round(getStdDev(values)),
-      },
-    ]),
-  );
+  // Recompute statistics for every metric after appending
+  for (const key of Object.keys(report)) {
+    if (key === '_meta') continue;
+    const values = report[key].runs;
+    report[key].statistics = {
+      mean: round(getMean(values)),
+      min: round(Math.min(...values)),
+      max: round(Math.max(...values)),
+      std: round(getStdDev(values)),
+      p95: getP95(values),
+    };
+  }
+}
+
+function makeMeta(suiteName) {
+  return {
+    suite: suiteName,
+    variant: thesisVariant,
+    label: AUDIT_LABEL,
+    branch: getGitBranch(),
+    commitHash: getCommitHash(),
+    timestamp: new Date().toISOString(),
+  };
 }
 
 function readExistingReport(filePath, suiteName) {
   if (!fs.existsSync(filePath)) {
-    return {
-      suite: suiteName,
-      variant: thesisVariant,
-      audit_label: AUDIT_LABEL,
-      report_label: resultsLabel,
-      generated_at: new Date().toISOString(),
-      runs: [],
-      summary: {},
-    };
+    return { _meta: makeMeta(suiteName) };
   }
-
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
@@ -90,7 +94,6 @@ export class PerformanceRecorder {
     this.reportName = reportName;
     this.suiteName = suiteName;
     this.testInfo = testInfo;
-    this.startedAt = new Date().toISOString();
     this.measurements = [];
   }
 
@@ -102,54 +105,35 @@ export class PerformanceRecorder {
     this.measurements.push({
       name,
       duration_ms: duration,
-      recorded_at: new Date().toISOString(),
       ...metadata,
     });
 
-    return {
-      result,
-      durationMs: duration,
-    };
+    return { result, durationMs: duration };
   }
 
   record(name, durationMs, metadata = {}) {
     this.measurements.push({
       name,
       duration_ms: round(durationMs),
-      recorded_at: new Date().toISOString(),
       ...metadata,
     });
   }
 
-  flush(extra = {}) {
+  flush() {
     ensureReportDir();
 
-    // Prefix filename with resultsLabel so each variant saves its own file.
-    // e.g. PLAYWRIGHT_RESULTS_LABEL=base → base.route-readiness.performance.json
     const labeledName = resultsLabel
       ? `${resultsLabel}.${this.reportName}`
       : this.reportName;
     const filePath = path.join(playwrightReportDir, labeledName);
     const report = readExistingReport(filePath, this.suiteName);
 
-    report.variant = thesisVariant;
-    report.audit_label = AUDIT_LABEL;
-    report.report_label = resultsLabel;
-    report.generated_at = new Date().toISOString();
-    report.runs.push({
-      test_title: this.testInfo.title,
-      file: this.testInfo.file,
-      browser: this.testInfo.project.name,
-      repeat_each_index: this.testInfo.repeatEachIndex,
-      started_at: this.startedAt,
-      completed_at: new Date().toISOString(),
-      measurements: this.measurements,
-      ...extra,
-    });
-    report.summary = buildSummary(report.runs);
+    // Refresh meta on every flush
+    report._meta = makeMeta(this.suiteName);
+
+    buildMetrics(report, this.measurements);
 
     fs.writeFileSync(filePath, JSON.stringify(report, null, 2));
-
     return filePath;
   }
 }
