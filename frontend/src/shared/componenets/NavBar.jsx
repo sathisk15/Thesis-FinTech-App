@@ -40,8 +40,8 @@ const Navbar = () => {
         <div className="relative group cursor-pointer">
           <div
             className="w-10 h-10 rounded-full
-                       bg-gradient-to-br from-primary/30 to-primary/5
-                       p-[2px]"
+                       bg-linear-to-br from-primary/30 to-primary/5
+                       p-0.5"
           >
             <img
               src={avatar}

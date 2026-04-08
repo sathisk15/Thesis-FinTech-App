@@ -42,7 +42,7 @@ const AppLayout = () => {
                      px-4 py-4 md:px-6 md:py-6"
         >
           {/* Content surface */}
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <Outlet />
           </div>
         </main>
